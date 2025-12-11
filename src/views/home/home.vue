@@ -16,7 +16,10 @@
         下载 PDF
       </button>
     </div>
-    <div id="pdf-content">
+    <div
+      id="pdf-content"
+      class="pdf-export-content"
+    >
       <PinyinComponent :content="documentContent" />
     </div>
   </div>
@@ -45,40 +48,63 @@ const generatePDF = async () => {
   const element = document.getElementById('pdf-content')
 
   try {
-    // 使用 html2canvas 将 DOM 元素转换为 canvas
+    // 确保DOM完全渲染
+    await new Promise(resolve => setTimeout(resolve, 100))
+
+    // 使用html2canvas生成canvas
     const canvas = await html2canvas(element, {
-      scale: 2, // 提高清晰度
+      scale: 2,
       useCORS: true,
-      logging: false
+      logging: false,
+      backgroundColor: '#ffffff'
     })
 
     const imgData = canvas.toDataURL('image/png')
-    const pdf = new jsPDF('p', 'mm', 'a4')
-    const imgWidth = 210 // A4 宽度
-    const pageHeight = 295 // A4 高度
-    const imgHeight = (canvas.height * imgWidth) / canvas.width
-    let heightLeft = imgHeight
-    let position = 0
 
-    pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-    heightLeft -= pageHeight
-
-    // 处理多页
-    while (heightLeft >= 0) {
-      position = heightLeft - imgHeight
-      pdf.addPage()
-      pdf.addImage(imgData, 'PNG', 0, position, imgWidth, imgHeight)
-      heightLeft -= pageHeight
+    if (!imgData) {
+      throw new Error('图片数据生成失败')
     }
 
-    // 下载 PDF
+    // 使用jsPDF创建PDF（恢复原始方式）
+    const pdf = new jsPDF()
+
+    // 获取图片属性并计算尺寸
+    const imgProps = pdf.getImageProperties(imgData)
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+
+    // 添加图片到PDF
+    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+
+    // 保存PDF
     pdf.save('拼音文档.pdf')
   } catch (error) {
     console.error('生成PDF失败:', error)
   }
 }
-</script>
 
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+</script>
 <style scoped lang="scss">
 .home-content {
   width: 100vw;
@@ -111,6 +137,19 @@ const generatePDF = async () => {
   #pdf-content {
     background: white;
     padding: 20px;
+    /* 移除A4尺寸设置，避免影响PDF生成 */
+  }
+}
+
+@media print {
+  .home-content {
+    padding: 20px !important;
+
+    #pdf-content {
+      box-shadow: none;
+      margin: 0;
+      padding: 20px;
+    }
   }
 }
 </style>
