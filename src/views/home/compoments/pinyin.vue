@@ -32,6 +32,8 @@
 import { ref, onMounted, watch } from 'vue'
 import { pinyin } from 'pinyin-pro'
 
+// 向父组件暴露处理后的数据
+const emit = defineEmits(['update:lines'])
 const containerRef = ref(null)
 const lines = ref([])
 const props = defineProps({
@@ -127,7 +129,9 @@ const updateContent = () => {
 watch(() => props.content, () => {
   updateContent()
 })
-
+watch(lines, (newLines) => {
+  emit('update:lines', newLines)
+}, { deep: true })
 onMounted(() => {
   updateContent()
 })
