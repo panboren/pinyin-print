@@ -17,6 +17,7 @@
     "pinyin-pro": "^3.27.0",
     "vant": "^4.7.3",
     "vue": "^3.3.4",
+    "vue-print-nb": "^1.7.5",
     "vue-router": "^4.2.5"
   },
   "devDependencies": {
