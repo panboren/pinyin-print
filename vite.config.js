@@ -62,8 +62,8 @@ export default defineConfig({
                rewrite: (path) => path.replace(/^\/new-city/, ''),
              },*/
     }
-  },
-  css: {
+  }
+/*  css: {
     postcss: {
       plugins: [
         postcsspxtoviewport({
@@ -83,5 +83,5 @@ export default defineConfig({
         })
       ]
     }
-  }
+  }*/
 })

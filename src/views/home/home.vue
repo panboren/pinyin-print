@@ -17,6 +17,7 @@
     </div>
     <div
       v-if="documentContent"
+      id="pdf-content"
       ref="pdfContentRef"
       class="pdf-export-content"
     >
@@ -54,77 +55,84 @@ const handleFileUpload = async (event) => {
   }
 }
 
-const generatePDF = async () => {
-  if (!documentContent.value || isGeneratingPDF.value) return
+let generatePDF = async () => {
+  if (!documentContent.value || !pdfContentRef.value) return
 
   isGeneratingPDF.value = true
 
   try {
-    const element = pdfContentRef.value
-    debugger
-    if (!element) {
-      throw new Error('PDF内容元素未找到')
-    }
+    // 使用html2canvas将HTML内容转换为canvas
+    const canvas = await html2canvas(pdfContentRef.value, {
+      scale: 2, // 提高清晰度
+      useCORS: true,
+      logging: false,
+      backgroundColor: '#ffffff',
+      width: pdfContentRef.value.scrollWidth,
+      height: pdfContentRef.value.scrollHeight
+    })
 
-    // 检查内容是否为空
-    if (element.textContent.trim() === '' && element.children.length === 0) {
-      throw new Error('内容为空，无法生成PDF')
-    }
+    // 获取canvas的尺寸
+    const imgWidth = canvas.width
+    const imgHeight = canvas.height
 
-    setTimeout(async () => {
-      // 等待DOM渲染完成
-      await new Promise(resolve => setTimeout(resolve, 1000))
+    // 创建PDF，设置尺寸为A4纸的比例
+    const pdf = new jsPDF('p', 'mm', 'a4')
+    const pdfWidth = pdf.internal.pageSize.getWidth()
+    const pdfHeight = (imgHeight * pdfWidth) / imgWidth
 
-      // 生成canvas
-      const canvas = await html2canvas(element, {
-        scale: 2,
-        useCORS: true,
-        logging: false,
-        backgroundColor: '#ffffff',
-        scrollX: 0,
-        scrollY: 0,
-        width: element.scrollWidth,
-        height: element.scrollHeight
-      })
+    // 计算需要分割的页数
+    let remainingHeight = imgHeight
+    let position = 0
+    let pageNumber = 1
 
-      if (!canvas || canvas.width === 0 || canvas.height === 0) {
-        throw new Error('Canvas生成失败')
-      }
-
-      const imgData = canvas.toDataURL('image/png')
-      if (!imgData || imgData === 'data:,') {
-        throw new Error('图片数据生成失败')
-      }
-
-      // 创建PDF
-      const pdf = new jsPDF({
-        orientation: 'portrait',
-        unit: 'mm',
-        format: 'a4'
-      })
-
-      const imgProps = pdf.getImageProperties(imgData)
-      const pdfWidth = pdf.internal.pageSize.getWidth()
-      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
-
-      // 处理多页内容
-      if (pdfHeight > pdf.internal.pageSize.getHeight()) {
+    // 添加内容到PDF，支持多页
+    while (remainingHeight > 0) {
+      if (pageNumber > 1) {
         pdf.addPage()
       }
 
-      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-      pdf.save('拼音文档.pdf')
+      // 计算当前页应该显示的图片高度
+      const pageHeightInPixels = (pdf.internal.pageSize.getHeight() * imgWidth) / pdfWidth
+      const canvasHeight = Math.min(pageHeightInPixels, remainingHeight)
 
+      // 创建临时canvas，只包含当前页的内容
+      const tempCanvas = document.createElement('canvas')
+      const tempCtx = tempCanvas.getContext('2d')
+      tempCanvas.width = imgWidth
+      tempCanvas.height = canvasHeight
 
-    },1000)
+      // 将当前页内容绘制到临时canvas
+      tempCtx.drawImage(
+        canvas,
+        0, position, imgWidth, canvasHeight,
+        0, 0, imgWidth, canvasHeight
+      )
+
+      // 将canvas转换为图片并添加到PDF
+      const imgData = tempCanvas.toDataURL('image/png')
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, (canvasHeight * pdfWidth) / imgWidth)
+
+      // 更新位置和剩余高度
+      position += canvasHeight
+      remainingHeight -= canvasHeight
+      pageNumber++
+    }
+
+    // 保存PDF
+    pdf.save('拼音文档.pdf')
 
   } catch (error) {
-    console.error('生成PDF失败:', error)
-    // 可以添加用户提示
+    console.error('生成PDF文档失败:', error)
+    // 可以添加用户友好的错误提示
+    alert('生成PDF失败，请重试')
   } finally {
     isGeneratingPDF.value = false
   }
 }
+
+
+
+
 </script>
 
 <style scoped lang="scss">

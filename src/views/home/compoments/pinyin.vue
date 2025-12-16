@@ -2,6 +2,7 @@
   <div
     ref="containerRef"
     class="advanced-pinyin-container"
+    :class="{ 'pdf-export-mode': isPdfExportMode }"
   >
     <div
       v-for="(line, lineIndex) in lines"
@@ -27,7 +28,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 import { ref, onMounted, watch } from 'vue'
 import { pinyin } from 'pinyin-pro'
@@ -40,6 +40,38 @@ const props = defineProps({
     default: ''
   }
 })
+
+
+
+
+// 添加PDF导出模式标志
+const isPdfExportMode = ref(false)
+
+// 导出一个方法供父组件调用，用于设置PDF导出模式
+const setPdfExportMode = (mode) => {
+  isPdfExportMode.value = mode
+}
+
+// 向父组件暴露方法
+defineExpose({
+  setPdfExportMode
+})
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 // 自动生成拼音的函数
 const convertTextToPinyin = (text) => {
@@ -86,6 +118,7 @@ const processLines = (textData) => {
   let currentLine = { words: [] }
 
   textData.forEach((word) => {
+    console.log(word)
     if (word.text === '\n') {
       // 遇到换行符时，保存当前行并开始新行
       if (currentLine.words.length > 0) {
@@ -120,6 +153,7 @@ const updateContent = () => {
   if (props.content) {
     const textData = convertTextToPinyin(props.content)
     lines.value = processLines(textData)
+    console.log(lines)
   }
 }
 
@@ -136,12 +170,11 @@ onMounted(() => {
 <style scoped lang="scss">
 .advanced-pinyin-container {
   width: 100%;
-  line-height: 1.6;
-
   .pinyin-line {
     display: flex;
     flex-wrap: wrap;
     margin-bottom: 10px;
+    line-height: 25px;
 
     .pinyin-word {
       display: inline-flex;
@@ -150,14 +183,14 @@ onMounted(() => {
       margin-right: 8px;
 
       .pinyin {
-        font-size: 12px;
+        font-size: 16px;
         color: #ff6b6b;
         margin-bottom: 2px;
         min-height: 16px;
       }
 
       .text {
-        font-size: 16px;
+        font-size: 20px;
       }
 
       &.punctuation {
@@ -176,9 +209,30 @@ onMounted(() => {
 
       &.newline {
         width: 100%;
-        height: 16px;
+        height: 20px;
         margin: 4px 0;
       }
+    }
+  }
+
+  // PDF导出模式下的样式
+  &.pdf-export-mode {
+    .pinyin-word {
+      margin-right: 12px; // 增加间距
+
+      .pinyin {
+        font-size: 16px; // 增大拼音字体
+        margin-bottom: 4px;
+        min-height: 20px;
+      }
+
+      .text {
+        font-size: 20px; // 增大汉字字体
+      }
+    }
+
+    .pinyin-line {
+      margin-bottom: 16px; // 增加行间距
     }
   }
 }
