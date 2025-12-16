@@ -17,7 +17,7 @@
     </div>
     <div
       v-if="documentContent"
-      id="pdf-content"
+      ref="pdfContentRef"
       class="pdf-export-content"
     >
       <PinyinComponent :content="documentContent" />
@@ -32,7 +32,6 @@
 </template>
 
 
-
 <script setup>
 import { ref } from 'vue'
 import PinyinComponent from './compoments/pinyin.vue'
@@ -42,7 +41,7 @@ import jsPDF from 'jspdf'
 
 const documentContent = ref('')
 const isGeneratingPDF = ref(false)
-
+const pdfContentRef = ref(null)
 const handleFileUpload = async (event) => {
   const file = event.target.files[0]
   if (file && file.name.endsWith('.docx')) {
@@ -61,7 +60,8 @@ const generatePDF = async () => {
   isGeneratingPDF.value = true
 
   try {
-    const element = document.getElementById('pdf-content')
+    const element = pdfContentRef.value
+    debugger
     if (!element) {
       throw new Error('PDF内容元素未找到')
     }
@@ -71,48 +71,52 @@ const generatePDF = async () => {
       throw new Error('内容为空，无法生成PDF')
     }
 
-    // 等待DOM渲染完成
-    await new Promise(resolve => setTimeout(resolve, 1000))
+    setTimeout(async () => {
+      // 等待DOM渲染完成
+      await new Promise(resolve => setTimeout(resolve, 1000))
 
-    // 生成canvas
-    const canvas = await html2canvas(element, {
-      scale: 2,
-      useCORS: true,
-      logging: false,
-      backgroundColor: '#ffffff',
-      scrollX: 0,
-      scrollY: 0,
-      width: element.scrollWidth,
-      height: element.scrollHeight
-    })
+      // 生成canvas
+      const canvas = await html2canvas(element, {
+        scale: 2,
+        useCORS: true,
+        logging: false,
+        backgroundColor: '#ffffff',
+        scrollX: 0,
+        scrollY: 0,
+        width: element.scrollWidth,
+        height: element.scrollHeight
+      })
 
-    if (!canvas || canvas.width === 0 || canvas.height === 0) {
-      throw new Error('Canvas生成失败')
-    }
+      if (!canvas || canvas.width === 0 || canvas.height === 0) {
+        throw new Error('Canvas生成失败')
+      }
 
-    const imgData = canvas.toDataURL('image/png')
-    if (!imgData || imgData === 'data:,') {
-      throw new Error('图片数据生成失败')
-    }
+      const imgData = canvas.toDataURL('image/png')
+      if (!imgData || imgData === 'data:,') {
+        throw new Error('图片数据生成失败')
+      }
 
-    // 创建PDF
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4'
-    })
+      // 创建PDF
+      const pdf = new jsPDF({
+        orientation: 'portrait',
+        unit: 'mm',
+        format: 'a4'
+      })
 
-    const imgProps = pdf.getImageProperties(imgData)
-    const pdfWidth = pdf.internal.pageSize.getWidth()
-    const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
+      const imgProps = pdf.getImageProperties(imgData)
+      const pdfWidth = pdf.internal.pageSize.getWidth()
+      const pdfHeight = (imgProps.height * pdfWidth) / imgProps.width
 
-    // 处理多页内容
-    if (pdfHeight > pdf.internal.pageSize.getHeight()) {
-      pdf.addPage()
-    }
+      // 处理多页内容
+      if (pdfHeight > pdf.internal.pageSize.getHeight()) {
+        pdf.addPage()
+      }
 
-    pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
-    pdf.save('拼音文档.pdf')
+      pdf.addImage(imgData, 'PNG', 0, 0, pdfWidth, pdfHeight)
+      pdf.save('拼音文档.pdf')
+
+
+    },1000)
 
   } catch (error) {
     console.error('生成PDF失败:', error)
