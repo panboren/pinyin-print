@@ -21,6 +21,7 @@
 
     <!-- 电影级开场黑屏 -->
     <CinematicIntro
+      :isLoading="isLoading"
       ref="cinematicIntroRef"
       :animation-type="animationType"
       :camera="camera"
@@ -28,34 +29,6 @@
       :renderer="renderer"
       @complete="onAnimationComplete"
     />
-
-    <!-- 动画选择器（开发时可见，生产环境可隐藏） -->
-    <div
-      v-if="!isLoading"
-      class="animation-selector"
-    >
-      <span>动画类型:</span>
-      <select
-        v-model="animationType"
-        @change="resetAnimation"
-      >
-        <option value="epic-dive">
-          史诗俯冲
-        </option>
-        <option value="space-warp">
-          空间扭曲
-        </option>
-        <option value="matrix-hack">
-          黑客帝国
-        </option>
-        <option value="quantum-shift">
-          量子跃迁
-        </option>
-      </select>
-      <button @click="resetAnimation">
-        重新播放
-      </button>
-    </div>
 
     <!-- 视角控制面板 -->
     <ViewControls />
@@ -409,17 +382,9 @@ const animateToDefaultView = () => {
   }
 }
 
-// 重置动画
-const resetAnimation = () => {
-  animationComplete.value = false
-  setTimeout(() => {
-    animateToDefaultView()
-  }, 100)
-}
-
 // 动画完成回调
-const onAnimationComplete = () => {
-  animationComplete.value = true
+const onAnimationComplete = (value) => {
+  animationComplete.value = value
 }
 
 // 预设视角函数 - 从当前位置平滑过渡
@@ -651,165 +616,7 @@ provide('setCameraView', setCameraView)
     }
   }
 
-  // 电影级开场效果
-  .cinematic-intro {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    z-index: 50;
-    pointer-events: none;
 
-    .fade-out {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: black;
-      animation: fadeOut 2s ease-out forwards;
-    }
-
-    .title-card {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      text-align: center;
-      color: white;
-      animation: titleCard 3s ease-out forwards;
-
-      // 添加3D透视和转换
-      transform-style: preserve-3d;
-      perspective: 1000px;
-
-      h1 {
-        font-size: 4rem;
-        font-weight: 100;
-        letter-spacing: 8px;
-        margin: 0 0 10px 0;
-        text-transform: uppercase;
-        text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-
-        // 3D文字效果
-        transform: translateZ(20px);
-        font-family: 'Orbitron', 'Arial', sans-serif;
-        position: relative;
-
-        // 添加科技感辉光效果
-        &::before {
-          content: "ZOOOW";
-          position: absolute;
-          left: 0;
-          top: 0;
-          z-index: -1;
-          color: rgba(100, 200, 255, 0.5);
-          filter: blur(8px);
-          transform: scale(1.05);
-          animation: glowPulse 2s infinite alternate;
-        }
-
-        // 添加3D边缘发光
-        &::after {
-          content: "ZOOOW";
-          position: absolute;
-          left: 2px;
-          top: 2px;
-          z-index: -2;
-          color: rgba(0, 100, 255, 0.3);
-          transform: translateZ(-5px);
-        }
-
-        // 线框效果
-        text-stroke: 1px rgba(100, 200, 255, 0.3);
-        -webkit-text-stroke: 1px rgba(100, 200, 255, 0.3);
-      }
-
-      p {
-        font-size: 1rem;
-        letter-spacing: 4px;
-        margin: 0;
-        opacity: 0.8;
-        text-transform: uppercase;
-        transform: translateZ(10px);
-        font-family: 'Orbitron', 'Arial', sans-serif;
-
-        // 添加打字机效果
-        overflow: hidden;
-        white-space: nowrap;
-        animation: typing 3s steps(30) forwards;
-        max-width: 0;
-        margin: 0 auto;
-      }
-    }
-
-    // 添加科技感发光动画
-    @keyframes glowPulse {
-      0% {
-        filter: blur(8px);
-        opacity: 0.5;
-      }
-      100% {
-        filter: blur(12px);
-        opacity: 0.8;
-      }
-    }
-
-    // 打字机效果
-    @keyframes typing {
-      0% {
-        max-width: 0;
-      }
-      70% {
-        max-width: 100%;
-      }
-      100% {
-        max-width: 100%;
-      }
-    }
-
-    // 添加3D动画效果
-    @keyframes titleCard3D {
-      0% {
-        opacity: 0;
-        transform: translate(-50%, -40%) rotateX(20deg) scale(0.8);
-        filter: blur(10px);
-      }
-      30% {
-        opacity: 1;
-        transform: translate(-50%, -50%) rotateX(0deg) scale(1);
-        filter: blur(0px);
-      }
-      70% {
-        opacity: 1;
-        transform: translate(-50%, -50%) rotateX(0deg) scale(1);
-        filter: blur(0px);
-      }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -60%) rotateX(-10deg) scale(0.9);
-        filter: blur(5px);
-      }
-    }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-  }
 
   @keyframes spin {
     0% { transform: rotate(0deg); }
@@ -1071,34 +878,7 @@ provide('setCameraView', setCameraView)
 
 
 
-  // 动画选择器样式
-  .animation-selector {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 14px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 10px;
 
-    select, button {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      padding: 5px 10px;
-      cursor: pointer;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-    }
-  }
 
   // 增强的标题卡片样式
   .title-card {

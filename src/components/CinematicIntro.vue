@@ -1,34 +1,64 @@
 <!-- src/components/CinematicIntro.vue -->
 <template>
-  <div
-    v-if="!animationComplete"
-    class="cinematic-intro"
-    :data-animation-type="animationType"
-  >
-    <div class="fade-out" />
-    <div class="title-card">
-      <div class="particles-container">
-        <div
-          v-for="i in 50"
-          :key="i"
-          class="particle"
-          :style="getParticleStyle(i)"
-        />
+  <div>
+    <div
+      v-if="!animationComplete"
+      class="cinematic-intro"
+      :data-animation-type="animationType"
+    >
+      <div class="fade-out" />
+      <div class="title-card">
+        <div class="particles-container">
+          <div
+            v-for="i in 50"
+            :key="i"
+            class="particle"
+            :style="getParticleStyle(i)"
+          />
+        </div>
+        <h1>ZOOOW</h1>
+        <p>IMMERSIVE EXPERIENCE</p>
+        <div class="scanlines" />
+        <div class="lens-flare" />
       </div>
-      <h1>ZOOOW</h1>
-      <p>IMMERSIVE EXPERIENCE</p>
-      <div class="scanlines" />
-      <div class="lens-flare" />
+      <!-- 添加动态效果层，特别是为史诗俯冲 -->
+      <div
+        v-if="animationType === 'epic-dive'"
+        class="dynamic-effects"
+      >
+        <div class="speed-lines" />
+        <div class="vignette" />
+        <div class="motion-blur" />
+      </div>
     </div>
 
-    <!-- 添加动态效果层，特别是为史诗俯冲 -->
+
+    <!-- 动画选择器（开发时可见，生产环境可隐藏） -->
     <div
-      v-if="animationType === 'epic-dive'"
-      class="dynamic-effects"
+      v-if="!isLoading"
+      class="animation-selector"
     >
-      <div class="speed-lines" />
-      <div class="vignette" />
-      <div class="motion-blur" />
+      <span>动画类型11:</span>
+      <select
+        v-model="animationType"
+        @change="(e) => resetAnimation(e.target.value)"
+      >
+        <option value="epic-dive">
+          史诗俯冲
+        </option>
+        <option value="space-warp">
+          空间扭曲
+        </option>
+        <option value="matrix-hack">
+          黑客帝国
+        </option>
+        <option value="quantum-shift">
+          量子跃迁
+        </option>
+      </select>
+      <button @click="resetAnimation">
+        重新播放
+      </button>
     </div>
   </div>
 </template>
@@ -41,10 +71,14 @@ import { gsap } from 'gsap'
 import * as THREE from 'three'
 
 const props = defineProps({
-  animationType: {
+  isLoading: {
+    type: Boolean,
+    default: true
+  },
+  /*  animationType: {
     type: String,
     default: 'epic-dive'
-  },
+  },*/
   camera: {
     type: Object,
     default: () => null
@@ -68,7 +102,7 @@ const props = defineProps({
 
 
 
-
+let animationType = defineModel({type: String, default: 'epic-dive'})
 
 const emit = defineEmits(['complete'])
 
@@ -128,7 +162,7 @@ const animateEpicDive = () => {
       console.log('优化后的史诗俯冲动画完成')
       props.controls.enabled = true
       animationComplete.value = true
-      emit('complete')
+      emit('complete',true)
     }
   })
 
@@ -808,7 +842,7 @@ const animateQuantumShift = () => {
 const playAnimation = () => {
   animationComplete.value = false
 
-  switch(props.animationType) {
+  switch(animationType.value) {
   case 'epic-dive':
     animateEpicDive()
     break
@@ -824,6 +858,30 @@ const playAnimation = () => {
   default:
     animateEpicDive()
   }
+}
+
+// 修改后的 animateToDefaultView 函数
+const animateToDefaultView = () => {
+  if (!props.camera || !props.controls) return
+
+  // 确保目标点在球心
+  props.controls.target.set(0, 0, 0)
+
+  // 播放开场动画
+  if (playAnimation) {
+    playAnimation()
+  }
+}
+
+// 重置动画
+const resetAnimation = (value) => {
+  if(value) {
+    animationType.value = value
+  }
+  emit('complete', false)
+  setTimeout(() => {
+    animateToDefaultView()
+  }, 100)
 }
 
 defineExpose({
@@ -1366,6 +1424,35 @@ defineExpose({
       opacity: 0;
       transform: translate(-50%, -60%) rotateX(-10deg) scale(0.9);
       filter: blur(5px);
+    }
+  }
+}
+
+// 动画选择器样式
+.animation-selector {
+  position: absolute;
+  top: 20px;
+  left: 20px;
+  background: rgba(0, 0, 0, 0.8);
+  color: white;
+  padding: 10px 15px;
+  border-radius: 8px;
+  font-size: 14px;
+  z-index: 100;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+
+  select, button {
+    background: rgba(255, 255, 255, 0.1);
+    color: white;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 4px;
+    padding: 5px 10px;
+    cursor: pointer;
+
+    &:hover {
+      background: rgba(255, 255, 255, 0.2);
     }
   }
 }
