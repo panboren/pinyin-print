@@ -424,7 +424,7 @@ const animateToDefaultView = () => {
   const startPos = new THREE.Vector3(50, 100, 50)
   camera.position.copy(startPos)
 
-  // 起始FOV：广角视野
+  // 初始FOV：广角视野
   camera.fov = 120
   camera.updateProjectionMatrix()
 
@@ -442,12 +442,12 @@ const animateToDefaultView = () => {
     }
   })
 
-  // 第一阶段：快速俯冲 (0-1.5秒)
+  // 第一阶段：保持FOV 120度，快速俯冲接近 (0-2秒)
   tl.to(camera.position, {
-    x: 2,
-    y: 5,
-    z: 2,
-    duration: 1.5,
+    x: 5,
+    y: 8,
+    z: 5,
+    duration: 1,
     ease: 'power4.in', // 强力加速俯冲
     onUpdate: () => {
       camera.lookAt(controls.target)
@@ -455,49 +455,76 @@ const animateToDefaultView = () => {
     }
   })
 
-  // 第二阶段：螺旋接近 (1.5-3秒)
-    .to(camera.position, {
-      x: 0.5,
-      y: 0.2,
-      z: 0.5,
-      duration: 1.5,
+  // 第二阶段：开始推进，FOV从120度慢慢收缩 (2-3.5秒)
+    .to(camera, {
+      fov: 100,
+      duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-      // 添加螺旋效果
+        camera.updateProjectionMatrix()
+      }
+    }, 2)
+    .to(camera.position, {
+      x: 2,
+      y: 3,
+      z: 2,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 2)
+
+  // 第三阶段：继续推进，FOV进一步收缩 (3.5-5秒)
+    .to(camera, {
+      fov: 85,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 3.5)
+    .to(camera.position, {
+      x: 0.8,
+      y: 1,
+      z: 0.8,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+      // 添加轻微螺旋效果
         const time = tl.time()
-        const spiralX = Math.sin(time * 2) * 0.1
-        const spiralZ = Math.cos(time * 2) * 0.1
+        const spiralX = Math.sin(time * 1.5) * 0.05
+        const spiralZ = Math.cos(time * 1.5) * 0.05
         camera.position.x += spiralX
         camera.position.z += spiralZ
         camera.lookAt(controls.target)
         controls.update()
       }
-    }, '-=0.5') // 提前0.5秒开始，产生重叠
+    }, 3.5)
 
-  // 第三阶段：FOV收缩模拟加速 (1-2.5秒)
+  // 第四阶段：最终推进到球心附近，FOV接近正常 (5-6.5秒)
     .to(camera, {
-      fov: 90,
-      duration: 1.5,
-      ease: 'power2.inOut',
+      fov: 78,
+      duration: 0.5,
+      ease: 'power2.out',
       onUpdate: () => {
         camera.updateProjectionMatrix()
       }
-    }, 1) // 1秒时开始
-
-  // 第四阶段：最终定位到球心 (3-4秒)
+    }, 5)
     .to(camera.position, {
       x: 0.01,
       y: 0.01,
       z: 0.01,
-      duration: 1,
+      duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => {
         camera.lookAt(controls.target)
         controls.update()
       }
-    })
+    }, 5)
 
-  // 第五阶段：FOV恢复正常 (3.5-4.5秒)
+  // 第五阶段：最终旋转到指定角度，FOV完全正常 (6.5-7.5秒)
     .to(camera, {
       fov: 75,
       duration: 1,
@@ -505,11 +532,9 @@ const animateToDefaultView = () => {
       onUpdate: () => {
         camera.updateProjectionMatrix()
       }
-    }, 3.5)
-
-  // 第六阶段：最终旋转到默认角度 (4-5.5秒)
+    }, 6.5)
     .to({}, {
-      duration: 1.5,
+      duration: 1,
       ease: 'power2.inOut',
       onUpdate: function() {
       // 平滑旋转到指定的最终位置
@@ -525,7 +550,7 @@ const animateToDefaultView = () => {
         camera.lookAt(controls.target)
         controls.update()
       }
-    })
+    }, 6.5)
 
   // 暂时禁用用户交互，避免动画被干扰
   controls.enabled = false
