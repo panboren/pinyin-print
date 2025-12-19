@@ -1,3 +1,4 @@
+<!-- src/views/home/HomeView.vue -->
 <template>
   <div
     ref="containerRef"
@@ -5,15 +6,21 @@
     @dblclick="toggleAutoRotate"
   >
     <canvas ref="canvasRef" />
+
     <!-- 电影级加载状态指示器 -->
     <div
       v-if="isLoading"
       class="loading-indicator"
+      role="status"
+      aria-live="polite"
     >
-      <div class="loading-spinner" />
-      <p>正在加载ZOOOW智慧工具...</p>
+      <div
+        class="loading-spinner"
+        aria-hidden="true"
+      />
+      <p>{{ loadingText }}</p>
       <div class="loading-progress">
-        准备进入沉浸式体验
+        {{ loadingProgress }}
       </div>
     </div>
 
@@ -22,12 +29,16 @@
       v-if="!isLoading && !animationComplete"
       class="cinematic-intro"
       :data-animation-type="animationType"
+      aria-hidden="true"
     >
       <div class="fade-out" />
       <div class="title-card">
-        <div class="particles-container">
+        <div
+          class="particles-container"
+          aria-hidden="true"
+        >
           <div
-            v-for="i in 50"
+            v-for="i in particleCount"
             :key="i"
             class="particle"
             :style="getParticleStyle(i)"
@@ -35,16 +46,21 @@
         </div>
         <h1>ZOOOW</h1>
         <p>IMMERSIVE EXPERIENCE</p>
-        <div class="scanlines" />
-        <div class="lens-flare" />
+        <div
+          class="scanlines"
+          aria-hidden="true"
+        />
+        <div
+          class="lens-flare"
+          aria-hidden="true"
+        />
       </div>
-
-
 
       <!-- 添加动态效果层，特别是为史诗俯冲 -->
       <div
         v-if="animationType === 'epic-dive'"
         class="dynamic-effects"
+        aria-hidden="true"
       >
         <div class="speed-lines" />
         <div class="vignette" />
@@ -52,15 +68,18 @@
       </div>
     </div>
 
-
     <!-- 动画选择器（开发时可见，生产环境可隐藏） -->
     <div
       v-if="!isLoading"
       class="animation-selector"
+      role="region"
+      aria-label="动画控制"
     >
-      <span>动画类型:</span>
+      <label for="animation-type">动画类型:</label>
       <select
+        id="animation-type"
         v-model="animationType"
+        aria-label="选择开场动画类型"
         @change="resetAnimation"
       >
         <option value="epic-dive">
@@ -76,55 +95,67 @@
           量子跃迁
         </option>
       </select>
-      <button @click="resetAnimation">
+      <button
+        aria-label="重新播放动画"
+        @click="resetAnimation"
+      >
         重新播放
       </button>
     </div>
 
-
-
     <!-- 视角控制面板 -->
-    <div class="view-controls">
+    <div
+      class="view-controls"
+      role="region"
+      aria-label="视角控制面板"
+    >
       <h4>视角控制</h4>
       <div class="view-buttons">
         <button
           class="view-btn"
+          aria-label="正前方视角"
           @click="setCameraView('front')"
         >
           正前方
         </button>
         <button
           class="view-btn"
+          aria-label="右侧视角"
           @click="setCameraView('right')"
         >
           右侧
         </button>
         <button
           class="view-btn"
+          aria-label="左侧视角"
           @click="setCameraView('left')"
         >
           左侧
         </button>
         <button
           class="view-btn"
+          aria-label="后方视角"
           @click="setCameraView('back')"
         >
           后方
         </button>
         <button
           class="view-btn"
+          aria-label="仰视角"
           @click="setCameraView('up')"
         >
           仰视
         </button>
         <button
           class="view-btn"
+          aria-label="俯视角"
           @click="setCameraView('down')"
         >
           俯视
         </button>
         <button
           class="view-btn default"
+          aria-label="默认视角"
           @click="setCameraView('default')"
         >
           默认
@@ -140,298 +171,382 @@
 </template>
 
 <script setup>
+/**
+ * Home View Component
+ * 主页视图组件，包含3D全景展示和交互控制
+ *
+ * @author ZOOOW Team
+ * @version 1.0.0
+ */
+
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls'
 import { gsap } from 'gsap'
-import { onMounted, ref, onUnmounted } from 'vue'
+import { onMounted, ref, onUnmounted, computed } from 'vue'
+
 // 导入本地图片资源
-import homeImage1 from '@/assets/image/home.jpg'
 import homeImage from '@/assets/image/home1.png'
 
+// 响应式引用
 const containerRef = ref(null)
 const canvasRef = ref(null)
 
+// Three.js 相关变量
 let scene, camera, renderer, mesh
 let controls
 let animationId
-let isLoading = ref(true)
-let autoRotateEnabled = ref(false)
-let animationComplete = ref(false)
 
-// 初始化 Three.js 场景
+// 状态管理
+const isLoading = ref(true)
+const autoRotateEnabled = ref(false)
+const animationComplete = ref(false)
+const animationType = ref('epic-dive')
+
+// 粒子数量常量
+const particleCount = 50
+
+// 计算属性
+const loadingText = computed(() => '正在加载ZOOOW智慧工具...')
+const loadingProgress = computed(() => '准备进入沉浸式体验')
+
+/**
+ * 初始化 Three.js 场景
+ */
 const initThreeJS = () => {
-  // 创建场景
-  scene = new THREE.Scene()
+  try {
+    // 创建场景
+    scene = new THREE.Scene()
+    scene.background = new THREE.Color(0x000000)
 
-  // 设置背景色为黑色，避免加载时的闪烁
-  scene.background = new THREE.Color(0x000000)
+    // 创建相机
+    camera = new THREE.PerspectiveCamera(
+      75,
+      containerRef.value.clientWidth / containerRef.value.clientHeight,
+      0.01,
+      2000
+    )
+    camera.position.set(0, 0, 0.01)
+    camera.rotation.set(0, Math.PI / 4, 0)
+    camera.fov = 75
+    camera.updateProjectionMatrix()
 
-  // 创建相机 - 专业级设置提升清晰度
-  camera = new THREE.PerspectiveCamera(
-    75,
-    containerRef.value.clientWidth / containerRef.value.clientHeight,
-    0.01,  // 更近的近裁剪面提升近距离精度
-    2000   // 更远的远裁剪面
-  )
-  camera.position.set(0, 0, 0.01) // 最小偏移避免z-fighting
+    // 创建渲染器
+    renderer = new THREE.WebGLRenderer({
+      canvas: canvasRef.value,
+      antialias: true,
+      alpha: true,
+      powerPreference: 'high-performance',
+      preserveDrawingBuffer: false,
+      precision: 'highp',
+      stencil: false,
+      depth: true
+    })
 
-  // 设置默认视角 - 优化初始观看角度
-  camera.rotation.set(0, Math.PI / 4, 0) // 默认向右旋转45度
-  camera.fov = 75 // 保持合适的视野角度
+    // 设置渲染器尺寸和像素比
+    const pixelRatio = Math.min(window.devicePixelRatio, 4)
+    renderer.setSize(
+      containerRef.value.clientWidth,
+      containerRef.value.clientHeight,
+      true
+    )
+    renderer.setPixelRatio(pixelRatio)
 
-  // 相机精度优化
-  camera.updateProjectionMatrix()
+    // 高级渲染设置
+    renderer.toneMapping = THREE.ACESFilmicToneMapping
+    renderer.toneMappingExposure = 1.3
+    renderer.outputColorSpace = THREE.SRGBColorSpace
+    renderer.gammaFactor = 2.2
+    renderer.gammaOutput = true
+    renderer.physicallyCorrectLights = true
+    renderer.shadowMap.enabled = false
 
-  // 创建渲染器 - 专业级清晰度设置
-  renderer = new THREE.WebGLRenderer({
-    canvas: canvasRef.value,
-    antialias: true,
-    alpha: true,
-    powerPreference: 'high-performance',
-    preserveDrawingBuffer: false,
-    precision: 'highp', // 使用高精度着色器
-    stencil: false,     // 禁用模板缓冲提升性能
-    depth: true
-  })
+    // 加载纹理
+    loadTexture()
 
-  // 设置渲染器尺寸和像素比 - 极致清晰度
-  const pixelRatio = Math.min(window.devicePixelRatio, 4) // 提高到4倍极致清晰
-  renderer.setSize(
-    containerRef.value.clientWidth,
-    containerRef.value.clientHeight,
-    true // 更新样式
-  )
-  renderer.setPixelRatio(pixelRatio)
+    // 创建球体几何体
+    createSphereGeometry()
 
-  // 高级渲染设置 - 最大化清晰度
-  renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.3 // 进一步增加曝光
-  renderer.outputColorSpace = THREE.SRGBColorSpace
-  renderer.gammaFactor = 2.2
-  renderer.gammaOutput = true
-  renderer.physicallyCorrectLights = true
-  renderer.shadowMap.enabled = false // 全景图不需要阴影，提升性能
+    // 创建轨道控制器
+    setupOrbitControls()
 
-  // 加载全景图纹理 - 优化加载流程
+    // 设置事件监听器
+    setupEventListeners()
+
+    // 启动渲染循环
+    animate()
+  } catch (error) {
+    console.error('初始化 Three.js 失败:', error)
+    isLoading.value = false
+  }
+}
+
+/**
+ * 加载纹理
+ */
+const loadTexture = () => {
   const textureLoader = new THREE.TextureLoader()
-  const texture = textureLoader.load(
+  textureLoader.load(
     homeImage,
-    (loadedTexture) => {
-      // 纹理加载完成
-      console.log('全景图加载完成')
-      isLoading.value = false
+    onTextureLoadSuccess,
+    onTextureLoadProgress,
+    onTextureLoadError
+  )
+}
 
-      // 优化纹理参数 - 专业级清晰度
-      loadedTexture.wrapS = THREE.ClampToEdgeWrapping
-      loadedTexture.wrapT = THREE.ClampToEdgeWrapping
+/**
+ * 纹理加载成功回调
+ */
+const onTextureLoadSuccess = (loadedTexture) => {
+  try {
+    console.log('全景图加载完成')
+    isLoading.value = false
 
-      // 使用最高质量过滤
-      loadedTexture.minFilter = THREE.LinearMipmapLinearFilter
-      loadedTexture.magFilter = THREE.LinearFilter
-      loadedTexture.generateMipmaps = true
+    // 优化纹理参数
+    loadedTexture.wrapS = THREE.ClampToEdgeWrapping
+    loadedTexture.wrapT = THREE.ClampToEdgeWrapping
+    loadedTexture.minFilter = THREE.LinearMipmapLinearFilter
+    loadedTexture.magFilter = THREE.LinearFilter
+    loadedTexture.generateMipmaps = true
 
-      // 启用最大各向异性过滤，显著提升斜视角清晰度
-      const maxAnisotropy = renderer.capabilities.getMaxAnisotropy()
-      loadedTexture.anisotropy = maxAnisotropy // 使用硬件支持的最大值
+    const maxAnisotropy = renderer.capabilities.getMaxAnisotropy()
+    loadedTexture.anisotropy = maxAnisotropy
+    loadedTexture.colorSpace = THREE.SRGBColorSpace
+    loadedTexture.format = THREE.RGBAFormat
+    loadedTexture.type = THREE.UnsignedByteType
 
-      // 确保正确的色彩空间和精度
-      loadedTexture.colorSpace = THREE.SRGBColorSpace
-      loadedTexture.format = THREE.RGBAFormat // 使用RGBA格式确保最佳质量
+    // 更新材质
+    if (mesh && mesh.material) {
+      mesh.material.map = loadedTexture
+      mesh.material.needsUpdate = true
+    }
 
-      // 纹理精度设置
-      loadedTexture.type = THREE.UnsignedByteType
-      loadedTexture.anisotropy = maxAnisotropy
+    // 动画进入默认视角
+    animateToDefaultView()
+  } catch (error) {
+    console.error('纹理处理失败:', error)
+  }
+}
 
-      // 动画进入默认视角
-      animateToDefaultView()
-    },
-    (progress) => {
-      // 加载进度
-      const percentComplete = (progress.loaded / progress.total) * 100
-      console.log(`加载进度: ${percentComplete.toFixed(2)}%`)
-    },
-    (err) => {
-      console.error('纹理加载失败:', err)
-      isLoading.value = false
+/**
+ * 纹理加载进度回调
+ */
+const onTextureLoadProgress = (progress) => {
+  const percentComplete = (progress.loaded / progress.total) * 100
+  console.log(`加载进度: ${percentComplete.toFixed(2)}%`)
+}
 
-      // 创建默认的渐变背景作为fallback
-      const canvas = document.createElement('canvas')
-      canvas.width = 512
-      canvas.height = 512
-      const ctx = canvas.getContext('2d')
+/**
+ * 纹理加载错误回调
+ */
+const onTextureLoadError = (error) => {
+  console.error('纹理加载失败:', error)
+  isLoading.value = false
 
-      const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 256)
-      gradient.addColorStop(0, '#c532f6')
-      gradient.addColorStop(1, '#c4163e')
-      ctx.fillStyle = gradient
-      ctx.fillRect(0, 0, 512, 512)
+  try {
+    // 创建默认的渐变背景作为fallback
+    const canvas = document.createElement('canvas')
+    canvas.width = 512
+    canvas.height = 512
+    const ctx = canvas.getContext('2d')
 
-      const fallbackTexture = new THREE.CanvasTexture(canvas)
+    const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 256)
+    gradient.addColorStop(0, '#c532f6')
+    gradient.addColorStop(1, '#c4163e')
+    ctx.fillStyle = gradient
+    ctx.fillRect(0, 0, 512, 512)
+
+    const fallbackTexture = new THREE.CanvasTexture(canvas)
+    if (mesh && mesh.material) {
       mesh.material.map = fallbackTexture
       mesh.material.needsUpdate = true
     }
-  )
-
-  // 创建球体几何体 - 极致精度设置
-  const geometry = new THREE.SphereGeometry(500, 256, 128) // 极高精度分段数
-  geometry.scale(-1, 1, 1) // 翻转球体内部显示
-
-  // 优化几何体属性
-  geometry.computeVertexNormals() // 重新计算法向量确保正确的光照
-
-  // 创建材质 - 专业级质量设置
-  const material = new THREE.MeshBasicMaterial({
-    map: texture,
-    side: THREE.DoubleSide, // 双面渲染避免背面问题
-    transparent: false,
-    opacity: 1.0,
-    toneMapped: true, // 启用色调映射
-    precision: 'highp', // 高精度着色器
-    depthTest: true,
-    depthWrite: false // 全景图不需要深度写入
-  })
-
-  // 创建网格
-  mesh = new THREE.Mesh(geometry, material)
-  scene.add(mesh)
-
-  // 创建轨道控制器 - 完全优化配置
-  controls = new OrbitControls(camera, renderer.domElement)
-
-  // 基础控制设置
-  controls.enableZoom = false  // 禁用默认缩放，使用自定义FOV缩放
-  controls.enablePan = false   // 禁用平移，专注于旋转
-  controls.autoRotate = autoRotateEnabled.value
-
-  // 旋转速度设置
-  controls.autoRotateSpeed = 0.3 // 更慢的自动旋转速度，更舒适
-  controls.rotateSpeed = 0.4    // 手动旋转速度适中
-
-  // 阻尼设置 - 提升交互流畅度
-  controls.enableDamping = true
-  controls.dampingFactor = 0.04 // 更精细的阻尼控制
-
-
-  // 阻尼设置 - 提升交互流畅度
-  controls.enableDamping = true
-  controls.dampingFactor = 0.04 // 更精细的阻尼控制
-
-  // 限制设置 - 避免不自然的视角
-  controls.minPolarAngle = 0.1    // 最小仰角，避免顶部视角问题
-  controls.maxPolarAngle = Math.PI - 0.1 // 最大仰角
-  controls.minAzimuthAngle = -Infinity  // 水平旋转无限制
-  controls.maxAzimuthAngle = Infinity
-
-  // 设置默认视角 - 与相机初始角度保持一致
-  controls.target.set(0, 0, 0) // 目标点设在球心
-  controls.object.rotation.set(0, Math.PI / 4, 0) // 设置与相机相同的初始旋转
-  controls.update() // 立即更新控制器
-
-  // 其他优化设置
-  controls.screenSpacePanning = false
-  controls.enableKeys = false     // 禁用键盘控制避免冲突
-  controls.mouseButtons = {
-    LEFT: THREE.MOUSE.ROTATE,
-    MIDDLE: THREE.MOUSE.DOLLY,
-    RIGHT: THREE.MOUSE.ROTATE
+  } catch (fallbackError) {
+    console.error('创建 fallback 纹理失败:', fallbackError)
   }
+}
 
-  // 确保 canvas 元素可以接收焦点并优化交互
-  renderer.domElement.setAttribute('tabindex', '-1')
-  renderer.domElement.style.outline = 'none'
-  renderer.domElement.style.cursor = 'grab' // 默认抓手光标
+/**
+ * 创建球体几何体
+ */
+const createSphereGeometry = () => {
+  try {
+    const geometry = new THREE.SphereGeometry(500, 256, 128)
+    geometry.scale(-1, 1, 1)
+    geometry.computeVertexNormals()
 
-  // 鼠标交互优化
-  renderer.domElement.addEventListener('mousedown', () => {
+    const material = new THREE.MeshBasicMaterial({
+      map: null, // 纹理将在加载完成后设置
+      side: THREE.DoubleSide,
+      transparent: false,
+      opacity: 1.0,
+      toneMapped: true,
+      precision: 'highp',
+      depthTest: true,
+      depthWrite: false
+    })
+
+    mesh = new THREE.Mesh(geometry, material)
+    scene.add(mesh)
+  } catch (error) {
+    console.error('创建球体几何体失败:', error)
+  }
+}
+
+/**
+ * 设置轨道控制器
+ */
+const setupOrbitControls = () => {
+  try {
+    controls = new OrbitControls(camera, renderer.domElement)
+
+    // 基础控制设置
+    controls.enableZoom = false
+    controls.enablePan = false
+    controls.autoRotate = autoRotateEnabled.value
+
+    // 旋转速度设置
+    controls.autoRotateSpeed = 0.3
+    controls.rotateSpeed = 0.4
+
+    // 阻尼设置
+    controls.enableDamping = true
+    controls.dampingFactor = 0.04
+
+    // 限制设置
+    controls.minPolarAngle = 0.1
+    controls.maxPolarAngle = Math.PI - 0.1
+    controls.minAzimuthAngle = -Infinity
+    controls.maxAzimuthAngle = Infinity
+
+    // 设置默认视角
+    controls.target.set(0, 0, 0)
+    controls.object.rotation.set(0, Math.PI / 4, 0)
+    controls.update()
+
+    // 其他优化设置
+    controls.screenSpacePanning = false
+    controls.enableKeys = false
+    controls.mouseButtons = {
+      LEFT: THREE.MOUSE.ROTATE,
+      MIDDLE: THREE.MOUSE.DOLLY,
+      RIGHT: THREE.MOUSE.ROTATE
+    }
+  } catch (error) {
+    console.error('设置轨道控制器失败:', error)
+  }
+}
+
+/**
+ * 设置事件监听器
+ */
+const setupEventListeners = () => {
+  try {
+    // 确保 canvas 元素可以接收焦点并优化交互
+    renderer.domElement.setAttribute('tabindex', '-1')
+    renderer.domElement.style.outline = 'none'
+    renderer.domElement.style.cursor = 'grab'
+
+    // 鼠标交互优化
+    renderer.domElement.addEventListener('mousedown', () => {
+      renderer.domElement.focus()
+      renderer.domElement.style.cursor = 'grabbing'
+    })
+
+    renderer.domElement.addEventListener('mouseup', () => {
+      renderer.domElement.style.cursor = 'grab'
+    })
+
+    renderer.domElement.addEventListener('mouseleave', () => {
+      renderer.domElement.style.cursor = 'grab'
+    })
+
+    // 自定义滚轮缩放
+    renderer.domElement.addEventListener('wheel', handleWheel, { passive: false })
+
+    // 确保 canvas 能接收输入事件
+    renderer.domElement.setAttribute('tabindex', '0')
     renderer.domElement.focus()
-    renderer.domElement.style.cursor = 'grabbing' // 按下时变为抓取状态
-  })
 
-  renderer.domElement.addEventListener('mouseup', () => {
-    renderer.domElement.style.cursor = 'grab' // 释放时恢复抓手
-  })
+    // 添加点击时获取焦点
+    renderer.domElement.addEventListener('mousedown', () => {
+      renderer.domElement.focus()
+    })
 
-  renderer.domElement.addEventListener('mouseleave', () => {
-    renderer.domElement.style.cursor = 'grab' // 离开时恢复抓手
-  })
+    // 触摸设备优化
+    if ('ontouchstart' in window) {
+      controls.enablePan = true
+      controls.touches = {
+        ONE: THREE.TOUCH.ROTATE,
+        TWO: THREE.TOUCH.DOLLY_PAN
+      }
+    }
 
-  // 自定义滚轮缩放 - 使用FOV缩放适合全景图
-  renderer.domElement.addEventListener('wheel', (event) => {
+    // 确保控制器生效
+    setTimeout(() => {
+      renderer.domElement.focus()
+    }, 100)
+
+    setCameraView('default')
+  } catch (error) {
+    console.error('设置事件监听器失败:', error)
+  }
+}
+
+/**
+ * 处理滚轮事件
+ */
+const handleWheel = (event) => {
+  try {
     event.preventDefault()
 
     if (!camera) return
 
-    // 计算缩放方向
     const delta = event.deltaY * 0.001
     const currentFov = camera.fov
-
-    // 设置FOV范围 (30-120度)
     const minFov = 30
     const maxFov = 120
 
-    // 计算新的FOV
     let newFov = currentFov + delta * 10
     newFov = Math.max(minFov, Math.min(maxFov, newFov))
 
-    // 更新相机FOV
     camera.fov = newFov
     camera.updateProjectionMatrix()
 
-    // 控制器同步
     if (controls) {
       controls.update()
     }
 
     console.log(`FOV: ${newFov.toFixed(1)}°`)
-  }, { passive: false })
-
-  // 确保 canvas 能接收输入事件
-  renderer.domElement.setAttribute('tabindex', '0')
-  renderer.domElement.focus()
-
-  // 添加点击时获取焦点
-  renderer.domElement.addEventListener('mousedown', () => {
-    renderer.domElement.focus()
-  })
-
-  // 触摸设备优化
-  if ('ontouchstart' in window) {
-    controls.enablePan = true // 在触摸设备上启用平移以支持双指操作
-    controls.touches = {
-      ONE: THREE.TOUCH.ROTATE,
-      TWO: THREE.TOUCH.DOLLY_PAN
-    }
+  } catch (error) {
+    console.error('处理滚轮事件失败:', error)
   }
-
-  // 确保控制器生效
-  setTimeout(() => {
-    renderer.domElement.focus()
-  }, 100)
-  setCameraView('default')
-  // 启动渲染循环
-  animate()
 }
 
-// 渲染动画循环 - 优化性能
+/**
+ * 渲染动画循环
+ */
 const animate = () => {
-  animationId = requestAnimationFrame(animate)
+  try {
+    animationId = requestAnimationFrame(animate)
 
-  // 更新控制器（启用阻尼后必须调用）
-  if (controls) {
-    controls.update()
-  }
+    if (controls) {
+      controls.update()
+    }
 
-  // 只在需要时渲染
-  if (needsRender()) {
-    renderer.render(scene, camera)
+    if (needsRender()) {
+      renderer.render(scene, camera)
+    }
+  } catch (error) {
+    console.error('动画渲染失败:', error)
   }
 }
 
-// 渲染优化检查
+/**
+ * 渲染优化检查
+ */
 let lastRenderTime = 0
 const needsRender = () => {
   const now = performance.now()
-  // 限制帧率到60fps，避免不必要的渲染
   if (now - lastRenderTime > 16) {
     lastRenderTime = now
     return true
@@ -439,95 +554,113 @@ const needsRender = () => {
   return controls && (controls.autoRotate || controls.isUserInteracting)
 }
 
-// 处理窗口大小变化 - 添加节流
+/**
+ * 处理窗口大小变化
+ */
 let resizeTimeout
 const handleResize = () => {
-  if (resizeTimeout) {
-    clearTimeout(resizeTimeout)
-  }
-
-  resizeTimeout = setTimeout(() => {
-    if (camera && renderer && containerRef.value) {
-      camera.aspect = containerRef.value.clientWidth / containerRef.value.clientHeight
-      camera.updateProjectionMatrix()
-      renderer.setSize(
-        containerRef.value.clientWidth,
-        containerRef.value.clientHeight
-      )
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 4))
+  try {
+    if (resizeTimeout) {
+      clearTimeout(resizeTimeout)
     }
-  }, 100) // 100ms节流
+
+    resizeTimeout = setTimeout(() => {
+      if (camera && renderer && containerRef.value) {
+        camera.aspect = containerRef.value.clientWidth / containerRef.value.clientHeight
+        camera.updateProjectionMatrix()
+        renderer.setSize(
+          containerRef.value.clientWidth,
+          containerRef.value.clientHeight
+        )
+        renderer.setPixelRatio(Math.min(window.devicePixelRatio, 4))
+      }
+    }, 100)
+  } catch (error) {
+    console.error('处理窗口大小变化失败:', error)
+  }
 }
 
-// 双击切换自动旋转
+/**
+ * 双击切换自动旋转
+ */
 const toggleAutoRotate = () => {
-  if (controls) {
-    autoRotateEnabled.value = !autoRotateEnabled.value
-    controls.autoRotate = autoRotateEnabled.value
-    console.log(`自动旋转: ${autoRotateEnabled.value ? '开启' : '关闭'}`)
+  try {
+    if (controls) {
+      autoRotateEnabled.value = !autoRotateEnabled.value
+      controls.autoRotate = autoRotateEnabled.value
+      console.log(`自动旋转: ${autoRotateEnabled.value ? '开启' : '关闭'}`)
+    }
+  } catch (error) {
+    console.error('切换自动旋转失败:', error)
   }
 }
 
-
-
-
-
-
-
-
-
-// 在script setup部分添加这些变量
-const animationType = ref('epic-dive') // 默认动画类型
-
-// 获取粒子样式
+/**
+ * 获取粒子样式
+ */
 const getParticleStyle = (index) => {
-  const size = Math.random() * 3 + 1
-  const x = (Math.random() - 0.5) * 500
-  const y = (Math.random() - 0.5) * 300
-  const delay = Math.random() * 5
-  const duration = Math.random() * 10 + 5
+  try {
+    const size = Math.random() * 3 + 1
+    const x = (Math.random() - 0.5) * 500
+    const y = (Math.random() - 0.5) * 300
+    const delay = Math.random() * 5
+    const duration = Math.random() * 10 + 5
 
-  return {
-    width: `${size}px`,
-    height: `${size}px`,
-    left: `calc(50% + ${x}px)`,
-    top: `calc(50% + ${y}px)`,
-    animationDelay: `${delay}s`,
-    animationDuration: `${duration}s`
+    return {
+      width: `${size}px`,
+      height: `${size}px`,
+      left: `calc(50% + ${x}px)`,
+      top: `calc(50% + ${y}px)`,
+      animationDelay: `${delay}s`,
+      animationDuration: `${duration}s`
+    }
+  } catch (error) {
+    console.error('获取粒子样式失败:', error)
+    return {}
   }
 }
 
-// 重置动画
+/**
+ * 重置动画
+ */
 const resetAnimation = () => {
-  animationComplete.value = false
-  setTimeout(() => {
-    animateToDefaultView()
-  }, 100)
+  try {
+    animationComplete.value = false
+    setTimeout(() => {
+      animateToDefaultView()
+    }, 100)
+  } catch (error) {
+    console.error('重置动画失败:', error)
+  }
 }
 
-// 修改后的 animateToDefaultView 函数
+/**
+ * 动画进入默认视角
+ */
 const animateToDefaultView = () => {
-  if (!camera || !controls) return
+  try {
+    if (!camera || !controls) return
 
-  // 确保目标点在球心
-  controls.target.set(0, 0, 0)
+    controls.target.set(0, 0, 0)
 
-  // 根据选择的动画类型执行不同的动画序列
-  switch(animationType.value) {
-  case 'epic-dive':
-    animateEpicDive()
-    break
-  case 'space-warp':
-    animateSpaceWarp()
-    break
-  case 'matrix-hack':
-    animateMatrixHack()
-    break
-  case 'quantum-shift':
-    animateQuantumShift()
-    break
-  default:
-    animateEpicDive()
+    switch(animationType.value) {
+    case 'epic-dive':
+      animateEpicDive()
+      break
+    case 'space-warp':
+      animateSpaceWarp()
+      break
+    case 'matrix-hack':
+      animateMatrixHack()
+      break
+    case 'quantum-shift':
+      animateQuantumShift()
+      break
+    default:
+      animateEpicDive()
+    }
+  } catch (error) {
+    console.error('动画进入默认视角失败:', error)
   }
 }
 
@@ -538,1002 +671,819 @@ const cameraRotation = {
   z: 0
 }
 
-// 动画1: 史诗俯冲
-/* const animateEpicDive = () => {
-  // 起始相机位置：极远处高角度俯视
-  const startPos = new THREE.Vector3(1000, 1500, 1000)
-  camera.position.copy(startPos)
-
-  // 初始FOV：极广角视野
-  camera.fov = 150
-  camera.updateProjectionMatrix()
-
-  // 初始渲染
-  renderer.render(scene, camera)
-
-  // 暂时禁用用户交互
-  controls.enabled = false
-
-  const tl = gsap.timeline({
-    onComplete: () => {
-      console.log('史诗俯冲动画完成')
-      controls.enabled = true
-      animationComplete.value = true
-    }
-  })
-
-  // 第一阶段：极远距离快速俯冲
-  tl.to(camera.position, {
-    x: 50,
-    y: 80,
-    z: 50,
-    duration: 2,
-    ease: 'power4.in',
-    onUpdate: () => {
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  })
-
-  // 第二阶段：剧烈推进，FOV快速收缩
-  tl.to(camera, {
-    fov: 110,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 1.5)
-
-  tl.to(camera.position, {
-    x: 20,
-    y: 30,
-    z: 20,
-    duration: 1.5,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      // 添加剧烈螺旋效果
-      const time = tl.time()
-      const spiralX = Math.sin(time * 2) * 2
-      const spiralZ = Math.cos(time * 2) * 2
-      camera.position.x += spiralX
-      camera.position.z += spiralZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 1.5)
-
-  // 第三阶段：减速接近
-  tl.to(camera, {
-    fov: 85,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 3)
-
-  tl.to(camera.position, {
-    x: 5,
-    y: 8,
-    z: 5,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      // 减弱螺旋效果
-      const time = tl.time()
-      const spiralX = Math.sin(time * 1) * 0.5
-      const spiralZ = Math.cos(time * 1) * 0.5
-      camera.position.x += spiralX
-      camera.position.z += spiralZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 3)
-
-  // 第四阶段：最终精准定位
-  tl.to(camera, {
-    fov: 75,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 4)
-
-  tl.to(camera.position, {
-    x: 0.01,
-    y: 0.01,
-    z: 0.01,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 4)
-
-  // 第五阶段：平滑旋转到最终视角
-  tl.to(cameraRotation, {
-    x: 0,
-    y: Math.PI / 2.5,
-    z: 0,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: function() {
-      // 使用球坐标更新相机位置
-      const spherical = new THREE.Spherical()
-      spherical.radius = 0.01
-      spherical.theta = cameraRotation.y
-      spherical.phi = Math.PI / 1.9
-
-      camera.position.setFromSpherical(spherical)
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 4.5)
-}*/
-
-
-// 优化后的史诗俯冲动画
+/**
+ * 动画1: 史诗俯冲
+ */
 const animateEpicDive = () => {
-  // 起始相机位置：从更高更远的位置开始
-  const startPos = new THREE.Vector3(2000, 2500, 2000)
-  camera.position.copy(startPos)
+  try {
+    const startPos = new THREE.Vector3(2000, 2500, 2000)
+    camera.position.copy(startPos)
 
-  // 初始FOV：更极端的广角视野
-  camera.fov = 170
-  camera.updateProjectionMatrix()
+    camera.fov = 170
+    camera.updateProjectionMatrix()
 
-  // 初始渲染
-  renderer.render(scene, camera)
+    renderer.render(scene, camera)
 
-  // 暂时禁用用户交互
-  controls.enabled = false
+    controls.enabled = false
 
-  // 创建辅助变量用于螺旋效果
-  let spiralIntensity = { value: 0 }
-  let cameraVelocity = { x: 0, y: 0, z: 0 }
+    let spiralIntensity = { value: 0 }
 
-  const tl = gsap.timeline({
-    onComplete: () => {
-      console.log('优化后的史诗俯冲动画完成')
-      controls.enabled = true
-      animationComplete.value = true
-    }
-  })
-
-  // 第一阶段：空中悬浮观察
-  tl.to(camera.position, {
-    x: 1800,
-    y: 2200,
-    z: 1800,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  })
-
-  // 第二阶段：开始加速俯冲，轻微螺旋
-  tl.to(spiralIntensity, {
-    value: 1,
-    duration: 0.5,
-    ease: 'power1.inOut'
-  }, 0.8)
-
-  tl.to(camera.position, {
-    x: 800,
-    y: 1000,
-    z: 800,
-    duration: 2,
-    ease: 'power2.in',
-    onUpdate: () => {
-      // 添加螺旋效果
-      const time = tl.time()
-      const spiralX = Math.sin(time * 2) * 30 * spiralIntensity.value
-      const spiralZ = Math.cos(time * 2) * 30 * spiralIntensity.value
-      camera.position.x += spiralX * 0.1
-      camera.position.z += spiralZ * 0.1
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 1)
-
-  // 同时开始收缩FOV，增强速度感
-  tl.to(camera, {
-    fov: 140,
-    duration: 1.5,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 1.5)
-
-  // 第三阶段：高速俯冲，剧烈螺旋
-  tl.to(spiralIntensity, {
-    value: 3,
-    duration: 1,
-    ease: 'power2.inOut'
-  }, 2.5)
-
-  tl.to(camera.position, {
-    x: 200,
-    y: 300,
-    z: 200,
-    duration: 1.5,
-    ease: 'power4.in',
-    onUpdate: () => {
-      // 增强螺旋效果
-      const time = tl.time()
-      const spiralX = Math.sin(time * 3) * 50 * spiralIntensity.value
-      const spiralZ = Math.cos(time * 3) * 50 * spiralIntensity.value
-      camera.position.x += spiralX * 0.2
-      camera.position.z += spiralZ * 0.2
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 2.5)
-
-  // 快速收缩FOV，增强速度冲击感
-  tl.to(camera, {
-    fov: 100,
-    duration: 1,
-    ease: 'power2.in',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 3)
-
-  // 第四阶段：穿越云层，减速开始
-  tl.to(spiralIntensity, {
-    value: 1.5,
-    duration: 1,
-    ease: 'power2.out'
-  }, 3.8)
-
-  tl.to(camera.position, {
-    x: 50,
-    y: 80,
-    z: 50,
-    duration: 1.5,
-    ease: 'power2.out',
-    onUpdate: () => {
-      // 减弱螺旋效果
-      const time = tl.time()
-      const spiralX = Math.sin(time * 2) * 20 * spiralIntensity.value
-      const spiralZ = Math.cos(time * 2) * 20 * spiralIntensity.value
-      camera.position.x += spiralX * 0.15
-      camera.position.z += spiralZ * 0.15
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 3.8)
-
-  // 继续收缩FOV
-  tl.to(camera, {
-    fov: 85,
-    duration: 1,
-    ease: 'power2.out',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 4)
-
-  // 第五阶段：接近地面，稳定视角
-  tl.to(spiralIntensity, {
-    value: 0.3,
-    duration: 1,
-    ease: 'power2.out'
-  }, 5)
-
-  tl.to(camera.position, {
-    x: 10,
-    y: 15,
-    z: 10,
-    duration: 1.5,
-    ease: 'power2.out',
-    onUpdate: () => {
-      // 微弱螺旋
-      const time = tl.time()
-      const spiralX = Math.sin(time * 1.5) * 5 * spiralIntensity.value
-      const spiralZ = Math.cos(time * 1.5) * 5 * spiralIntensity.value
-      camera.position.x += spiralX * 0.1
-      camera.position.z += spiralZ * 0.1
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 5)
-
-  // 调整FOV到接近正常
-  tl.to(camera, {
-    fov: 78,
-    duration: 0.8,
-    ease: 'power2.out',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 6)
-
-  // 第六阶段：最终精准定位
-  tl.to(spiralIntensity, {
-    value: 0,
-    duration: 0.5,
-    ease: 'power1.out'
-  }, 6.3)
-
-  tl.to(camera.position, {
-    x: 0.01,
-    y: 0.01,
-    z: 0.01,
-    duration: 0.8,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 6.3)
-
-  // 完全正常FOV
-  tl.to(camera, {
-    fov: 75,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 6.5)
-
-  // 第七阶段：平滑旋转到最终视角
-  tl.to(cameraRotation, {
-    x: 0,
-    y: Math.PI / 2.5,
-    z: 0,
-    duration: 1.2,
-    ease: 'power2.inOut',
-    onUpdate: function() {
-      // 使用球坐标更新相机位置
-      const spherical = new THREE.Spherical()
-      spherical.radius = 0.01
-      spherical.theta = cameraRotation.y
-      spherical.phi = Math.PI / 1.9
-
-      camera.position.setFromSpherical(spherical)
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 6.8)
-
-  // 添加视觉冲击效果 - 快速闪烁
-  tl.to(renderer.domElement, {
-    opacity: 0.8,
-    duration: 0.05,
-    ease: 'none'
-  }, 6.3)
-
-  tl.to(renderer.domElement, {
-    opacity: 1,
-    duration: 0.05,
-    ease: 'none'
-  }, 6.35)
-}
-
-
-
-
-
-
-
-
-
-// 动画2: 空间扭曲
-const animateSpaceWarp = () => {
-  // 初始设置：从黑洞中心观察
-  camera.position.set(0, 0, 1000)
-
-  // 初始FOV：极广角
-  camera.fov = 170
-  camera.updateProjectionMatrix()
-
-  // 初始渲染
-  renderer.render(scene, camera)
-
-  // 暂时禁用用户交互
-  controls.enabled = false
-
-  // 重置旋转对象
-  cameraRotation.x = 0
-  cameraRotation.y = 0
-  cameraRotation.z = 0
-
-  const tl = gsap.timeline({
-    onComplete: () => {
-      console.log('空间扭曲动画完成')
-      controls.enabled = true
-      animationComplete.value = true
-    }
-  })
-
-  // 第一阶段：剧烈扭曲，快速拉近
-  tl.to(camera.position, {
-    x: 0,
-    y: 0,
-    z: 100,
-    duration: 2,
-    ease: 'power4.in',
-    onUpdate: () => {
-      // 添加扭曲效果
-      const time = tl.time()
-      const warpAmount = 1 - (camera.position.z / 1000)
-
-      // 使用自定义旋转对象来应用扭曲效果
-      cameraRotation.z = Math.sin(time * 5) * warpAmount * 0.1
-      camera.rotation.z = cameraRotation.z
-
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  })
-
-  // 第二阶段：FOV快速收缩，模拟时空压缩
-  tl.to(camera, {
-    fov: 120,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 1.5)
-
-  tl.to(camera.position, {
-    x: 10,
-    y: 5,
-    z: 10,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      // 减弱扭曲效果
-      const time = tl.time()
-      const warpAmount = camera.position.z / 100
-      cameraRotation.z = Math.sin(time * 3) * warpAmount * 0.05
-      camera.rotation.z = cameraRotation.z
-
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 1.5)
-
-  // 第三阶段：螺旋下降
-  tl.to(camera, {
-    fov: 85,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 2.5)
-
-  tl.to(camera.position, {
-    x: 2,
-    y: 1,
-    z: 2,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      // 螺旋旋转
-      const time = tl.time()
-      const spiralRadius = camera.position.z * 0.5
-      const spiralX = Math.cos(time * 2) * spiralRadius
-      const spiralZ = Math.sin(time * 2) * spiralRadius
-      camera.position.x = spiralX
-      camera.position.z = spiralZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 2.5)
-
-  // 第四阶段：最终定位
-  tl.to(camera, {
-    fov: 75,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 3.5)
-
-  // 重置扭曲旋转
-  tl.to(cameraRotation, {
-    z: 0,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: function() {
-      camera.rotation.z = cameraRotation.z
-    }
-  }, 3.5)
-
-  tl.to(camera.position, {
-    x: 0.01,
-    y: 0.01,
-    z: 0.01,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 3.5)
-
-  // 第五阶段：平滑旋转到最终视角
-  tl.to(cameraRotation, {
-    x: 0,
-    y: Math.PI / 2.5,
-    z: 0,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: function() {
-      const spherical = new THREE.Spherical()
-      spherical.radius = 0.01
-      spherical.theta = cameraRotation.y
-      spherical.phi = Math.PI / 1.9
-
-      camera.position.setFromSpherical(spherical)
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 4)
-}
-
-// 动画3: 黑客帝国
-const animateMatrixHack = () => {
-  // 初始设置：从顶部俯视
-  camera.position.set(0, 500, 0)
-  camera.lookAt(0, 0, 0)
-
-  // 初始FOV：鸟瞰视角
-  camera.fov = 120
-  camera.updateProjectionMatrix()
-
-  // 初始渲染
-  renderer.render(scene, camera)
-
-  // 暂时禁用用户交互
-  controls.enabled = false
-
-  const tl = gsap.timeline({
-    onComplete: () => {
-      console.log('黑客帝国动画完成')
-      controls.enabled = true
-      animationComplete.value = true
-    }
-  })
-
-  // 第一阶段：下落效果
-  tl.to(camera.position, {
-    y: 50,
-    duration: 2,
-    ease: 'power4.in',
-    onUpdate: () => {
-      // 添加轻微摇晃效果
-      const time = tl.time()
-      const wobbleX = Math.sin(time * 10) * 0.5
-      const wobbleZ = Math.cos(time * 10) * 0.5
-      camera.position.x = wobbleX
-      camera.position.z = wobbleZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  })
-
-  // 第二阶段：减速并调整视角
-  tl.to(camera.position, {
-    y: 10,
-    x: 5,
-    z: 5,
-    duration: 1,
-    ease: 'power2.out',
-    onUpdate: () => {
-      // 逐渐减小摇晃
-      const time = tl.time()
-      const wobbleX = Math.sin(time * 5) * 0.2
-      const wobbleZ = Math.cos(time * 5) * 0.2
-      camera.position.x = 5 + wobbleX
-      camera.position.z = 5 + wobbleZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 2)
-
-  tl.to(camera, {
-    fov: 90,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 2)
-
-  // 第三阶段：平移到最终位置
-  tl.to(camera.position, {
-    x: 0.01,
-    y: 0.01,
-    z: 0.01,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      // 进一步减小摇晃
-      const time = tl.time()
-      const wobbleX = Math.sin(time * 3) * 0.05
-      const wobbleZ = Math.cos(time * 3) * 0.05
-      camera.position.x = wobbleX
-      camera.position.z = wobbleZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 3)
-
-  tl.to(camera, {
-    fov: 75,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 3.5)
-
-  // 第五阶段：平滑旋转到最终视角
-  tl.to(cameraRotation, {
-    x: 0,
-    y: Math.PI / 2.5,
-    z: 0,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: function() {
-      const spherical = new THREE.Spherical()
-      spherical.radius = 0.01
-      spherical.theta = cameraRotation.y
-      spherical.phi = Math.PI / 1.9
-
-      camera.position.setFromSpherical(spherical)
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 4)
-}
-
-// 动画4: 量子跃迁
-const animateQuantumShift = () => {
-  // 初始设置：从随机位置开始
-  const randomTheta = Math.random() * Math.PI * 2
-  const randomPhi = Math.random() * Math.PI
-  const randomRadius = 1000
-
-  const randomPos = new THREE.Vector3()
-  randomPos.setFromSphericalCoords(randomRadius, randomPhi, randomTheta)
-  camera.position.copy(randomPos)
-
-  // 初始FOV：极广角
-  camera.fov = 170
-  camera.updateProjectionMatrix()
-
-  // 初始渲染
-  renderer.render(scene, camera)
-
-  // 暂时禁用用户交互
-  controls.enabled = false
-
-  const tl = gsap.timeline({
-    onComplete: () => {
-      console.log('量子跃迁动画完成')
-      controls.enabled = true
-      animationComplete.value = true
-    }
-  })
-
-  // 第一阶段：多次跃迁
-  let targetPosition = new THREE.Vector3()
-  for (let i = 0; i < 3; i++) {
-    targetPosition.set(
-      (Math.random() - 0.5) * 500,
-      (Math.random() - 0.5) * 500,
-      (Math.random() - 0.5) * 500
-    )
+    const tl = gsap.timeline({
+      onComplete: () => {
+        console.log('优化后的史诗俯冲动画完成')
+        controls.enabled = true
+        animationComplete.value = true
+      }
+    })
 
     tl.to(camera.position, {
-      x: targetPosition.x,
-      y: targetPosition.y,
-      z: targetPosition.z,
-      duration: 0.3,
+      x: 1800,
+      y: 2200,
+      z: 1800,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    })
+
+    tl.to(spiralIntensity, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power1.inOut'
+    }, 0.8)
+
+    tl.to(camera.position, {
+      x: 800,
+      y: 1000,
+      z: 800,
+      duration: 2,
+      ease: 'power2.in',
+      onUpdate: () => {
+        const time = tl.time()
+        const spiralX = Math.sin(time * 2) * 30 * spiralIntensity.value
+        const spiralZ = Math.cos(time * 2) * 30 * spiralIntensity.value
+        camera.position.x += spiralX * 0.1
+        camera.position.z += spiralZ * 0.1
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 1)
+
+    tl.to(camera, {
+      fov: 140,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 1.5)
+
+    tl.to(spiralIntensity, {
+      value: 3,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 2.5)
+
+    tl.to(camera.position, {
+      x: 200,
+      y: 300,
+      z: 200,
+      duration: 1.5,
+      ease: 'power4.in',
+      onUpdate: () => {
+        const time = tl.time()
+        const spiralX = Math.sin(time * 3) * 50 * spiralIntensity.value
+        const spiralZ = Math.cos(time * 3) * 50 * spiralIntensity.value
+        camera.position.x += spiralX * 0.2
+        camera.position.z += spiralZ * 0.2
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 2.5)
+
+    tl.to(camera, {
+      fov: 100,
+      duration: 1,
+      ease: 'power2.in',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 3)
+
+    tl.to(spiralIntensity, {
+      value: 1.5,
+      duration: 1,
+      ease: 'power2.out'
+    }, 3.8)
+
+    tl.to(camera.position, {
+      x: 50,
+      y: 80,
+      z: 50,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => {
+        const time = tl.time()
+        const spiralX = Math.sin(time * 2) * 20 * spiralIntensity.value
+        const spiralZ = Math.cos(time * 2) * 20 * spiralIntensity.value
+        camera.position.x += spiralX * 0.15
+        camera.position.z += spiralZ * 0.15
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 3.8)
+
+    tl.to(camera, {
+      fov: 85,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 4)
+
+    tl.to(spiralIntensity, {
+      value: 0.3,
+      duration: 1,
+      ease: 'power2.out'
+    }, 5)
+
+    tl.to(camera.position, {
+      x: 10,
+      y: 15,
+      z: 10,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => {
+        const time = tl.time()
+        const spiralX = Math.sin(time * 1.5) * 5 * spiralIntensity.value
+        const spiralZ = Math.cos(time * 1.5) * 5 * spiralIntensity.value
+        camera.position.x += spiralX * 0.1
+        camera.position.z += spiralZ * 0.1
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 5)
+
+    tl.to(camera, {
+      fov: 78,
+      duration: 0.8,
+      ease: 'power2.out',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 6)
+
+    tl.to(spiralIntensity, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 6.3)
+
+    tl.to(camera.position, {
+      x: 0.01,
+      y: 0.01,
+      z: 0.01,
+      duration: 0.8,
+      ease: 'power1.out',
+      onUpdate: () => {
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 6.3)
+
+    tl.to(camera, {
+      fov: 75,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 6.5)
+
+    tl.to(cameraRotation, {
+      x: 0,
+      y: Math.PI / 2.5,
+      z: 0,
+      duration: 1.2,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const spherical = new THREE.Spherical()
+        spherical.radius = 0.01
+        spherical.theta = cameraRotation.y
+        spherical.phi = Math.PI / 1.9
+
+        camera.position.setFromSpherical(spherical)
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 6.8)
+
+    tl.to(renderer.domElement, {
+      opacity: 0.8,
+      duration: 0.05,
+      ease: 'none'
+    }, 6.3)
+
+    tl.to(renderer.domElement, {
+      opacity: 1,
+      duration: 0.05,
+      ease: 'none'
+    }, 6.35)
+  } catch (error) {
+    console.error('史诗俯冲动画失败:', error)
+    controls.enabled = true
+  }
+}
+
+/**
+ * 动画2: 空间扭曲
+ */
+const animateSpaceWarp = () => {
+  try {
+    camera.position.set(0, 0, 1000)
+
+    camera.fov = 170
+    camera.updateProjectionMatrix()
+
+    renderer.render(scene, camera)
+
+    controls.enabled = false
+
+    cameraRotation.x = 0
+    cameraRotation.y = 0
+    cameraRotation.z = 0
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        console.log('空间扭曲动画完成')
+        controls.enabled = true
+        animationComplete.value = true
+      }
+    })
+
+    tl.to(camera.position, {
+      x: 0,
+      y: 0,
+      z: 100,
+      duration: 2,
+      ease: 'power4.in',
+      onUpdate: () => {
+        const time = tl.time()
+        const warpAmount = 1 - (camera.position.z / 1000)
+
+        cameraRotation.z = Math.sin(time * 5) * warpAmount * 0.1
+        camera.rotation.z = cameraRotation.z
+
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    })
+
+    tl.to(camera, {
+      fov: 120,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 1.5)
+
+    tl.to(camera.position, {
+      x: 10,
+      y: 5,
+      z: 10,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        const time = tl.time()
+        const warpAmount = camera.position.z / 100
+        cameraRotation.z = Math.sin(time * 3) * warpAmount * 0.05
+        camera.rotation.z = cameraRotation.z
+
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 1.5)
+
+    tl.to(camera, {
+      fov: 85,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 2.5)
+
+    tl.to(camera.position, {
+      x: 2,
+      y: 1,
+      z: 2,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        const time = tl.time()
+        const spiralRadius = camera.position.z * 0.5
+        const spiralX = Math.cos(time * 2) * spiralRadius
+        const spiralZ = Math.sin(time * 2) * spiralRadius
+        camera.position.x = spiralX
+        camera.position.z = spiralZ
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 2.5)
+
+    tl.to(camera, {
+      fov: 75,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 3.5)
+
+    tl.to(cameraRotation, {
+      z: 0,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: function() {
+        camera.rotation.z = cameraRotation.z
+      }
+    }, 3.5)
+
+    tl.to(camera.position, {
+      x: 0.01,
+      y: 0.01,
+      z: 0.01,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => {
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 3.5)
+
+    tl.to(cameraRotation, {
+      x: 0,
+      y: Math.PI / 2.5,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const spherical = new THREE.Spherical()
+        spherical.radius = 0.01
+        spherical.theta = cameraRotation.y
+        spherical.phi = Math.PI / 1.9
+
+        camera.position.setFromSpherical(spherical)
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 4)
+  } catch (error) {
+    console.error('空间扭曲动画失败:', error)
+    controls.enabled = true
+  }
+}
+
+/**
+ * 动画3: 黑客帝国
+ */
+const animateMatrixHack = () => {
+  try {
+    camera.position.set(0, 500, 0)
+    camera.lookAt(0, 0, 0)
+
+    camera.fov = 120
+    camera.updateProjectionMatrix()
+
+    renderer.render(scene, camera)
+
+    controls.enabled = false
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        console.log('黑客帝国动画完成')
+        controls.enabled = true
+        animationComplete.value = true
+      }
+    })
+
+    tl.to(camera.position, {
+      y: 50,
+      duration: 2,
+      ease: 'power4.in',
+      onUpdate: () => {
+        const time = tl.time()
+        const wobbleX = Math.sin(time * 10) * 0.5
+        const wobbleZ = Math.cos(time * 10) * 0.5
+        camera.position.x = wobbleX
+        camera.position.z = wobbleZ
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    })
+
+    tl.to(camera.position, {
+      y: 10,
+      x: 5,
+      z: 5,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => {
+        const time = tl.time()
+        const wobbleX = Math.sin(time * 5) * 0.2
+        const wobbleZ = Math.cos(time * 5) * 0.2
+        camera.position.x = 5 + wobbleX
+        camera.position.z = 5 + wobbleZ
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 2)
+
+    tl.to(camera, {
+      fov: 90,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 2)
+
+    tl.to(camera.position, {
+      x: 0.01,
+      y: 0.01,
+      z: 0.01,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        const time = tl.time()
+        const wobbleX = Math.sin(time * 3) * 0.05
+        const wobbleZ = Math.cos(time * 3) * 0.05
+        camera.position.x = wobbleX
+        camera.position.z = wobbleZ
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 3)
+
+    tl.to(camera, {
+      fov: 75,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 3.5)
+
+    tl.to(cameraRotation, {
+      x: 0,
+      y: Math.PI / 2.5,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const spherical = new THREE.Spherical()
+        spherical.radius = 0.01
+        spherical.theta = cameraRotation.y
+        spherical.phi = Math.PI / 1.9
+
+        camera.position.setFromSpherical(spherical)
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 4)
+  } catch (error) {
+    console.error('黑客帝国动画失败:', error)
+    controls.enabled = true
+  }
+}
+
+/**
+ * 动画4: 量子跃迁
+ */
+const animateQuantumShift = () => {
+  try {
+    const randomTheta = Math.random() * Math.PI * 2
+    const randomPhi = Math.random() * Math.PI
+    const randomRadius = 1000
+
+    const randomPos = new THREE.Vector3()
+    randomPos.setFromSphericalCoords(randomRadius, randomPhi, randomTheta)
+    camera.position.copy(randomPos)
+
+    camera.fov = 170
+    camera.updateProjectionMatrix()
+
+    renderer.render(scene, camera)
+
+    controls.enabled = false
+
+    const tl = gsap.timeline({
+      onComplete: () => {
+        console.log('量子跃迁动画完成')
+        controls.enabled = true
+        animationComplete.value = true
+      }
+    })
+
+    let targetPosition = new THREE.Vector3()
+    for (let i = 0; i < 3; i++) {
+      targetPosition.set(
+        (Math.random() - 0.5) * 500,
+        (Math.random() - 0.5) * 500,
+        (Math.random() - 0.5) * 500
+      )
+
+      tl.to(camera.position, {
+        x: targetPosition.x,
+        y: targetPosition.y,
+        z: targetPosition.z,
+        duration: 0.3,
+        ease: 'power1.inOut',
+        onUpdate: () => {
+          camera.lookAt(controls.target)
+          controls.update()
+        }
+      }, i * 0.4)
+
+      if (renderer) {
+        tl.to(renderer.domElement, {
+          opacity: 0.2,
+          duration: 0.1,
+          ease: 'power1.inOut'
+        }, i * 0.4 + 0.1)
+
+        tl.to(renderer.domElement, {
+          opacity: 1,
+          duration: 0.1,
+          ease: 'power1.inOut'
+        }, i * 0.4 + 0.2)
+      }
+    }
+
+    tl.to(camera.position, {
+      x: 10,
+      y: 15,
+      z: 10,
+      duration: 0.5,
       ease: 'power1.inOut',
       onUpdate: () => {
         camera.lookAt(controls.target)
         controls.update()
       }
-    }, i * 0.4)
+    }, 1.5)
 
-    // 闪烁效果
-    tl.to(renderer.domElement, {
-      opacity: 0.2,
-      duration: 0.1,
-      ease: 'power1.inOut'
-    }, i * 0.4 + 0.1)
+    tl.to(camera, {
+      fov: 120,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 1.5)
 
-    tl.to(renderer.domElement, {
-      opacity: 1,
-      duration: 0.1,
-      ease: 'power1.inOut'
-    }, i * 0.4 + 0.2)
+    tl.to(camera.position, {
+      x: 2,
+      y: 3,
+      z: 2,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        const time = tl.time()
+        const wobbleX = (Math.random() - 0.5) * 0.1
+        const wobbleY = (Math.random() - 0.5) * 0.1
+        const wobbleZ = (Math.random() - 0.5) * 0.1
+        camera.position.x = 2 + wobbleX
+        camera.position.y = 3 + wobbleY
+        camera.position.z = 2 + wobbleZ
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 2)
+
+    tl.to(camera, {
+      fov: 90,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 2.5)
+
+    tl.to(camera.position, {
+      x: 0.01,
+      y: 0.01,
+      z: 0.01,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => {
+        const time = tl.time()
+        const wobbleX = (Math.random() - 0.5) * 0.02
+        const wobbleY = (Math.random() - 0.5) * 0.02
+        const wobbleZ = (Math.random() - 0.5) * 0.02
+        camera.position.x = wobbleX
+        camera.position.y = wobbleY
+        camera.position.z = wobbleZ
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 3)
+
+    tl.to(camera, {
+      fov: 75,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 3.5)
+
+    tl.to(cameraRotation, {
+      x: 0,
+      y: Math.PI / 2.5,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const spherical = new THREE.Spherical()
+        spherical.radius = 0.01
+        spherical.theta = cameraRotation.y
+        spherical.phi = Math.PI / 1.9
+
+        camera.position.setFromSpherical(spherical)
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, 4)
+  } catch (error) {
+    console.error('量子跃迁动画失败:', error)
+    controls.enabled = true
   }
-
-  // 第二阶段：最终跃迁到附近
-  tl.to(camera.position, {
-    x: 10,
-    y: 15,
-    z: 10,
-    duration: 0.5,
-    ease: 'power1.inOut',
-    onUpdate: () => {
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 1.5)
-
-  tl.to(camera, {
-    fov: 120,
-    duration: 0.5,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 1.5)
-
-  // 第三阶段：稳定接近
-  tl.to(camera.position, {
-    x: 2,
-    y: 3,
-    z: 2,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      // 添加轻微量子抖动
-      const time = tl.time()
-      const wobbleX = (Math.random() - 0.5) * 0.1
-      const wobbleY = (Math.random() - 0.5) * 0.1
-      const wobbleZ = (Math.random() - 0.5) * 0.1
-      camera.position.x = 2 + wobbleX
-      camera.position.y = 3 + wobbleY
-      camera.position.z = 2 + wobbleZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 2)
-
-  tl.to(camera, {
-    fov: 90,
-    duration: 0.5,
-    ease: 'power2.inOut',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 2.5)
-
-  // 第四阶段：最终定位
-  tl.to(camera.position, {
-    x: 0.01,
-    y: 0.01,
-    z: 0.01,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      // 进一步减小抖动
-      const time = tl.time()
-      const wobbleX = (Math.random() - 0.5) * 0.02
-      const wobbleY = (Math.random() - 0.5) * 0.02
-      const wobbleZ = (Math.random() - 0.5) * 0.02
-      camera.position.x = wobbleX
-      camera.position.y = wobbleY
-      camera.position.z = wobbleZ
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 3)
-
-  tl.to(camera, {
-    fov: 75,
-    duration: 0.5,
-    ease: 'power1.out',
-    onUpdate: () => {
-      camera.updateProjectionMatrix()
-    }
-  }, 3.5)
-
-  // 第五阶段：平滑旋转到最终视角
-  tl.to(cameraRotation, {
-    x: 0,
-    y: Math.PI / 2.5,
-    z: 0,
-    duration: 1,
-    ease: 'power2.inOut',
-    onUpdate: function() {
-      const spherical = new THREE.Spherical()
-      spherical.radius = 0.01
-      spherical.theta = cameraRotation.y
-      spherical.phi = Math.PI / 1.9
-
-      camera.position.setFromSpherical(spherical)
-      camera.lookAt(controls.target)
-      controls.update()
-    }
-  }, 4)
 }
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-// 预设视角函数 - 从当前位置平滑过渡
+/**
+ * 预设视角函数
+ */
 const setCameraView = (preset) => {
-  if (!camera || !controls) return
+  try {
+    if (!camera || !controls) return
 
-  // 确保目标点在球心
-  controls.target.set(0, 0, 0)
+    controls.target.set(0, 0, 0)
 
-  // 根据预设设置目标球坐标
-  let targetTheta = 0
-  let targetPhi = Math.PI / 2
+    let targetTheta = 0
+    let targetPhi = Math.PI / 2
 
-  switch(preset) {
-  case 'front':
-    // 正前方视角
-    targetTheta = 0
-    targetPhi = Math.PI / 2
-    break
-  case 'right':
-    // 右侧视角 (90度)
-    targetTheta = Math.PI / 2
-    targetPhi = Math.PI / 2
-    break
-  case 'left':
-    // 左侧视角 (-90度)
-    targetTheta = -Math.PI / 2
-    targetPhi = Math.PI / 2
-    break
-  case 'back':
-    // 后方视角 (180度)
-    targetTheta = Math.PI
-    targetPhi = Math.PI / 2
-    break
-  case 'up':
-    // 仰视视角 (向上30度)
-    targetTheta = 0
-    targetPhi = Math.PI / 2 - Math.PI / 6
-    break
-  case 'down':
-    // 俯视视角 (向下30度)
-    targetTheta = 0
-    targetPhi = Math.PI / 2 + Math.PI / 6
-    break
-  case 'default':
-  default:
-    // 默认视角
-    targetTheta = Math.PI / 2.5
-    targetPhi = Math.PI / 1.9
-    break
-  }
-
-  // 获取当前球坐标
-  const currentSpherical = new THREE.Spherical()
-  const offset = new THREE.Vector3()
-  offset.copy(controls.object.position).sub(controls.target)
-  currentSpherical.setFromVector3(offset)
-
-  // 处理角度差异（选择最短路径）
-  let thetaDiff = targetTheta - currentSpherical.theta
-  while (thetaDiff > Math.PI) thetaDiff -= 2 * Math.PI
-  while (thetaDiff < -Math.PI) thetaDiff += 2 * Math.PI
-
-  const targetThetaAdjusted = currentSpherical.theta + thetaDiff
-
-  // 使用GSAP创建流畅动画，保持当前半径
-  gsap.to(currentSpherical, {
-    theta: targetThetaAdjusted,
-    phi: targetPhi,
-    duration: 1.5, // 1.5秒动画
-    ease: 'power2.inOut', // GSAP的缓动函数
-    onUpdate: () => {
-      // 限制极角在控制器范围内
-      currentSpherical.phi = Math.max(controls.minPolarAngle, Math.min(controls.maxPolarAngle, currentSpherical.phi))
-      currentSpherical.makeSafe()
-
-      // 从当前位置平滑过渡到新位置
-      controls.object.position.setFromSpherical(currentSpherical)
-      controls.object.lookAt(controls.target)
-      controls.update()
-    },
-    onComplete: () => {
-      console.log(`从当前位置切换到预设视角: ${preset}`)
+    switch(preset) {
+    case 'front':
+      targetTheta = 0
+      targetPhi = Math.PI / 2
+      break
+    case 'right':
+      targetTheta = Math.PI / 2
+      targetPhi = Math.PI / 2
+      break
+    case 'left':
+      targetTheta = -Math.PI / 2
+      targetPhi = Math.PI / 2
+      break
+    case 'back':
+      targetTheta = Math.PI
+      targetPhi = Math.PI / 2
+      break
+    case 'up':
+      targetTheta = 0
+      targetPhi = Math.PI / 2 - Math.PI / 6
+      break
+    case 'down':
+      targetTheta = 0
+      targetPhi = Math.PI / 2 + Math.PI / 6
+      break
+    case 'default':
+    default:
+      targetTheta = Math.PI / 2.5
+      targetPhi = Math.PI / 1.9
+      break
     }
-  })
+
+    const currentSpherical = new THREE.Spherical()
+    const offset = new THREE.Vector3()
+    offset.copy(controls.object.position).sub(controls.target)
+    currentSpherical.setFromVector3(offset)
+
+    let thetaDiff = targetTheta - currentSpherical.theta
+    while (thetaDiff > Math.PI) thetaDiff -= 2 * Math.PI
+    while (thetaDiff < -Math.PI) thetaDiff += 2 * Math.PI
+
+    const targetThetaAdjusted = currentSpherical.theta + thetaDiff
+
+    gsap.to(currentSpherical, {
+      theta: targetThetaAdjusted,
+      phi: targetPhi,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        currentSpherical.phi = Math.max(
+          controls.minPolarAngle,
+          Math.min(controls.maxPolarAngle, currentSpherical.phi)
+        )
+        currentSpherical.makeSafe()
+
+        controls.object.position.setFromSpherical(currentSpherical)
+        controls.object.lookAt(controls.target)
+        controls.update()
+      },
+      onComplete: () => {
+        console.log(`从当前位置切换到预设视角: ${preset}`)
+      }
+    })
+  } catch (error) {
+    console.error('设置相机视角失败:', error)
+  }
 }
 
-// 页面可见性变化处理 - 优化性能
+/**
+ * 页面可见性变化处理
+ */
 const handleVisibilityChange = () => {
-  if (document.hidden) {
-    // 页面隐藏时暂停渲染
-    if (animationId) {
-      cancelAnimationFrame(animationId)
+  try {
+    if (document.hidden) {
+      if (animationId) {
+        cancelAnimationFrame(animationId)
+      }
+    } else {
+      if (scene && camera && renderer) {
+        animate()
+      }
     }
-  } else {
-    // 页面显示时恢复渲染
-    if (scene && camera && renderer) {
-      animate()
-    }
+  } catch (error) {
+    console.error('处理页面可见性变化失败:', error)
   }
 }
 
+// 生命周期钩子
 onMounted(() => {
-  initThreeJS()
-  window.addEventListener('resize', handleResize)
-  document.addEventListener('visibilitychange', handleVisibilityChange)
+  try {
+    initThreeJS()
+    window.addEventListener('resize', handleResize)
+    document.addEventListener('visibilitychange', handleVisibilityChange)
 
-  // 预加载纹理
-  const textureLoader = new THREE.TextureLoader()
-  textureLoader.load(homeImage)
+    // 预加载纹理
+    const textureLoader = new THREE.TextureLoader()
+    textureLoader.load(homeImage)
+  } catch (error) {
+    console.error('组件挂载失败:', error)
+  }
 })
 
 onUnmounted(() => {
-  // 清理动画帧
-  if (animationId) {
-    cancelAnimationFrame(animationId)
-  }
-
-  // 清理事件监听器
-  window.removeEventListener('resize', handleResize)
-  document.removeEventListener('visibilitychange', handleVisibilityChange)
-
-  // 销毁控制器
-  if (controls) {
-    controls.dispose()
-  }
-
-  // 销毁渲染器
-  if (renderer) {
-    renderer.dispose()
-  }
-
-  // 清理几何体和材质
-  if (mesh) {
-    if (mesh.geometry) mesh.geometry.dispose()
-    if (mesh.material) {
-      if (mesh.material.map) mesh.material.map.dispose()
-      mesh.material.dispose()
+  try {
+    // 清理动画帧
+    if (animationId) {
+      cancelAnimationFrame(animationId)
     }
-  }
 
-  // 清理场景
-  if (scene) {
-    scene.clear()
+    // 清理事件监听器
+    window.removeEventListener('resize', handleResize)
+    document.removeEventListener('visibilitychange', handleVisibilityChange)
+
+    // 销毁控制器
+    if (controls) {
+      controls.dispose()
+    }
+
+    // 销毁渲染器
+    if (renderer) {
+      renderer.dispose()
+    }
+
+    // 清理几何体和材质
+    if (mesh) {
+      if (mesh.geometry) mesh.geometry.dispose()
+      if (mesh.material) {
+        if (mesh.material.map) mesh.material.map.dispose()
+        mesh.material.dispose()
+      }
+    }
+
+    // 清理场景
+    if (scene) {
+      scene.clear()
+    }
+  } catch (error) {
+    console.error('组件卸载清理失败:', error)
   }
 })
 </script>
 
 <style scoped lang="scss">
+/**
+ * Home View Styles
+ * 主页视图样式
+ */
+
 .home-content {
   width: 100vw;
   height: 100vh;
@@ -1550,6 +1500,7 @@ onUnmounted(() => {
     outline: none;
     touch-action: none;
     user-select: none;
+    background: #000;
 
     // 提升图像渲染质量
     image-rendering: -webkit-optimize-contrast;
@@ -2028,6 +1979,11 @@ onUnmounted(() => {
     align-items: center;
     gap: 10px;
 
+    label {
+      font-weight: 500;
+      white-space: nowrap;
+    }
+
     select, button {
       background: rgba(255, 255, 255, 0.1);
       color: white;
@@ -2035,10 +1991,20 @@ onUnmounted(() => {
       border-radius: 4px;
       padding: 5px 10px;
       cursor: pointer;
+      transition: all 0.2s ease;
 
       &:hover {
         background: rgba(255, 255, 255, 0.2);
       }
+
+      &:focus {
+        outline: 2px solid rgba(100, 200, 255, 0.5);
+        outline-offset: 1px;
+      }
+    }
+
+    select {
+      min-width: 120px;
     }
   }
 
@@ -2163,4 +2129,3 @@ onUnmounted(() => {
   }
 }
 </style>
-
