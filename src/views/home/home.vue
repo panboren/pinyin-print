@@ -811,6 +811,10 @@ onUnmounted(() => {
       color: white;
       animation: titleCard 3s ease-out forwards;
 
+      // 添加3D透视和转换
+      transform-style: preserve-3d;
+      perspective: 1000px;
+
       h1 {
         font-size: 4rem;
         font-weight: 100;
@@ -818,6 +822,39 @@ onUnmounted(() => {
         margin: 0 0 10px 0;
         text-transform: uppercase;
         text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+
+        // 3D文字效果
+        transform: translateZ(20px);
+        font-family: 'Orbitron', 'Arial', sans-serif;
+        position: relative;
+
+        // 添加科技感辉光效果
+        &::before {
+          content: "ZOOOW";
+          position: absolute;
+          left: 0;
+          top: 0;
+          z-index: -1;
+          color: rgba(100, 200, 255, 0.5);
+          filter: blur(8px);
+          transform: scale(1.05);
+          animation: glowPulse 2s infinite alternate;
+        }
+
+        // 添加3D边缘发光
+        &::after {
+          content: "ZOOOW";
+          position: absolute;
+          left: 2px;
+          top: 2px;
+          z-index: -2;
+          color: rgba(0, 100, 255, 0.3);
+          transform: translateZ(-5px);
+        }
+
+        // 线框效果
+        text-stroke: 1px rgba(100, 200, 255, 0.3);
+        -webkit-text-stroke: 1px rgba(100, 200, 255, 0.3);
       }
 
       p {
@@ -826,8 +863,83 @@ onUnmounted(() => {
         margin: 0;
         opacity: 0.8;
         text-transform: uppercase;
+        transform: translateZ(10px);
+        font-family: 'Orbitron', 'Arial', sans-serif;
+
+        // 添加打字机效果
+        overflow: hidden;
+        white-space: nowrap;
+        animation: typing 3s steps(30) forwards;
+        max-width: 0;
+        margin: 0 auto;
       }
     }
+
+    // 添加科技感发光动画
+    @keyframes glowPulse {
+      0% {
+        filter: blur(8px);
+        opacity: 0.5;
+      }
+      100% {
+        filter: blur(12px);
+        opacity: 0.8;
+      }
+    }
+
+    // 打字机效果
+    @keyframes typing {
+      0% {
+        max-width: 0;
+      }
+      70% {
+        max-width: 100%;
+      }
+      100% {
+        max-width: 100%;
+      }
+    }
+
+    // 添加3D动画效果
+    @keyframes titleCard3D {
+      0% {
+        opacity: 0;
+        transform: translate(-50%, -40%) rotateX(20deg) scale(0.8);
+        filter: blur(10px);
+      }
+      30% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotateX(0deg) scale(1);
+        filter: blur(0px);
+      }
+      70% {
+        opacity: 1;
+        transform: translate(-50%, -50%) rotateX(0deg) scale(1);
+        filter: blur(0px);
+      }
+      100% {
+        opacity: 0;
+        transform: translate(-50%, -60%) rotateX(-10deg) scale(0.9);
+        filter: blur(5px);
+      }
+    }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
   }
 
   @keyframes spin {
