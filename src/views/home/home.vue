@@ -5,9 +5,81 @@
     @dblclick="toggleAutoRotate"
   >
     <canvas ref="canvasRef" />
+    <!-- 电影级加载状态指示器 -->
+    <div
+      v-if="isLoading"
+      class="loading-indicator"
+    >
+      <div class="loading-spinner" />
+      <p>正在加载ZOOOW智慧工具...</p>
+      <div class="loading-progress">
+        准备进入沉浸式体验
+      </div>
+    </div>
+
+    <!-- 电影级开场黑屏 -->
+    <div
+      v-if="!isLoading && !animationComplete"
+      class="cinematic-intro"
+    >
+      <div class="fade-out" />
+      <div class="title-card">
+        <h1>ZOOOW</h1>
+        <p>IMMERSIVE EXPERIENCE</p>
+      </div>
+    </div>
+    <!-- 视角控制面板 -->
+    <div class="view-controls">
+      <h4>视角控制</h4>
+      <div class="view-buttons">
+        <button
+          class="view-btn"
+          @click="setCameraView('front')"
+        >
+          正前方
+        </button>
+        <button
+          class="view-btn"
+          @click="setCameraView('right')"
+        >
+          右侧
+        </button>
+        <button
+          class="view-btn"
+          @click="setCameraView('left')"
+        >
+          左侧
+        </button>
+        <button
+          class="view-btn"
+          @click="setCameraView('back')"
+        >
+          后方
+        </button>
+        <button
+          class="view-btn"
+          @click="setCameraView('up')"
+        >
+          仰视
+        </button>
+        <button
+          class="view-btn"
+          @click="setCameraView('down')"
+        >
+          俯视
+        </button>
+        <button
+          class="view-btn default"
+          @click="setCameraView('default')"
+        >
+          默认
+        </button>
+      </div>
+    </div>
+
     <div class="controls-hint">
       <p>🖱️ 左键拖拽旋转 | 🔍 滚轮缩放 | 📱 触摸手势控制</p>
-      <p>🔄 双击切换自动旋转</p>
+      <p>🔄 双击切换自动旋转 | 🎯 使用视角按钮快速定位</p>
     </div>
   </div>
 </template>
@@ -15,9 +87,11 @@
 <script setup>
 import * as THREE from 'three'
 import { OrbitControls } from 'three/addons/controls/OrbitControls'
+import { gsap } from 'gsap'
 import { onMounted, ref, onUnmounted } from 'vue'
 // 导入本地图片资源
-import homeImage from '@/assets/image/home.jpg'
+import homeImage1 from '@/assets/image/home.jpg'
+import homeImage from '@/assets/image/home1.png'
 
 const containerRef = ref(null)
 const canvasRef = ref(null)
@@ -27,6 +101,7 @@ let controls
 let animationId
 let isLoading = ref(true)
 let autoRotateEnabled = ref(false)
+let animationComplete = ref(false)
 
 // 初始化 Three.js 场景
 const initThreeJS = () => {
@@ -36,36 +111,51 @@ const initThreeJS = () => {
   // 设置背景色为黑色，避免加载时的闪烁
   scene.background = new THREE.Color(0x000000)
 
-  // 创建相机 - 优化视野角度提供更好的沉浸感
+  // 创建相机 - 专业级设置提升清晰度
   camera = new THREE.PerspectiveCamera(
     75,
     containerRef.value.clientWidth / containerRef.value.clientHeight,
-    0.1,
-    1000
+    0.01,  // 更近的近裁剪面提升近距离精度
+    2000   // 更远的远裁剪面
   )
-  camera.position.set(0, 0, 0.1) // 稍微偏移避免相机在球心
+  camera.position.set(0, 0, 0.01) // 最小偏移避免z-fighting
 
-  // 创建渲染器 - 优化设置
+  // 设置默认视角 - 优化初始观看角度
+  camera.rotation.set(0, Math.PI / 4, 0) // 默认向右旋转45度
+  camera.fov = 75 // 保持合适的视野角度
+
+  // 相机精度优化
+  camera.updateProjectionMatrix()
+
+  // 创建渲染器 - 专业级清晰度设置
   renderer = new THREE.WebGLRenderer({
     canvas: canvasRef.value,
-    antialias: true, // 开启抗锯齿提升视觉质量
+    antialias: true,
     alpha: true,
     powerPreference: 'high-performance',
-    preserveDrawingBuffer: false // 优化性能
+    preserveDrawingBuffer: false,
+    precision: 'highp', // 使用高精度着色器
+    stencil: false,     // 禁用模板缓冲提升性能
+    depth: true
   })
 
-  // 设置渲染器尺寸和像素比
-  const pixelRatio = Math.min(window.devicePixelRatio, 2)
+  // 设置渲染器尺寸和像素比 - 极致清晰度
+  const pixelRatio = Math.min(window.devicePixelRatio, 4) // 提高到4倍极致清晰
   renderer.setSize(
     containerRef.value.clientWidth,
-    containerRef.value.clientHeight
+    containerRef.value.clientHeight,
+    true // 更新样式
   )
   renderer.setPixelRatio(pixelRatio)
 
-  // 优化渲染设置
+  // 高级渲染设置 - 最大化清晰度
   renderer.toneMapping = THREE.ACESFilmicToneMapping
-  renderer.toneMappingExposure = 1.0
+  renderer.toneMappingExposure = 1.3 // 进一步增加曝光
   renderer.outputColorSpace = THREE.SRGBColorSpace
+  renderer.gammaFactor = 2.2
+  renderer.gammaOutput = true
+  renderer.physicallyCorrectLights = true
+  renderer.shadowMap.enabled = false // 全景图不需要阴影，提升性能
 
   // 加载全景图纹理 - 优化加载流程
   const textureLoader = new THREE.TextureLoader()
@@ -76,16 +166,29 @@ const initThreeJS = () => {
       console.log('全景图加载完成')
       isLoading.value = false
 
-      // 优化纹理参数
+      // 优化纹理参数 - 专业级清晰度
       loadedTexture.wrapS = THREE.ClampToEdgeWrapping
       loadedTexture.wrapT = THREE.ClampToEdgeWrapping
-      loadedTexture.minFilter = THREE.LinearFilter
+
+      // 使用最高质量过滤
+      loadedTexture.minFilter = THREE.LinearMipmapLinearFilter
       loadedTexture.magFilter = THREE.LinearFilter
       loadedTexture.generateMipmaps = true
-      loadedTexture.anisotropy = renderer.capabilities.getMaxAnisotropy() || 4
 
-      // 触发一次强制渲染
-      renderer.render(scene, camera)
+      // 启用最大各向异性过滤，显著提升斜视角清晰度
+      const maxAnisotropy = renderer.capabilities.getMaxAnisotropy()
+      loadedTexture.anisotropy = maxAnisotropy // 使用硬件支持的最大值
+
+      // 确保正确的色彩空间和精度
+      loadedTexture.colorSpace = THREE.SRGBColorSpace
+      loadedTexture.format = THREE.RGBAFormat // 使用RGBA格式确保最佳质量
+
+      // 纹理精度设置
+      loadedTexture.type = THREE.UnsignedByteType
+      loadedTexture.anisotropy = maxAnisotropy
+
+      // 动画进入默认视角
+      animateToDefaultView()
     },
     (progress) => {
       // 加载进度
@@ -103,8 +206,8 @@ const initThreeJS = () => {
       const ctx = canvas.getContext('2d')
 
       const gradient = ctx.createRadialGradient(256, 256, 0, 256, 256, 256)
-      gradient.addColorStop(0, '#4a90e2')
-      gradient.addColorStop(1, '#1a237e')
+      gradient.addColorStop(0, '#c532f6')
+      gradient.addColorStop(1, '#c4163e')
       ctx.fillStyle = gradient
       ctx.fillRect(0, 0, 512, 512)
 
@@ -114,16 +217,23 @@ const initThreeJS = () => {
     }
   )
 
-  // 创建球体几何体 - 优化分段数平衡性能和质量
-  const geometry = new THREE.SphereGeometry(500, 64, 32)
+  // 创建球体几何体 - 极致精度设置
+  const geometry = new THREE.SphereGeometry(500, 256, 128) // 极高精度分段数
   geometry.scale(-1, 1, 1) // 翻转球体内部显示
 
-  // 创建材质 - 优化设置
+  // 优化几何体属性
+  geometry.computeVertexNormals() // 重新计算法向量确保正确的光照
+
+  // 创建材质 - 专业级质量设置
   const material = new THREE.MeshBasicMaterial({
     map: texture,
     side: THREE.DoubleSide, // 双面渲染避免背面问题
     transparent: false,
-    opacity: 1.0
+    opacity: 1.0,
+    toneMapped: true, // 启用色调映射
+    precision: 'highp', // 高精度着色器
+    depthTest: true,
+    depthWrite: false // 全景图不需要深度写入
   })
 
   // 创建网格
@@ -134,18 +244,18 @@ const initThreeJS = () => {
   controls = new OrbitControls(camera, renderer.domElement)
 
   // 基础控制设置
-  controls.enableZoom = true
-  controls.enablePan = false // 禁用平移，专注于旋转和缩放
+  controls.enableZoom = false  // 禁用默认缩放，使用自定义FOV缩放
+  controls.enablePan = false   // 禁用平移，专注于旋转
   controls.autoRotate = autoRotateEnabled.value
 
   // 旋转速度设置
   controls.autoRotateSpeed = 0.3 // 更慢的自动旋转速度，更舒适
   controls.rotateSpeed = 0.4    // 手动旋转速度适中
 
-  // 缩放设置
-  controls.zoomSpeed = 0.8
-  controls.minDistance = 0.1   // 最小缩放距离
-  controls.maxDistance = 10    // 最大缩放距离，限制过度缩放
+  // 阻尼设置 - 提升交互流畅度
+  controls.enableDamping = true
+  controls.dampingFactor = 0.04 // 更精细的阻尼控制
+
 
   // 阻尼设置 - 提升交互流畅度
   controls.enableDamping = true
@@ -156,6 +266,11 @@ const initThreeJS = () => {
   controls.maxPolarAngle = Math.PI - 0.1 // 最大仰角
   controls.minAzimuthAngle = -Infinity  // 水平旋转无限制
   controls.maxAzimuthAngle = Infinity
+
+  // 设置默认视角 - 与相机初始角度保持一致
+  controls.target.set(0, 0, 0) // 目标点设在球心
+  controls.object.rotation.set(0, Math.PI / 4, 0) // 设置与相机相同的初始旋转
+  controls.update() // 立即更新控制器
 
   // 其他优化设置
   controls.screenSpacePanning = false
@@ -185,6 +300,45 @@ const initThreeJS = () => {
     renderer.domElement.style.cursor = 'grab' // 离开时恢复抓手
   })
 
+  // 自定义滚轮缩放 - 使用FOV缩放适合全景图
+  renderer.domElement.addEventListener('wheel', (event) => {
+    event.preventDefault()
+
+    if (!camera) return
+
+    // 计算缩放方向
+    const delta = event.deltaY * 0.001
+    const currentFov = camera.fov
+
+    // 设置FOV范围 (30-120度)
+    const minFov = 30
+    const maxFov = 120
+
+    // 计算新的FOV
+    let newFov = currentFov + delta * 10
+    newFov = Math.max(minFov, Math.min(maxFov, newFov))
+
+    // 更新相机FOV
+    camera.fov = newFov
+    camera.updateProjectionMatrix()
+
+    // 控制器同步
+    if (controls) {
+      controls.update()
+    }
+
+    console.log(`FOV: ${newFov.toFixed(1)}°`)
+  }, { passive: false })
+
+  // 确保 canvas 能接收输入事件
+  renderer.domElement.setAttribute('tabindex', '0')
+  renderer.domElement.focus()
+
+  // 添加点击时获取焦点
+  renderer.domElement.addEventListener('mousedown', () => {
+    renderer.domElement.focus()
+  })
+
   // 触摸设备优化
   if ('ontouchstart' in window) {
     controls.enablePan = true // 在触摸设备上启用平移以支持双指操作
@@ -198,7 +352,7 @@ const initThreeJS = () => {
   setTimeout(() => {
     renderer.domElement.focus()
   }, 100)
-
+  setCameraView('default')
   // 启动渲染循环
   animate()
 }
@@ -245,7 +399,7 @@ const handleResize = () => {
         containerRef.value.clientWidth,
         containerRef.value.clientHeight
       )
-      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 2))
+      renderer.setPixelRatio(Math.min(window.devicePixelRatio, 4))
     }
   }, 100) // 100ms节流
 }
@@ -257,6 +411,211 @@ const toggleAutoRotate = () => {
     controls.autoRotate = autoRotateEnabled.value
     console.log(`自动旋转: ${autoRotateEnabled.value ? '开启' : '关闭'}`)
   }
+}
+
+// 电影级俯冲进入动画
+const animateToDefaultView = () => {
+  if (!camera || !controls) return
+
+  // 设置初始状态 - 从远处高角度开始
+  controls.target.set(0, 0, 0)
+
+  // 起始相机位置：远处高角度俯视
+  const startPos = new THREE.Vector3(50, 100, 50)
+  camera.position.copy(startPos)
+
+  // 起始FOV：广角视野
+  camera.fov = 120
+  camera.updateProjectionMatrix()
+
+  // 初始渲染
+  renderer.render(scene, camera)
+
+  // 创建时间轴进行复杂的序列动画
+  const tl = gsap.timeline({
+    onComplete: () => {
+      console.log('电影级俯冲动画完成')
+      // 启用用户交互
+      controls.enabled = true
+      // 标记动画完成
+      animationComplete.value = true
+    }
+  })
+
+  // 第一阶段：快速俯冲 (0-1.5秒)
+  tl.to(camera.position, {
+    x: 2,
+    y: 5,
+    z: 2,
+    duration: 1.5,
+    ease: 'power4.in', // 强力加速俯冲
+    onUpdate: () => {
+      camera.lookAt(controls.target)
+      controls.update()
+    }
+  })
+
+  // 第二阶段：螺旋接近 (1.5-3秒)
+    .to(camera.position, {
+      x: 0.5,
+      y: 0.2,
+      z: 0.5,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+      // 添加螺旋效果
+        const time = tl.time()
+        const spiralX = Math.sin(time * 2) * 0.1
+        const spiralZ = Math.cos(time * 2) * 0.1
+        camera.position.x += spiralX
+        camera.position.z += spiralZ
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    }, '-=0.5') // 提前0.5秒开始，产生重叠
+
+  // 第三阶段：FOV收缩模拟加速 (1-2.5秒)
+    .to(camera, {
+      fov: 90,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 1) // 1秒时开始
+
+  // 第四阶段：最终定位到球心 (3-4秒)
+    .to(camera.position, {
+      x: 0.01,
+      y: 0.01,
+      z: 0.01,
+      duration: 1,
+      ease: 'power1.out',
+      onUpdate: () => {
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    })
+
+  // 第五阶段：FOV恢复正常 (3.5-4.5秒)
+    .to(camera, {
+      fov: 75,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => {
+        camera.updateProjectionMatrix()
+      }
+    }, 3.5)
+
+  // 第六阶段：最终旋转到默认角度 (4-5.5秒)
+    .to({}, {
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+      // 平滑旋转到指定的最终位置
+        const progress = this.progress()
+        const currentTheta = progress * (Math.PI / 2.5)
+
+        const spherical = new THREE.Spherical()
+        spherical.radius = 0.01
+        spherical.theta = currentTheta
+        spherical.phi = Math.PI / 1.9
+
+        camera.position.setFromSpherical(spherical)
+        camera.lookAt(controls.target)
+        controls.update()
+      }
+    })
+
+  // 暂时禁用用户交互，避免动画被干扰
+  controls.enabled = false
+}
+
+
+
+// 预设视角函数 - 从当前位置平滑过渡
+const setCameraView = (preset) => {
+  if (!camera || !controls) return
+
+  // 确保目标点在球心
+  controls.target.set(0, 0, 0)
+
+  // 根据预设设置目标球坐标
+  let targetTheta = 0
+  let targetPhi = Math.PI / 2
+
+  switch(preset) {
+  case 'front':
+    // 正前方视角
+    targetTheta = 0
+    targetPhi = Math.PI / 2
+    break
+  case 'right':
+    // 右侧视角 (90度)
+    targetTheta = Math.PI / 2
+    targetPhi = Math.PI / 2
+    break
+  case 'left':
+    // 左侧视角 (-90度)
+    targetTheta = -Math.PI / 2
+    targetPhi = Math.PI / 2
+    break
+  case 'back':
+    // 后方视角 (180度)
+    targetTheta = Math.PI
+    targetPhi = Math.PI / 2
+    break
+  case 'up':
+    // 仰视视角 (向上30度)
+    targetTheta = 0
+    targetPhi = Math.PI / 2 - Math.PI / 6
+    break
+  case 'down':
+    // 俯视视角 (向下30度)
+    targetTheta = 0
+    targetPhi = Math.PI / 2 + Math.PI / 6
+    break
+  case 'default':
+  default:
+    // 默认视角
+    targetTheta = Math.PI / 2.5
+    targetPhi = Math.PI / 1.9
+    break
+  }
+
+  // 获取当前球坐标
+  const currentSpherical = new THREE.Spherical()
+  const offset = new THREE.Vector3()
+  offset.copy(controls.object.position).sub(controls.target)
+  currentSpherical.setFromVector3(offset)
+
+  // 处理角度差异（选择最短路径）
+  let thetaDiff = targetTheta - currentSpherical.theta
+  while (thetaDiff > Math.PI) thetaDiff -= 2 * Math.PI
+  while (thetaDiff < -Math.PI) thetaDiff += 2 * Math.PI
+
+  const targetThetaAdjusted = currentSpherical.theta + thetaDiff
+
+  // 使用GSAP创建流畅动画，保持当前半径
+  gsap.to(currentSpherical, {
+    theta: targetThetaAdjusted,
+    phi: targetPhi,
+    duration: 1.5, // 1.5秒动画
+    ease: 'power2.inOut', // GSAP的缓动函数
+    onUpdate: () => {
+      // 限制极角在控制器范围内
+      currentSpherical.phi = Math.max(controls.minPolarAngle, Math.min(controls.maxPolarAngle, currentSpherical.phi))
+      currentSpherical.makeSafe()
+
+      // 从当前位置平滑过渡到新位置
+      controls.object.position.setFromSpherical(currentSpherical)
+      controls.object.lookAt(controls.target)
+      controls.update()
+    },
+    onComplete: () => {
+      console.log(`从当前位置切换到预设视角: ${preset}`)
+    }
+  })
 }
 
 // 页面可见性变化处理 - 优化性能
@@ -338,9 +697,239 @@ onUnmounted(() => {
     touch-action: none; // 防止触摸干扰
     user-select: none;  // 防止文本选择干扰
 
+
+    // 提升图像渲染质量
+    image-rendering: -webkit-optimize-contrast;
+    image-rendering: crisp-edges;
+    image-rendering: pixelated;
+
     // 优化移动端体验
     @media (pointer: coarse) {
       touch-action: pan-y pinch-zoom;
+    }
+  }
+
+  // 电影级加载指示器
+  .loading-indicator {
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 20px;
+    color: white;
+    background: rgba(0, 0, 0, 0.9);
+    padding: 40px;
+    border-radius: 20px;
+    backdrop-filter: blur(20px);
+    border: 2px solid rgba(255, 255, 255, 0.1);
+    z-index: 100;
+    text-align: center;
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid rgba(255, 255, 255, 0.2);
+      border-top: 4px solid #ffffff;
+      border-radius: 50%;
+      animation: spin 2s linear infinite;
+      box-shadow: 0 0 20px rgba(255, 255, 255, 0.3);
+    }
+
+    p {
+      margin: 0;
+      font-size: 18px;
+      font-weight: 600;
+      opacity: 1;
+      letter-spacing: 2px;
+      text-transform: uppercase;
+      text-shadow: 0 2px 10px rgba(0, 0, 0, 0.5);
+    }
+
+    .loading-progress {
+      font-size: 12px;
+      opacity: 0.7;
+      letter-spacing: 1px;
+      font-style: italic;
+      animation: pulse 2s ease-in-out infinite;
+    }
+  }
+
+  // 电影级开场效果
+  .cinematic-intro {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    z-index: 50;
+    pointer-events: none;
+
+    .fade-out {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: black;
+      animation: fadeOut 2s ease-out forwards;
+    }
+
+    .title-card {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      text-align: center;
+      color: white;
+      animation: titleCard 3s ease-out forwards;
+
+      h1 {
+        font-size: 4rem;
+        font-weight: 100;
+        letter-spacing: 8px;
+        margin: 0 0 10px 0;
+        text-transform: uppercase;
+        text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+      }
+
+      p {
+        font-size: 1rem;
+        letter-spacing: 4px;
+        margin: 0;
+        opacity: 0.8;
+        text-transform: uppercase;
+      }
+    }
+  }
+
+  @keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+  }
+
+  @keyframes pulse {
+    0%, 100% { opacity: 0.7; }
+    50% { opacity: 1; }
+  }
+
+  @keyframes fadeOut {
+    0% {
+      opacity: 1;
+    }
+    70% {
+      opacity: 1;
+    }
+    100% {
+      opacity: 0;
+      visibility: hidden;
+    }
+  }
+
+  @keyframes titleCard {
+    0% {
+      opacity: 0;
+      transform: translate(-50%, -40%);
+      filter: blur(10px);
+    }
+    30% {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      filter: blur(0px);
+    }
+    70% {
+      opacity: 1;
+      transform: translate(-50%, -50%);
+      filter: blur(0px);
+    }
+    100% {
+      opacity: 0;
+      transform: translate(-50%, -60%);
+      filter: blur(5px);
+    }
+  }
+
+  // 视角控制面板
+  .view-controls {
+    position: absolute;
+    top: 20px;
+    right: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    backdrop-filter: blur(10px);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 12px;
+    padding: 16px;
+    color: white;
+    z-index: 100;
+    min-width: 200px;
+
+    h4 {
+      margin: 0 0 12px 0;
+      font-size: 14px;
+      font-weight: 600;
+      opacity: 0.9;
+      text-align: center;
+    }
+
+    .view-buttons {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+
+      .view-btn {
+        padding: 8px 4px;
+        background: rgba(255, 255, 255, 0.1);
+        border: 1px solid rgba(255, 255, 255, 0.2);
+        border-radius: 6px;
+        color: white;
+        font-size: 12px;
+        cursor: pointer;
+        transition: all 0.3s ease;
+
+        &:hover {
+          background: rgba(255, 255, 255, 0.2);
+          border-color: rgba(255, 255, 255, 0.3);
+          transform: translateY(-1px);
+        }
+
+        &:active {
+          transform: translateY(0);
+        }
+
+        &.default {
+          grid-column: span 3;
+          background: rgba(76, 175, 80, 0.3);
+          border-color: rgba(76, 175, 80, 0.5);
+
+          &:hover {
+            background: rgba(76, 175, 80, 0.4);
+          }
+        }
+      }
+    }
+
+    // 移动端优化
+    @media (max-width: 768px) {
+      top: 15px;
+      right: 15px;
+      padding: 12px;
+      min-width: 160px;
+
+      h4 {
+        font-size: 12px;
+      }
+
+      .view-buttons {
+        grid-template-columns: repeat(2, 1fr);
+        gap: 6px;
+
+        .view-btn {
+          padding: 6px 3px;
+          font-size: 11px;
+        }
+      }
     }
   }
 
