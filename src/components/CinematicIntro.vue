@@ -1,64 +1,34 @@
 <!-- src/components/CinematicIntro.vue -->
 <template>
-  <div>
-    <div
-      v-if="!animationComplete"
-      class="cinematic-intro"
-      :data-animation-type="animationType"
-    >
-      <div class="fade-out" />
-      <div class="title-card">
-        <div class="particles-container">
-          <div
-            v-for="i in 50"
-            :key="i"
-            class="particle"
-            :style="getParticleStyle(i)"
-          />
-        </div>
-        <h1>ZOOOW</h1>
-        <p>IMMERSIVE EXPERIENCE</p>
-        <div class="scanlines" />
-        <div class="lens-flare" />
+  <div
+    v-if="!animationComplete"
+    class="cinematic-intro"
+    :data-animation-type="animationType"
+  >
+    <div class="fade-out" />
+    <div class="title-card">
+      <div class="particles-container">
+        <div
+          v-for="i in 50"
+          :key="i"
+          class="particle"
+          :style="getParticleStyle(i)"
+        />
       </div>
-      <!-- 添加动态效果层，特别是为史诗俯冲 -->
-      <div
-        v-if="animationType === 'epic-dive'"
-        class="dynamic-effects"
-      >
-        <div class="speed-lines" />
-        <div class="vignette" />
-        <div class="motion-blur" />
-      </div>
+      <h1>ZOOOW</h1>
+      <p>IMMERSIVE EXPERIENCE</p>
+      <div class="scanlines" />
+      <div class="lens-flare" />
     </div>
 
-
-    <!-- 动画选择器（开发时可见，生产环境可隐藏） -->
+    <!-- 添加动态效果层，特别是为史诗俯冲 -->
     <div
-      v-if="!isLoading"
-      class="animation-selector"
+      v-if="animationType === 'epic-dive'"
+      class="dynamic-effects"
     >
-      <span>动画类型11:</span>
-      <select
-        v-model="animationType"
-        @change="(e) => resetAnimation(e.target.value)"
-      >
-        <option value="epic-dive">
-          史诗俯冲
-        </option>
-        <option value="space-warp">
-          空间扭曲
-        </option>
-        <option value="matrix-hack">
-          黑客帝国
-        </option>
-        <option value="quantum-shift">
-          量子跃迁
-        </option>
-      </select>
-      <button @click="resetAnimation">
-        重新播放
-      </button>
+      <div class="speed-lines" />
+      <div class="vignette" />
+      <div class="motion-blur" />
     </div>
   </div>
 </template>
@@ -66,19 +36,13 @@
 <script setup>
 import { ref } from 'vue'
 import { gsap } from 'gsap'
-
-// 添加 THREE 的导入
 import * as THREE from 'three'
 
 const props = defineProps({
-  isLoading: {
-    type: Boolean,
-    default: true
-  },
-  /*  animationType: {
+  animationType: {
     type: String,
     default: 'epic-dive'
-  },*/
+  },
   camera: {
     type: Object,
     default: () => null
@@ -96,13 +60,6 @@ const props = defineProps({
     default: () => null
   }
 })
-
-
-
-
-
-
-let animationType = defineModel({type: String, default: 'epic-dive'})
 
 const emit = defineEmits(['complete'])
 
@@ -146,7 +103,7 @@ const animateEpicDive = () => {
   props.camera.updateProjectionMatrix()
 
   // 初始渲染
-  if (props.scene) {
+  if (props.scene && props.renderer) {
     props.renderer.render(props.scene, props.camera)
   }
 
@@ -162,7 +119,7 @@ const animateEpicDive = () => {
       console.log('优化后的史诗俯冲动画完成')
       props.controls.enabled = true
       animationComplete.value = true
-      emit('complete',true)
+      emit('complete')
     }
   })
 
@@ -369,17 +326,19 @@ const animateEpicDive = () => {
   }, 6.8)
 
   // 添加视觉冲击效果 - 快速闪烁
-  tl.to(props.renderer.domElement, {
-    opacity: 0.8,
-    duration: 0.05,
-    ease: 'none'
-  }, 6.3)
+  if (props.renderer) {
+    tl.to(props.renderer.domElement, {
+      opacity: 0.8,
+      duration: 0.05,
+      ease: 'none'
+    }, 6.3)
 
-  tl.to(props.renderer.domElement, {
-    opacity: 1,
-    duration: 0.05,
-    ease: 'none'
-  }, 6.35)
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.05,
+      ease: 'none'
+    }, 6.35)
+  }
 }
 
 // 动画2: 空间扭曲
@@ -394,7 +353,7 @@ const animateSpaceWarp = () => {
   props.camera.updateProjectionMatrix()
 
   // 初始渲染
-  if (props.scene) {
+  if (props.scene && props.renderer) {
     props.renderer.render(props.scene, props.camera)
   }
 
@@ -558,7 +517,7 @@ const animateMatrixHack = () => {
   props.camera.updateProjectionMatrix()
 
   // 初始渲染
-  if (props.scene) {
+  if (props.scene && props.renderer) {
     props.renderer.render(props.scene, props.camera)
   }
 
@@ -685,7 +644,7 @@ const animateQuantumShift = () => {
   props.camera.updateProjectionMatrix()
 
   // 初始渲染
-  if (props.scene) {
+  if (props.scene && props.renderer) {
     props.renderer.render(props.scene, props.camera)
   }
 
@@ -723,17 +682,19 @@ const animateQuantumShift = () => {
     }, i * 0.4)
 
     // 闪烁效果
-    tl.to(props.renderer.domElement, {
-      opacity: 0.2,
-      duration: 0.1,
-      ease: 'power1.inOut'
-    }, i * 0.4 + 0.1)
+    if (props.renderer) {
+      tl.to(props.renderer.domElement, {
+        opacity: 0.2,
+        duration: 0.1,
+        ease: 'power1.inOut'
+      }, i * 0.4 + 0.1)
 
-    tl.to(props.renderer.domElement, {
-      opacity: 1,
-      duration: 0.1,
-      ease: 'power1.inOut'
-    }, i * 0.4 + 0.2)
+      tl.to(props.renderer.domElement, {
+        opacity: 1,
+        duration: 0.1,
+        ease: 'power1.inOut'
+      }, i * 0.4 + 0.2)
+    }
   }
 
   // 第二阶段：最终跃迁到附近
@@ -842,7 +803,7 @@ const animateQuantumShift = () => {
 const playAnimation = () => {
   animationComplete.value = false
 
-  switch(animationType.value) {
+  switch(props.animationType) {
   case 'epic-dive':
     animateEpicDive()
     break
@@ -858,30 +819,6 @@ const playAnimation = () => {
   default:
     animateEpicDive()
   }
-}
-
-// 修改后的 animateToDefaultView 函数
-const animateToDefaultView = () => {
-  if (!props.camera || !props.controls) return
-
-  // 确保目标点在球心
-  props.controls.target.set(0, 0, 0)
-
-  // 播放开场动画
-  if (playAnimation) {
-    playAnimation()
-  }
-}
-
-// 重置动画
-const resetAnimation = (value) => {
-  if(value) {
-    animationType.value = value
-  }
-  emit('complete', false)
-  setTimeout(() => {
-    animateToDefaultView()
-  }, 100)
 }
 
 defineExpose({
@@ -1424,35 +1361,6 @@ defineExpose({
       opacity: 0;
       transform: translate(-50%, -60%) rotateX(-10deg) scale(0.9);
       filter: blur(5px);
-    }
-  }
-}
-
-// 动画选择器样式
-.animation-selector {
-  position: absolute;
-  top: 20px;
-  left: 20px;
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 10px 15px;
-  border-radius: 8px;
-  font-size: 14px;
-  z-index: 100;
-  display: flex;
-  align-items: center;
-  gap: 10px;
-
-  select, button {
-    background: rgba(255, 255, 255, 0.1);
-    color: white;
-    border: 1px solid rgba(255, 255, 255, 0.2);
-    border-radius: 4px;
-    padding: 5px 10px;
-    cursor: pointer;
-
-    &:hover {
-      background: rgba(255, 255, 255, 0.2);
     }
   }
 }
