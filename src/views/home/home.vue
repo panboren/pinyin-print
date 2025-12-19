@@ -1541,16 +1541,15 @@ onUnmounted(() => {
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
-  background: #000; // 加载时的黑色背景
+  background: #000;
 
   canvas {
     display: block;
     width: 100%;
     height: 100%;
     outline: none;
-    touch-action: none; // 防止触摸干扰
-    user-select: none;  // 防止文本选择干扰
-
+    touch-action: none;
+    user-select: none;
 
     // 提升图像渲染质量
     image-rendering: -webkit-optimize-contrast;
@@ -1639,6 +1638,7 @@ onUnmounted(() => {
       text-align: center;
       color: white;
       animation: titleCard 3s ease-out forwards;
+      z-index: 10;
 
       // 添加3D透视和转换
       transform-style: preserve-3d;
@@ -1702,73 +1702,142 @@ onUnmounted(() => {
         max-width: 0;
         margin: 0 auto;
       }
-    }
 
-    // 添加科技感发光动画
-    @keyframes glowPulse {
-      0% {
-        filter: blur(8px);
-        opacity: 0.5;
-      }
-      100% {
-        filter: blur(12px);
-        opacity: 0.8;
-      }
-    }
+      // 粒子容器
+      .particles-container {
+        position: absolute;
+        top: -50%;
+        left: -50%;
+        width: 200%;
+        height: 200%;
+        pointer-events: none;
+        z-index: -1;
 
-    // 打字机效果
-    @keyframes typing {
-      0% {
-        max-width: 0;
+        .particle {
+          position: absolute;
+          background: rgba(100, 200, 255, 0.8);
+          border-radius: 50%;
+          box-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
+          animation: float 3s infinite ease-in-out;
+        }
       }
-      70% {
-        max-width: 100%;
-      }
-      100% {
-        max-width: 100%;
-      }
-    }
 
-    // 添加3D动画效果
-    @keyframes titleCard3D {
-      0% {
+      // 扫描线效果
+      .scanlines {
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 100%;
+        background: repeating-linear-gradient(
+                0deg,
+                transparent,
+                transparent 2px,
+                rgba(100, 200, 255, 0.03) 2px,
+                rgba(100, 200, 255, 0.03) 4px
+        );
+        pointer-events: none;
+        z-index: 1;
+      }
+
+      // 镜头光晕效果
+      .lens-flare {
+        position: absolute;
+        top: 20%;
+        left: 30%;
+        width: 40px;
+        height: 40px;
+        background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(100,200,255,0.4) 40%, transparent 70%);
+        border-radius: 50%;
+        filter: blur(2px);
         opacity: 0;
-        transform: translate(-50%, -40%) rotateX(20deg) scale(0.8);
-        filter: blur(10px);
+        animation: flare 2s ease-out forwards;
+        z-index: 2;
       }
-      30% {
-        opacity: 1;
-        transform: translate(-50%, -50%) rotateX(0deg) scale(1);
-        filter: blur(0px);
+
+      // 不同动画类型的标题特效
+      .cinematic-intro[data-animation-type="space-warp"] & {
+        h1 {
+          animation: titleGlitch 0.5s infinite;
+        }
       }
-      70% {
-        opacity: 1;
-        transform: translate(-50%, -50%) rotateX(0deg) scale(1);
-        filter: blur(0px);
+
+      .cinematic-intro[data-animation-type="matrix-hack"] & {
+        h1 {
+          color: #0f0;
+          text-shadow: 0 0 10px #0f0;
+
+          &::before {
+            color: rgba(0, 255, 0, 0.5);
+            animation: matrixGlow 1s infinite alternate;
+          }
+        }
+
+        p {
+          color: #0f0;
+        }
       }
-      100% {
-        opacity: 0;
-        transform: translate(-50%, -60%) rotateX(-10deg) scale(0.9);
-        filter: blur(5px);
+
+      .cinematic-intro[data-animation-type="quantum-shift"] & {
+        .particles-container .particle {
+          animation: quantumFloat 1s infinite ease-in-out;
+        }
+
+        h1 {
+          animation: titleFlicker 0.2s infinite;
+        }
       }
     }
 
+    // 添加相应的CSS
+    .dynamic-effects {
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      pointer-events: none;
+      z-index: 5;
 
+      .speed-lines {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        background: linear-gradient(
+                0deg,
+                transparent 0%,
+                rgba(255, 255, 255, 0.03) 45%,
+                rgba(255, 255, 255, 0.05) 50%,
+                rgba(255, 255, 255, 0.03) 55%,
+                transparent 100%
+        );
+        opacity: 0;
+        animation: speedLinesFlash 8s ease-in-out forwards;
+      }
 
+      .vignette {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        box-shadow: inset 0 0 300px rgba(0, 0, 0, 0);
+        animation: vignetteAppear 8s ease-in-out forwards;
+      }
 
+      .motion-blur {
+        position: absolute;
+        width: 100%;
+        height: 100%;
+        backdrop-filter: blur(0px);
+        animation: motionBlurEffect 8s ease-in-out forwards;
+      }
+    }
 
-
-
-
-
-
-
-
-
-
-
-
-
+    // 为史诗俯冲添加标题特殊效果
+    &[data-animation-type="epic-dive"] .title-card {
+      h1 {
+        animation: titleShake 8s ease-in-out forwards;
+      }
+    }
   }
 
   @keyframes spin {
@@ -1797,23 +1866,179 @@ onUnmounted(() => {
   @keyframes titleCard {
     0% {
       opacity: 0;
-      transform: translate(-50%, -40%);
+      transform: translate(-50%, -40%) rotateX(20deg) scale(0.8);
       filter: blur(10px);
     }
     30% {
       opacity: 1;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%) rotateX(0deg) scale(1);
       filter: blur(0px);
     }
     70% {
       opacity: 1;
-      transform: translate(-50%, -50%);
+      transform: translate(-50%, -50%) rotateX(0deg) scale(1);
       filter: blur(0px);
     }
     100% {
       opacity: 0;
-      transform: translate(-50%, -60%);
+      transform: translate(-50%, -60%) rotateX(-10deg) scale(0.9);
       filter: blur(5px);
+    }
+  }
+
+  // 添加科技感发光动画
+  @keyframes glowPulse {
+    0% {
+      filter: blur(8px);
+      opacity: 0.5;
+    }
+    100% {
+      filter: blur(12px);
+      opacity: 0.8;
+    }
+  }
+
+  // 打字机效果
+  @keyframes typing {
+    0% {
+      max-width: 0;
+    }
+    70% {
+      max-width: 100%;
+    }
+    100% {
+      max-width: 100%;
+    }
+  }
+
+  @keyframes float {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0.8;
+    }
+    50% {
+      transform: translate(0, -20px) scale(1.2);
+      opacity: 1;
+    }
+  }
+
+  @keyframes quantumFloat {
+    0%, 100% {
+      transform: translate(0, 0) scale(1);
+      opacity: 0;
+    }
+    50% {
+      transform: translate(0, -30px) scale(1.5);
+      opacity: 1;
+    }
+  }
+
+  @keyframes titleGlitch {
+    0%, 100% {
+      transform: translateZ(20px);
+    }
+    20% {
+      transform: translateX(-5px) translateZ(20px);
+    }
+    40% {
+      transform: translateX(5px) translateZ(20px);
+    }
+  }
+
+  @keyframes matrixGlow {
+    0% {
+      filter: blur(8px);
+      opacity: 0.3;
+    }
+    100% {
+      filter: blur(10px);
+      opacity: 0.7;
+    }
+  }
+
+  @keyframes titleFlicker {
+    0%, 100% {
+      opacity: 1;
+    }
+    50% {
+      opacity: 0.8;
+    }
+  }
+
+  @keyframes flare {
+    0% {
+      opacity: 0;
+      transform: scale(0.5);
+    }
+    50% {
+      opacity: 1;
+      transform: scale(1.2);
+    }
+    100% {
+      opacity: 0.7;
+      transform: scale(1);
+    }
+  }
+
+  @keyframes titleShake {
+    0%, 20% { transform: translateZ(20px); }
+    40%, 45% { transform: translateZ(20px) translateX(2px); }
+    50%, 55% { transform: translateZ(20px) translateX(-2px); }
+    60% { transform: translateZ(20px) translateX(1px); }
+    70% { transform: translateZ(20px); }
+    100% { transform: translateZ(20px) translateY(-10px); }
+  }
+
+  @keyframes speedLinesFlash {
+    0% { opacity: 0; }
+    20% { opacity: 0; }
+    40% { opacity: 0.6; }
+    70% { opacity: 0.4; }
+    90% { opacity: 0; }
+    100% { opacity: 0; }
+  }
+
+  @keyframes vignetteAppear {
+    0% { box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); }
+    20% { box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.3); }
+    60% { box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.5); }
+    100% { box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); }
+  }
+
+  @keyframes motionBlurEffect {
+    0% { backdrop-filter: blur(0px); }
+    20% { backdrop-filter: blur(0px); }
+    50% { backdrop-filter: blur(2px); }
+    70% { backdrop-filter: blur(1px); }
+    100% { backdrop-filter: blur(0px); }
+  }
+
+  // 动画选择器样式
+  .animation-selector {
+    position: absolute;
+    top: 20px;
+    left: 20px;
+    background: rgba(0, 0, 0, 0.8);
+    color: white;
+    padding: 10px 15px;
+    border-radius: 8px;
+    font-size: 14px;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    gap: 10px;
+
+    select, button {
+      background: rgba(255, 255, 255, 0.1);
+      color: white;
+      border: 1px solid rgba(255, 255, 255, 0.2);
+      border-radius: 4px;
+      padding: 5px 10px;
+      cursor: pointer;
+
+      &:hover {
+        background: rgba(255, 255, 255, 0.2);
+      }
     }
   }
 
@@ -1936,421 +2161,6 @@ onUnmounted(() => {
   &:hover .controls-hint {
     opacity: 1;
   }
-
-
-
-
-
-  // 添加相应的CSS
-  .dynamic-effects {
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 100%;
-    height: 100%;
-    pointer-events: none;
-    z-index: 5;
-
-    .speed-lines {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      background: linear-gradient(
-              0deg,
-              transparent 0%,
-              rgba(255, 255, 255, 0.03) 45%,
-              rgba(255, 255, 255, 0.05) 50%,
-              rgba(255, 255, 255, 0.03) 55%,
-              transparent 100%
-      );
-      opacity: 0;
-      animation: speedLinesFlash 8s ease-in-out forwards;
-    }
-
-    .vignette {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      box-shadow: inset 0 0 300px rgba(0, 0, 0, 0);
-      animation: vignetteAppear 8s ease-in-out forwards;
-    }
-
-    .motion-blur {
-      position: absolute;
-      width: 100%;
-      height: 100%;
-      backdrop-filter: blur(0px);
-      animation: motionBlurEffect 8s ease-in-out forwards;
-    }
-  }
-
-  @keyframes speedLinesFlash {
-    0% { opacity: 0; }
-    20% { opacity: 0; }
-    40% { opacity: 0.6; }
-    70% { opacity: 0.4; }
-    90% { opacity: 0; }
-    100% { opacity: 0; }
-  }
-
-  @keyframes vignetteAppear {
-    0% { box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); }
-    20% { box-shadow: inset 0 0 100px rgba(0, 0, 0, 0.3); }
-    60% { box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.5); }
-    100% { box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); }
-  }
-
-  @keyframes motionBlurEffect {
-    0% { backdrop-filter: blur(0px); }
-    20% { backdrop-filter: blur(0px); }
-    50% { backdrop-filter: blur(2px); }
-    70% { backdrop-filter: blur(1px); }
-    100% { backdrop-filter: blur(0px); }
-  }
-
-  // 为史诗俯冲添加标题特殊效果
-  .cinematic-intro[data-animation-type="epic-dive"] .title-card {
-    h1 {
-      animation: titleShake 8s ease-in-out forwards;
-    }
-  }
-
-  @keyframes titleShake {
-    0%, 20% { transform: translateZ(20px); }
-    40%, 45% { transform: translateZ(20px) translateX(2px); }
-    50%, 55% { transform: translateZ(20px) translateX(-2px); }
-    60% { transform: translateZ(20px) translateX(1px); }
-    70% { transform: translateZ(20px); }
-    100% { transform: translateZ(20px) translateY(-10px); }
-  }
-
-
-
-
-
-
-
-
-  // 动画选择器样式
-  .animation-selector {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 14px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    select, button {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      padding: 5px 10px;
-      cursor: pointer;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-    }
-  }
-
-  // 增强的标题卡片样式
-  .title-card {
-    position: absolute;
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    text-align: center;
-    color: white;
-    animation: titleCard 3s ease-out forwards;
-    z-index: 10;
-
-    // 添加3D透视和转换
-    transform-style: preserve-3d;
-    perspective: 1000px;
-
-    h1 {
-      font-size: 4rem;
-      font-weight: 100;
-      letter-spacing: 8px;
-      margin: 0 0 10px 0;
-      text-transform: uppercase;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
-
-      // 3D文字效果
-      transform: translateZ(20px);
-      font-family: 'Orbitron', 'Arial', sans-serif;
-      position: relative;
-
-      // 添加科技感辉光效果
-      &::before {
-        content: "ZOOOW";
-        position: absolute;
-        left: 0;
-        top: 0;
-        z-index: -1;
-        color: rgba(100, 200, 255, 0.5);
-        filter: blur(8px);
-        transform: scale(1.05);
-        animation: glowPulse 2s infinite alternate;
-      }
-
-      // 添加3D边缘发光
-      &::after {
-        content: "ZOOOW";
-        position: absolute;
-        left: 2px;
-        top: 2px;
-        z-index: -2;
-        color: rgba(0, 100, 255, 0.3);
-        transform: translateZ(-5px);
-      }
-
-      // 线框效果
-      text-stroke: 1px rgba(100, 200, 255, 0.3);
-      -webkit-text-stroke: 1px rgba(100, 200, 255, 0.3);
-    }
-
-    p {
-      font-size: 1rem;
-      letter-spacing: 4px;
-      margin: 0;
-      opacity: 0.8;
-      text-transform: uppercase;
-      transform: translateZ(10px);
-      font-family: 'Orbitron', 'Arial', sans-serif;
-
-      // 添加打字机效果
-      overflow: hidden;
-      white-space: nowrap;
-      animation: typing 3s steps(30) forwards;
-      max-width: 0;
-      margin: 0 auto;
-    }
-
-    // 粒子容器
-    .particles-container {
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      pointer-events: none;
-      z-index: -1;
-
-      .particle {
-        position: absolute;
-        background: rgba(100, 200, 255, 0.8);
-        border-radius: 50%;
-        box-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
-        animation: float 3s infinite ease-in-out;
-      }
-    }
-
-    // 扫描线效果
-    .scanlines {
-      position: absolute;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 2px,
-              rgba(100, 200, 255, 0.03) 2px,
-              rgba(100, 200, 255, 0.03) 4px
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    // 镜头光晕效果
-    .lens-flare {
-      position: absolute;
-      top: 20%;
-      left: 30%;
-      width: 40px;
-      height: 40px;
-      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(100,200,255,0.4) 40%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(2px);
-      opacity: 0;
-      animation: flare 2s ease-out forwards;
-      z-index: 2;
-    }
-
-    // 不同动画类型的标题特效
-    .cinematic-intro[data-animation-type="space-warp"] & {
-      h1 {
-        animation: titleGlitch 0.5s infinite;
-      }
-    }
-
-    .cinematic-intro[data-animation-type="matrix-hack"] & {
-      h1 {
-        color: #0f0;
-        text-shadow: 0 0 10px #0f0;
-
-        &::before {
-          color: rgba(0, 255, 0, 0.5);
-          animation: matrixGlow 1s infinite alternate;
-        }
-      }
-
-      p {
-        color: #0f0;
-      }
-    }
-
-    .cinematic-intro[data-animation-type="quantum-shift"] & {
-      .particles-container .particle {
-        animation: quantumFloat 1s infinite ease-in-out;
-      }
-
-      h1 {
-        animation: titleFlicker 0.2s infinite;
-      }
-    }
-  }
-
-  // 动画效果定义
-  @keyframes glowPulse {
-    0% {
-      filter: blur(8px);
-      opacity: 0.5;
-    }
-    100% {
-      filter: blur(12px);
-      opacity: 0.8;
-    }
-  }
-
-  @keyframes typing {
-    0% {
-      max-width: 0;
-    }
-    70% {
-      max-width: 100%;
-    }
-    100% {
-      max-width: 100%;
-    }
-  }
-
-  @keyframes float {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0.8;
-    }
-    50% {
-      transform: translate(0, -20px) scale(1.2);
-      opacity: 1;
-    }
-  }
-
-  @keyframes quantumFloat {
-    0%, 100% {
-      transform: translate(0, 0) scale(1);
-      opacity: 0;
-    }
-    50% {
-      transform: translate(0, -30px) scale(1.5);
-      opacity: 1;
-    }
-  }
-
-  @keyframes titleGlitch {
-    0%, 100% {
-      transform: translateZ(20px);
-    }
-    20% {
-      transform: translateX(-5px) translateZ(20px);
-    }
-    40% {
-      transform: translateX(5px) translateZ(20px);
-    }
-  }
-
-  @keyframes matrixGlow {
-    0% {
-      filter: blur(8px);
-      opacity: 0.3;
-    }
-    100% {
-      filter: blur(10px);
-      opacity: 0.7;
-    }
-  }
-
-  @keyframes titleFlicker {
-    0%, 100% {
-      opacity: 1;
-    }
-    50% {
-      opacity: 0.8;
-    }
-  }
-
-  @keyframes flare {
-    0% {
-      opacity: 0;
-      transform: scale(0.5);
-    }
-    50% {
-      opacity: 1;
-      transform: scale(1.2);
-    }
-    100% {
-      opacity: 0.7;
-      transform: scale(1);
-    }
-  }
-
-  // 修改原有的标题卡片动画
-  @keyframes titleCard {
-    0% {
-      opacity: 0;
-      transform: translate(-50%, -40%) rotateX(20deg) scale(0.8);
-      filter: blur(10px);
-    }
-    30% {
-      opacity: 1;
-      transform: translate(-50%, -50%) rotateX(0deg) scale(1);
-      filter: blur(0px);
-    }
-    70% {
-      opacity: 1;
-      transform: translate(-50%, -50%) rotateX(0deg) scale(1);
-      filter: blur(0px);
-    }
-    100% {
-      opacity: 0;
-      transform: translate(-50%, -60%) rotateX(-10deg) scale(0.9);
-      filter: blur(5px);
-    }
-  }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 }
 </style>
+
