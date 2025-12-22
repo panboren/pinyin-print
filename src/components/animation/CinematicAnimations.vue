@@ -134,6 +134,98 @@
       <div class="cinematic-intro__digital-noise" />
       <div class="cinematic-intro__reality-materialize" />
     </div>
+
+
+
+
+    <!-- 新增：场景漫游效果 -->
+    <div
+      v-if="animationType === 'scene-roaming'"
+      class="cinematic-intro__scene-roaming-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__viewfinder" />
+      <div class="cinematic-intro__path-indicator" />
+      <div class="cinematic-intro__scene-transition" />
+    </div>
+
+    <!-- 新增：轨道环绕效果 -->
+    <div
+      v-if="animationType === 'orbital-rotation'"
+      class="cinematic-intro__orbital-rotation-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__orbit-path" />
+      <div class="cinematic-intro__gravity-well" />
+      <div class="cinematic-intro__ascending-spiral" />
+    </div>
+
+    <!-- 新增：维度传送门效果 -->
+    <div
+      v-if="animationType === 'dimensional-portal'"
+      class="cinematic-intro__dimensional-portal-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__portal-ring" />
+      <div class="cinematic-intro__dimension-shift" />
+      <div class="cinematic-intro__portal-particles" />
+    </div>
+
+    <!-- 新增：时空穿梭效果 -->
+    <div
+      v-if="animationType === 'time-travel'"
+      class="cinematic-intro__time-travel-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__time-ripples" />
+      <div class="cinematic-intro__past-future-shift" />
+      <div class="cinematic-intro__temporal-distortion" />
+    </div>
+
+
+    <!-- 新增：黑洞吞噬效果 -->
+    <div
+      v-if="animationType === 'black-hole'"
+      class="cinematic-intro__black-hole-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__event-horizon" />
+      <div class="cinematic-intro__accretion-disk" />
+      <div class="cinematic-intro__gravitational-lensing" />
+    </div>
+
+    <!-- 新增：宇宙大爆炸效果 -->
+    <div
+      v-if="animationType === 'cosmic-big-bang'"
+      class="cinematic-intro__cosmic-big-bang-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__singularity" />
+      <div class="cinematic-intro__explosion-wave" />
+      <div class="cinematic-intro__universe-formation" />
+    </div>
+
+    <!-- 新增：维度崩溃效果 -->
+    <div
+      v-if="animationType === 'dimension-collapse'"
+      class="cinematic-intro__dimension-collapse-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__reality-fracture" />
+      <div class="cinematic-intro__dimensional-shards" />
+      <div class="cinematic-intro__chaos-vortex" />
+    </div>
+
+    <!-- 新增：时空逆流效果 -->
+    <div
+      v-if="animationType === 'time-rewind'"
+      class="cinematic-intro__time-rewind-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__reverse-flow" />
+      <div class="cinematic-intro__temporal-fragments" />
+      <div class="cinematic-intro__causality-loop" />
+    </div>
   </div>
 </template>
 
@@ -145,6 +237,8 @@ import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 /**
  * 动画配置常量 - 移到模块顶层，以便在defineProps中使用
  */
+
+
 
 const ANIMATION_CONFIG = {
   EPIC_DIVE: 'epic-dive',
@@ -161,7 +255,17 @@ const ANIMATION_CONFIG = {
   PLANET_EXPLOSION: 'planet-explosion',
   QUANTUM_ENTANGLEMENT: 'quantum-entanglement',
   VIRTUAL_REALITY: 'virtual-reality',
-  DEFAULT_DURATION: 7000, // 默认动画持续时间(ms)
+  // 游走和环游类型
+  SCENE_ROAMING: 'scene-roaming',
+  ORBITAL_ROTATION: 'orbital-rotation',
+  DIMENSIONAL_PORTAL: 'dimensional-portal',
+  TIME_TRAVEL: 'time-travel',
+  // 新增的炸裂动画类型
+  BLACK_HOLE: 'black-hole',
+  COSMIC_BIG_BANG: 'cosmic-big-bang',
+  DIMENSION_COLLAPSE: 'dimension-collapse',
+  TIME_REWIND: 'time-rewind',
+  DEFAULT_DURATION: 7000,
   PARTICLE_COUNT: 50,
   START_FOV: 170,
   FINAL_FOV: 75,
@@ -169,6 +273,8 @@ const ANIMATION_CONFIG = {
   FINAL_THETA: Math.PI / 2.5,
   FINAL_PHI: Math.PI / 1.9
 }
+
+
 
 
 /**
@@ -184,6 +290,7 @@ const ERROR_MESSAGES = {
 /**
  * 获取动画类型列表用于验证
  */
+
 const getAnimationTypes = () => [
   ANIMATION_CONFIG.EPIC_DIVE,
   ANIMATION_CONFIG.SPACE_WARP,
@@ -198,8 +305,19 @@ const getAnimationTypes = () => [
   ANIMATION_CONFIG.TIME_RIFT,
   ANIMATION_CONFIG.PLANET_EXPLOSION,
   ANIMATION_CONFIG.QUANTUM_ENTANGLEMENT,
-  ANIMATION_CONFIG.VIRTUAL_REALITY
+  ANIMATION_CONFIG.VIRTUAL_REALITY,
+  // 游走和环游类型
+  ANIMATION_CONFIG.SCENE_ROAMING,
+  ANIMATION_CONFIG.ORBITAL_ROTATION,
+  ANIMATION_CONFIG.DIMENSIONAL_PORTAL,
+  ANIMATION_CONFIG.TIME_TRAVEL,
+  // 新增的炸裂动画类型
+  ANIMATION_CONFIG.BLACK_HOLE,
+  ANIMATION_CONFIG.COSMIC_BIG_BANG,
+  ANIMATION_CONFIG.DIMENSION_COLLAPSE,
+  ANIMATION_CONFIG.TIME_REWIND
 ]
+
 
 
 /**
@@ -3231,11 +3349,2116 @@ const animateVirtualReality = () => {
 
 
 
+/**
+ * 新增：场景漫游动画
+ */
+const animateSceneRoaming = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1500, 1000, 1500))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建场景漫游路径点
+    const roamingPath = [
+      new THREE.Vector3(1000, 800, 1000),   // 起点
+      new THREE.Vector3(-800, 600, 1000),   // 第一站
+      new THREE.Vector3(-600, 400, -900),  // 第二站
+      new THREE.Vector3(800, 300, -700),    // 第三站
+      new THREE.Vector3(500, 200, 500),     // 第四站
+      new THREE.Vector3(50, 50, 50)        // 终点
+    ]
+
+    // 创建辅助变量
+    const pathProgress = { value: 0 }
+    const viewTransition = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '场景漫游'),
+      '场景漫游'
+    )
+
+    // 动画阶段1: 开始漫游
+    tl.to(pathProgress, {
+      value: 1,
+      duration: 6,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const progress = pathProgress.value
+        const totalPoints = roamingPath.length - 1
+        const segmentProgress = progress * totalPoints
+        const currentSegment = Math.floor(segmentProgress)
+        const segmentT = segmentProgress - currentSegment
+
+        if (currentSegment < totalPoints) {
+          const startPoint = roamingPath[currentSegment]
+          const endPoint = roamingPath[currentSegment + 1]
+
+          // 线性插值计算当前位置
+          props.camera.position.lerpVectors(startPoint, endPoint, segmentT)
+
+          // 平滑看向目标点
+          const lookAtPoint = currentSegment < totalPoints - 1
+            ? roamingPath[currentSegment + 2]
+            : props.controls.target
+
+          props.camera.lookAt(lookAtPoint)
+
+          // 场景切换效果
+          viewTransition.value = Math.sin(segmentT * Math.PI)
+        }
+      }
+    })
+
+    // 动画阶段2: 场景切换效果
+    tl.to(props.camera, {
+      fov: 85,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV场景切换错误'
+      )
+    }, 2)
+
+    tl.to(props.camera, {
+      fov: 100,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV场景切换错误'
+      )
+    }, 4)
+
+    // 动画阶段3: 最终接近
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 1,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终接近错误'
+      )
+    }, 5.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终接近位置错误'
+      )
+    }, 6)
+
+    // 动画阶段4: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 6.5)
+
+    // 动画阶段5: 场景切换视觉效果
+    tl.to(props.renderer.domElement, {
+      opacity: 0.9,
+      duration: 0.2,
+      ease: 'none'
+    }, 1.9)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 2.1)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.9,
+      duration: 0.2,
+      ease: 'none'
+    }, 3.9)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 4.1)
+
+  } catch (error) {
+    onAnimationError(error, '场景漫游')
+  }
+}
+
+/**
+ * 新增：轨道环绕动画
+ */
+const animateOrbitalRotation = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1200, 800, 1200))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const orbitAngle = { value: 0 }
+    const orbitRadius = { value: 1200 }
+    const orbitHeight = { value: 800 }
+    const rotationSpeed = { value: 1 }
+    const gravityWell = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '轨道环绕'),
+      '轨道环绕'
+    )
+
+    // 动画阶段1: 开始环绕
+    tl.to(orbitRadius, {
+      value: 1000,
+      duration: 1,
+      ease: 'power2.inOut'
+    })
+
+    tl.to(orbitAngle, {
+      value: Math.PI * 2, // 完整一圈
+      duration: 3,
+      ease: 'none',
+      onUpdate: function() {
+        const angle = orbitAngle.value
+        const radius = orbitRadius.value
+        const height = orbitHeight.value
+        const speed = rotationSpeed.value
+
+        // 计算轨道位置
+        const x = Math.cos(angle * speed) * radius
+        const z = Math.sin(angle * speed) * radius
+
+        // 添加高度变化
+        const y = height - (height - 100) * (angle / (Math.PI * 2))
+
+        // 更新相机位置
+        props.camera.position.set(x, y, z)
+
+        // 始终看向中心
+        props.camera.lookAt(props.controls.target)
+      }
+    })
+
+    // 动画阶段2: 加速旋转
+    tl.to(rotationSpeed, {
+      value: 2,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 2)
+
+    tl.to(orbitAngle, {
+      value: Math.PI * 4, // 再转两圈
+      duration: 2,
+      ease: 'none',
+      onUpdate: function() {
+        const angle = orbitAngle.value
+        const radius = orbitRadius.value
+        const height = orbitHeight.value
+        const speed = rotationSpeed.value
+
+        // 计算轨道位置
+        const x = Math.cos(angle * speed) * radius
+        const z = Math.sin(angle * speed) * radius
+
+        // 添加高度变化
+        const y = height - (height - 50) * ((angle - Math.PI * 2) / (Math.PI * 2))
+
+        // 添加引力井效果
+        const gravityEffect = gravityWell.value
+        const gravityX = x * (1 - 0.5 * gravityEffect)
+        const gravityZ = z * (1 - 0.5 * gravityEffect)
+        const gravityY = y * (1 - 0.3 * gravityEffect)
+
+        // 更新相机位置
+        props.camera.position.set(gravityX, gravityY, gravityZ)
+
+        // 始终看向中心
+        props.camera.lookAt(props.controls.target)
+      }
+    }, 3)
+
+    // 动画阶段3: 引力井效果
+    tl.to(gravityWell, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 3)
+
+    tl.to(orbitRadius, {
+      value: 100,
+      duration: 1.5,
+      ease: 'power2.in'
+    }, 4)
+
+    // 动画阶段4: 螺旋接近
+    tl.to(orbitAngle, {
+      value: Math.PI * 6, // 再转两圈
+      duration: 1.5,
+      ease: 'none',
+      onUpdate: function() {
+        const angle = orbitAngle.value
+        const radius = orbitRadius.value
+        const gravityEffect = gravityWell.value
+
+        // 计算螺旋轨道位置
+        const spiralRadius = radius * (1 - (angle - Math.PI * 4) / (Math.PI * 2))
+        const x = Math.cos(angle * 2) * spiralRadius
+        const z = Math.sin(angle * 2) * spiralRadius
+
+        // 添加高度变化
+        const y = 50 - 40 * ((angle - Math.PI * 4) / (Math.PI * 2))
+
+        // 更新相机位置
+        props.camera.position.set(x, y, z)
+
+        // 始终看向中心
+        props.camera.lookAt(props.controls.target)
+      }
+    }, 4.5)
+
+    // 动画阶段5: 最终定位
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终定位错误'
+      )
+    }, 5.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终定位位置错误'
+      )
+    }, 6)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 6.5)
+
+    // 动画阶段7: 视觉冲击效果 - 闪烁
+    tl.to(props.renderer.domElement, {
+      opacity: 0.9,
+      duration: 0.2,
+      ease: 'none'
+    }, 2.9)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 3.1)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.8,
+      duration: 0.2,
+      ease: 'none'
+    }, 4.4)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 4.6)
+
+  } catch (error) {
+    onAnimationError(error, '轨道环绕')
+  }
+}
+
+/**
+ * 新增：维度传送门动画
+ */
+const animateDimensionalPortal = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1000, 700, 1000))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const portalProgress = { value: 0 }
+    const portalRotation = { value: 0 }
+    const dimensionShift = { value: 0 }
+    const portalSize = { value: 200 }
+
+    // 创建多个传送门位置
+    const portals = [
+      { position: new THREE.Vector3(500, 300, 500), color: 0x00ffff },
+      { position: new THREE.Vector3(-400, 200, 600), color: 0xff00ff },
+      { position: new THREE.Vector3(300, 100, -500), color: 0xffff00 },
+      { position: new THREE.Vector3(-200, 150, -300), color: 0x00ff00 }
+    ]
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '维度传送门'),
+      '维度传送门'
+    )
+
+    // 动画阶段1: 接近第一个传送门
+    tl.to(props.camera.position, {
+      x: 700,
+      y: 400,
+      z: 700,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(portals[0].position),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 进入第一个传送门
+    tl.to(portalProgress, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(portalRotation, {
+      value: Math.PI * 2,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const progress = portalProgress.value
+        const rotation = portalRotation.value
+        const portal = portals[0]
+
+        // 计算传送门入口位置
+        const entranceX = portal.position.x * (1 - progress)
+        const entranceY = portal.position.y * (1 - progress)
+        const entranceZ = portal.position.z * (1 - progress)
+
+        // 添加旋转效果
+        const rotationRadius = 50 * (1 - progress)
+        const rotationX = Math.cos(rotation) * rotationRadius
+        const rotationZ = Math.sin(rotation) * rotationRadius
+
+        // 更新相机位置
+        props.camera.position.set(
+          entranceX + rotationX,
+          entranceY,
+          entranceZ + rotationZ
+        )
+
+        // 相机旋转
+        cameraRotation.value.z = rotation * progress * 0.5
+        props.camera.rotation.z = cameraRotation.value.z
+
+        // 看向传送门中心
+        props.camera.lookAt(portal.position)
+      }
+    }, 0.8)
+
+    // 动画阶段3: 穿越维度
+    tl.to(dimensionShift, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power2.inOut'
+    }, 1.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.2,
+      duration: 0.2,
+      ease: 'none'
+    }, 1.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 1.7)
+
+    // 动画阶段4: 从第二个传送门出现
+    tl.to(portalProgress, {
+      value: 0,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: function() {
+        const progress = 1 - portalProgress.value // 反向进度
+        const rotation = portalRotation.value + Math.PI * 2
+        const portal = portals[1]
+
+        // 计算传送门出口位置
+        const exitX = portal.position.x * progress
+        const exitY = portal.position.y * progress
+        const exitZ = portal.position.z * progress
+
+        // 添加旋转效果
+        const rotationRadius = 50 * progress
+        const rotationX = Math.cos(rotation) * rotationRadius
+        const rotationZ = Math.sin(rotation) * rotationRadius
+
+        // 更新相机位置
+        props.camera.position.set(
+          exitX + rotationX,
+          exitY,
+          exitZ + rotationZ
+        )
+
+        // 相机旋转
+        cameraRotation.value.z = rotation * (1 - progress) * 0.5
+        props.camera.rotation.z = cameraRotation.value.z
+
+        // 看向传送门中心
+        props.camera.lookAt(portal.position)
+      }
+    }, 2)
+
+    // 动画阶段5: 在不同维度间跳跃
+    for (let i = 1; i < portals.length - 1; i++) {
+      const currentPortal = portals[i]
+      const nextPortal = portals[i + 1]
+
+      // 接近当前传送门
+      tl.to(props.camera.position, {
+        x: currentPortal.position.x,
+        y: currentPortal.position.y,
+        z: currentPortal.position.z,
+        duration: 0.5,
+        ease: 'power2.inOut',
+        onUpdate: () => safeCameraTransform(
+          () => props.camera.lookAt(currentPortal.position),
+          '相机位置更新错误'
+        )
+      }, 3 + i * 1.5)
+
+      // 进入传送门
+      tl.to(portalProgress, {
+        value: 1,
+        duration: 0.5,
+        ease: 'power2.inOut'
+      }, 3.2 + i * 1.5)
+
+      // 维度转换
+      tl.to(dimensionShift, {
+        value: i % 2 === 0 ? 1 : 0,
+        duration: 0.3,
+        ease: 'power2.inOut'
+      }, 3.5 + i * 1.5)
+
+      tl.to(props.renderer.domElement, {
+        opacity: i % 2 === 0 ? 0.2 : 0.8,
+        duration: 0.2,
+        ease: 'none'
+      }, 3.5 + i * 1.5)
+
+      tl.to(props.renderer.domElement, {
+        opacity: 1,
+        duration: 0.2,
+        ease: 'none'
+      }, 3.7 + i * 1.5)
+
+      // 从下一个传送门出现
+      tl.to(portalProgress, {
+        value: 0,
+        duration: 0.5,
+        ease: 'power2.out',
+        onUpdate: function() {
+          const progress = 1 - portalProgress.value // 反向进度
+          const portal = nextPortal
+
+          // 计算传送门出口位置
+          const exitX = portal.position.x * progress
+          const exitY = portal.position.y * progress
+          const exitZ = portal.position.z * progress
+
+          // 更新相机位置
+          props.camera.position.set(exitX, exitY, exitZ)
+
+          // 看向传送门中心
+          props.camera.lookAt(portal.position)
+        }
+      }, 4 + i * 1.5)
+    }
+
+    // 动画阶段6: 最终接近
+    tl.to(props.camera.position, {
+      x: 50,
+      y: 30,
+      z: 50,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终接近错误'
+      )
+    }, 7)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终接近错误'
+      )
+    }, 7.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终接近位置错误'
+      )
+    }, 8)
+
+    // 动画阶段7: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 8.5)
+
+  } catch (error) {
+    onAnimationError(error, '维度传送门')
+  }
+}
+
+/**
+ * 新增：时空穿梭动画
+ */
+const animateTimeTravel = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1000, 700, 1000))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const timeProgress = { value: 0 }
+    const pastFutureShift = { value: 0 } // -1 是过去，1 是未来
+    const temporalDistortion = { value: 0 }
+    const timeRipples = { value: 0 }
+
+    // 创建时间线上的关键点
+    const timePoints = [
+      { position: new THREE.Vector3(800, 600, 800), time: -100, color: 0x8844ff }, // 过去
+      { position: new THREE.Vector3(400, 400, 400), time: -50, color: 0xaa66ff },  // 近过去
+      { position: new THREE.Vector3(200, 200, 200), time: 0, color: 0xffffff },     // 现在
+      { position: new THREE.Vector3(100, 100, 100), time: 50, color: 0x66aaff },   // 近未来
+      { position: new THREE.Vector3(50, 30, 50), time: 100, color: 0x4488ff }     // 未来
+    ]
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '时空穿梭'),
+      '时空穿梭'
+    )
+
+    // 动画阶段1: 开始时间旅行
+    tl.to(timeProgress, {
+      value: 0.2,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        const progress = timeProgress.value
+        const pointIndex = Math.floor(progress * (timePoints.length - 1))
+        const localProgress = (progress * (timePoints.length - 1)) - pointIndex
+
+        if (pointIndex < timePoints.length - 1) {
+          const startPoint = timePoints[pointIndex]
+          const endPoint = timePoints[pointIndex + 1]
+
+          // 线性插值计算当前位置
+          props.camera.position.lerpVectors(startPoint.position, endPoint.position, localProgress)
+
+          // 计算时间偏移
+          const timeOffset = startPoint.time + (endPoint.time - startPoint.time) * localProgress
+          pastFutureShift.value = timeOffset / 100
+
+          // 看向中心点
+          props.camera.lookAt(props.controls.target)
+
+          // 时间涟漪效果
+          timeRipples.value = Math.abs(localProgress - 0.5) * 2
+        }
+      }
+    })
+
+    // 动画阶段2: 时空扭曲
+    tl.to(temporalDistortion, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(props.camera, {
+      fov: 120,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV时空扭曲错误'
+      )
+    }, 0.8)
+
+    // 动画阶段3: 快速穿梭
+    tl.to(timeProgress, {
+      value: 0.8,
+      duration: 2,
+      ease: 'power4.inOut',
+      onUpdate: function() {
+        const progress = timeProgress.value
+        const distortion = temporalDistortion.value
+        const pointIndex = Math.floor(progress * (timePoints.length - 1))
+        const localProgress = (progress * (timePoints.length - 1)) - pointIndex
+
+        if (pointIndex < timePoints.length - 1) {
+          const startPoint = timePoints[pointIndex]
+          const endPoint = timePoints[pointIndex + 1]
+
+          // 线性插值计算当前位置
+          props.camera.position.lerpVectors(startPoint.position, endPoint.position, localProgress)
+
+          // 计算时间偏移
+          const timeOffset = startPoint.time + (endPoint.time - startPoint.time) * localProgress
+          pastFutureShift.value = timeOffset / 100
+
+          // 添加时空扭曲效果
+          const time = tl.time()
+          const distortionAmount = Math.sin(time * 10) * 10 * distortion
+
+          props.camera.position.x += distortionAmount * pastFutureShift.value
+          props.camera.position.y += distortionAmount * Math.abs(pastFutureShift.value) * 0.5
+          props.camera.position.z += distortionAmount * pastFutureShift.value
+
+          // 相机倾斜
+          cameraRotation.value.x = Math.sin(time * 5) * 0.1 * distortion * pastFutureShift.value
+          cameraRotation.value.z = Math.cos(time * 7) * 0.1 * distortion * pastFutureShift.value
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            0,
+            cameraRotation.value.z
+          )
+
+          // 看向中心点
+          props.camera.lookAt(props.controls.target)
+
+          // 时间涟漪效果
+          timeRipples.value = Math.abs(localProgress - 0.5) * 2
+        }
+      }
+    }, 1.5)
+
+    // 动画阶段4: 时间稳定
+    tl.to(temporalDistortion, {
+      value: 0.2,
+      duration: 1,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV时间稳定错误'
+      )
+    }, 3)
+
+    // 动画阶段5: 最终接近
+    tl.to(timeProgress, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: function() {
+        const progress = timeProgress.value
+        const distortion = temporalDistortion.value
+        const pointIndex = Math.floor(progress * (timePoints.length - 1))
+        const localProgress = (progress * (timePoints.length - 1)) - pointIndex
+
+        if (pointIndex < timePoints.length - 1) {
+          const startPoint = timePoints[pointIndex]
+          const endPoint = timePoints[pointIndex + 1]
+
+          // 线性插值计算当前位置
+          props.camera.position.lerpVectors(startPoint.position, endPoint.position, localProgress)
+
+          // 计算时间偏移
+          const timeOffset = startPoint.time + (endPoint.time - startPoint.time) * localProgress
+          pastFutureShift.value = timeOffset / 100
+
+          // 添加轻微时空扭曲效果
+          const time = tl.time()
+          const distortionAmount = Math.sin(time * 5) * 2 * distortion
+
+          props.camera.position.x += distortionAmount * pastFutureShift.value
+          props.camera.position.z += distortionAmount * pastFutureShift.value
+
+          // 相机轻微倾斜
+          cameraRotation.value.x = Math.sin(time * 3) * 0.02 * distortion * pastFutureShift.value
+          cameraRotation.value.z = Math.cos(time * 4) * 0.02 * distortion * pastFutureShift.value
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            0,
+            cameraRotation.value.z
+          )
+
+          // 看向中心点
+          props.camera.lookAt(props.controls.target)
+
+          // 时间涟漪效果
+          timeRipples.value = Math.abs(localProgress - 0.5) * 2
+        }
+      }
+    }, 4)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终接近位置错误'
+      )
+    }, 5)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5.5)
+
+    // 动画阶段7: 视觉冲击效果 - 时间涟漪
+    for (let i = 0; i < 3; i++) {
+      tl.to(props.renderer.domElement, {
+        opacity: 0.7,
+        duration: 0.2,
+        ease: 'none'
+      }, 0.8 + i * 1.5)
+
+      tl.to(props.renderer.domElement, {
+        opacity: 1,
+        duration: 0.2,
+        ease: 'none'
+      }, 1 + i * 1.5)
+    }
+
+  } catch (error) {
+    onAnimationError(error, '时空穿梭')
+  }
+}
 
 
 
 
 
+/**
+ * 新增：黑洞吞噬动画
+ */
+const animateBlackHole = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(2000, 1500, 2000))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const gravityPull = { value: 0 }
+    const eventHorizonRadius = { value: 1000 }
+    const accretionDiskRotation = { value: 0 }
+    const spaghettification = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '黑洞吞噬'),
+      '黑洞吞噬'
+    )
+
+    // 动画阶段1: 接近黑洞
+    tl.to(props.camera.position, {
+      x: 1000,
+      y: 750,
+      z: 1000,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 开始受到引力影响
+    tl.to(gravityPull, {
+      value: 1,
+      duration: 2,
+      ease: 'power2.inOut'
+    }, 1.2)
+
+    tl.to(accretionDiskRotation, {
+      value: Math.PI * 4,
+      duration: 2,
+      ease: 'power2.inOut'
+    }, 1.2)
+
+    tl.to(props.camera.position, {
+      x: 500,
+      y: 300,
+      z: 500,
+      duration: 2,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const pullAmount = gravityPull.value
+          const rotation = accretionDiskRotation.value
+
+          // 引力拖拽效果
+          const pullDistance = props.camera.position.length()
+          const targetDistance = 200 * pullAmount
+          const currentDistance = pullDistance * (1 - pullAmount * 0.8)
+
+          // 计算引力方向
+          const gravityDirection = new THREE.Vector3(0, 0, 0).sub(props.camera.position).normalize()
+
+          // 应用引力
+          const gravityEffect = gravityDirection.multiplyScalar((pullDistance - currentDistance) * 0.1)
+          props.camera.position.add(gravityEffect)
+
+          // 吸积盘旋转效果
+          const rotationRadius = currentDistance * 0.5
+          const rotationAngle = rotation + time
+          const orbitX = Math.cos(rotationAngle) * rotationRadius * pullAmount
+          const orbitZ = Math.sin(rotationAngle) * rotationRadius * pullAmount
+
+          props.camera.position.x += orbitX
+          props.camera.position.z += orbitZ
+
+          // 相机倾斜
+          cameraRotation.value.x = Math.sin(time * 3) * 0.3 * pullAmount
+          cameraRotation.value.y = Math.cos(time * 2) * 0.3 * pullAmount
+          cameraRotation.value.z = Math.sin(time * 4) * 0.2 * pullAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '引力效果更新错误'
+      )
+    }, 1.2)
+
+    // 动画阶段3: 接近事件视界
+    tl.to(eventHorizonRadius, {
+      value: 100,
+      duration: 1.5,
+      ease: 'power2.in'
+    }, 3)
+
+    tl.to(props.camera, {
+      fov: 150,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV事件视界错误'
+      )
+    }, 3)
+
+    tl.to(props.camera.position, {
+      x: 100,
+      y: 50,
+      z: 100,
+      duration: 1.5,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const pullAmount = gravityPull.value
+          const horizonRadius = eventHorizonRadius.value
+
+          // 事件视界扭曲效果
+          const distanceFromHorizon = Math.max(0.1, props.camera.position.length() - horizonRadius)
+          const distortionFactor = 1 - (distanceFromHorizon / 1000)
+
+          // 引力透镜效果
+          const gravitationalLensing = Math.sin(time * 10) * 20 * distortionFactor
+          props.camera.position.x += gravitationalLensing
+          props.camera.position.z += gravitationalLensing
+
+          // 意大利面条化效果
+          spaghettification.value = distortionFactor
+          const stretchX = 1 + distortionFactor * 0.5
+          const stretchZ = 1 - distortionFactor * 0.3
+
+          props.camera.position.x *= stretchX
+          props.camera.position.z *= stretchZ
+
+          // 相机剧烈旋转
+          cameraRotation.value.x = Math.sin(time * 15) * 0.5 * distortionFactor
+          cameraRotation.value.y = Math.cos(time * 10) * 0.5 * distortionFactor
+          cameraRotation.value.z = Math.sin(time * 20) * 0.3 * distortionFactor
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '事件视界扭曲错误'
+      )
+    }, 3)
+
+    // 动画阶段4: 穿越事件视界
+    tl.to(props.renderer.domElement, {
+      opacity: 0.1,
+      duration: 0.5,
+      ease: 'power2.in'
+    }, 4.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, 5)
+
+    tl.to(gravityPull, {
+      value: 0.3,
+      duration: 1,
+      ease: 'power2.out'
+    }, 5)
+
+    tl.to(spaghettification, {
+      value: 0,
+      duration: 1,
+      ease: 'power2.out'
+    }, 5)
+
+    tl.to(props.camera.position, {
+      x: 20,
+      y: 10,
+      z: 20,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const pullAmount = gravityPull.value
+
+          // 减少的引力效果
+          const distance = props.camera.position.length()
+          const direction = new THREE.Vector3(0, 0, 0).sub(props.camera.position).normalize()
+          const gravityEffect = direction.multiplyScalar(distance * 0.05 * pullAmount)
+
+          props.camera.position.add(gravityEffect)
+
+          // 减少的相机旋转
+          cameraRotation.value.x = Math.sin(time * 5) * 0.1 * pullAmount
+          cameraRotation.value.y = Math.cos(time * 4) * 0.1 * pullAmount
+          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * pullAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '穿越事件视界错误'
+      )
+    }, 5)
+
+    // 动画阶段5: 最终稳定
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终稳定错误'
+      )
+    }, 6)
+
+    tl.to(gravityPull, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 6)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终稳定位置错误'
+      )
+    }, 6)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 6.5)
+
+    // 动画阶段7: 视觉冲击效果 - 闪烁
+    tl.to(props.renderer.domElement, {
+      opacity: 0.9,
+      duration: 0.2,
+      ease: 'none'
+    }, 3)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.3,
+      duration: 0.2,
+      ease: 'none'
+    }, 3.2)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 3.4)
+
+  } catch (error) {
+    onAnimationError(error, '黑洞吞噬')
+  }
+}
+
+/**
+ * 新增：宇宙大爆炸动画
+ */
+const animateCosmicBigBang = () => {
+  try {
+    // 初始设置：从奇点内部开始
+    setupInitialCameraState(new THREE.Vector3(0.01, 0.01, 0.01))
+    props.camera.fov = 10
+    props.camera.updateProjectionMatrix()
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const expansion = { value: 0 }
+    const inflation = { value: 0 }
+    const formation = { value: 0 }
+    const cooling = { value: 0 }
+    const structure = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '宇宙大爆炸'),
+      '宇宙大爆炸'
+    )
+
+    // 动画阶段1: 奇点状态
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.5,
+      ease: 'none'
+    })
+
+    // 动画阶段2: 暴胀期
+    tl.to(inflation, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power4.inOut'
+    }, 0.5)
+
+    tl.to(props.camera, {
+      fov: 170,
+      duration: 0.5,
+      ease: 'power4.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV暴胀期错误'
+      )
+    }, 0.5)
+
+    tl.to(props.camera.position, {
+      x: 0.01,
+      y: 0.01,
+      z: 0.01,
+      duration: 0.5,
+      ease: 'power4.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const inflationAmount = inflation.value
+          const time = tl.time()
+
+          // 暴胀期的随机波动
+          const randomX = (Math.random() - 0.5) * 0.01 * inflationAmount
+          const randomY = (Math.random() - 0.5) * 0.01 * inflationAmount
+          const randomZ = (Math.random() - 0.5) * 0.01 * inflationAmount
+
+          props.camera.position.x = 0.01 + randomX
+          props.camera.position.y = 0.01 + randomY
+          props.camera.position.z = 0.01 + randomZ
+
+          // 相机剧烈震动
+          cameraRotation.value.x = (Math.random() - 0.5) * 0.5 * inflationAmount
+          cameraRotation.value.y = (Math.random() - 0.5) * 0.5 * inflationAmount
+          cameraRotation.value.z = (Math.random() - 0.5) * 0.5 * inflationAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '暴胀期相机震动错误'
+      )
+    }, 0.5)
+
+    // 动画阶段3: 快速膨胀
+    tl.to(expansion, {
+      value: 1,
+      duration: 2,
+      ease: 'power4.out'
+    }, 1)
+
+    tl.to(cooling, {
+      value: 1,
+      duration: 2,
+      ease: 'power2.out'
+    }, 1.5)
+
+    tl.to(props.camera.position, {
+      x: 1000,
+      y: 1000,
+      z: 1000,
+      duration: 2,
+      ease: 'power4.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const expansionAmount = expansion.value
+          const coolingAmount = cooling.value
+          const time = tl.time()
+
+          // 膨胀效果的随机波动
+          const fluctuationX = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
+          const fluctuationY = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
+          const fluctuationZ = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
+
+          props.camera.position.x = 1000 * expansionAmount + fluctuationX
+          props.camera.position.y = 1000 * expansionAmount + fluctuationY
+          props.camera.position.z = 1000 * expansionAmount + fluctuationZ
+
+          // 相机震动随冷却减小
+          cameraRotation.value.x = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
+          cameraRotation.value.y = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
+          cameraRotation.value.z = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '快速膨胀错误'
+      )
+    }, 1)
+
+    // 动画阶段4: 结构形成
+    tl.to(formation, {
+      value: 1,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    }, 3)
+
+    tl.to(structure, {
+      value: 1,
+      duration: 1.5,
+      ease: 'power2.inOut'
+    }, 3.5)
+
+    tl.to(props.camera, {
+      fov: 120,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV结构形成错误'
+      )
+    }, 3)
+
+    tl.to(props.camera.position, {
+      x: 500,
+      y: 300,
+      z: 500,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const formationAmount = formation.value
+          const structureAmount = structure.value
+          const time = tl.time()
+
+          // 结构形成的聚集效果
+          const clusterX = Math.sin(time * 2) * 50 * structureAmount
+          const clusterY = Math.cos(time * 3) * 30 * structureAmount
+          const clusterZ = Math.sin(time * 4) * 40 * structureAmount
+
+          props.camera.position.x = 500 - 200 * formationAmount + clusterX
+          props.camera.position.y = 300 - 100 * formationAmount + clusterY
+          props.camera.position.z = 500 - 200 * formationAmount + clusterZ
+
+          // 相机轻微旋转
+          cameraRotation.value.x = Math.sin(time * 1.5) * 0.1 * formationAmount
+          cameraRotation.value.y = Math.cos(time * 2) * 0.1 * formationAmount
+          cameraRotation.value.z = Math.sin(time * 1) * 0.05 * formationAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '结构形成错误'
+      )
+    }, 3)
+
+    // 动画阶段5: 宇宙稳定
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV宇宙稳定错误'
+      )
+    }, 4.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '宇宙稳定位置错误'
+      )
+    }, 4.5)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5)
+
+    // 动画阶段7: 视觉冲击效果 - 闪光
+    tl.to(props.renderer.domElement, {
+      opacity: 0.1,
+      duration: 0.2,
+      ease: 'none'
+    }, 0.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 0.7)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.8,
+      duration: 0.2,
+      ease: 'none'
+    }, 1.2)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 1.4)
+
+  } catch (error) {
+    onAnimationError(error, '宇宙大爆炸')
+  }
+}
+
+/**
+ * 新增：维度崩溃动画
+ */
+const animateDimensionCollapse = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1500, 1000, 1500))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const stability = { value: 1 }
+    const collapse = { value: 0 }
+    const chaos = { value: 0 }
+    const restoration = { value: 0 }
+    const dimensionLayers = [
+      new THREE.Vector3(1200, 800, 1200),
+      new THREE.Vector3(900, 600, 900),
+      new THREE.Vector3(600, 400, 600),
+      new THREE.Vector3(300, 200, 300),
+      new THREE.Vector3(100, 50, 100)
+    ]
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '维度崩溃'),
+      '维度崩溃'
+    )
+
+    // 动画阶段1: 平稳接近
+    tl.to(props.camera.position, {
+      x: 1200,
+      y: 800,
+      z: 1200,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 维度开始不稳定
+    tl.to(stability, {
+      value: 0.5,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(props.camera.position, {
+      x: 900,
+      y: 600,
+      z: 900,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const stabilityAmount = stability.value
+
+          // 维度不稳定效果
+          const instabilityX = Math.sin(time * 10) * 20 * (1 - stabilityAmount)
+          const instabilityY = Math.cos(time * 8) * 15 * (1 - stabilityAmount)
+          const instabilityZ = Math.sin(time * 12) * 20 * (1 - stabilityAmount)
+
+          props.camera.position.x += instabilityX
+          props.camera.position.y += instabilityY
+          props.camera.position.z += instabilityZ
+
+          // 相机轻微旋转
+          cameraRotation.value.x = Math.sin(time * 5) * 0.1 * (1 - stabilityAmount)
+          cameraRotation.value.y = Math.cos(time * 4) * 0.1 * (1 - stabilityAmount)
+          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * (1 - stabilityAmount)
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '维度不稳定错误'
+      )
+    }, 0.8)
+
+    // 动画阶段3: 维度崩溃
+    tl.to(collapse, {
+      value: 1,
+      duration: 1.5,
+      ease: 'power4.in'
+    }, 1.5)
+
+    tl.to(chaos, {
+      value: 1,
+      duration: 1.5,
+      ease: 'power4.in'
+    }, 1.5)
+
+    // 在不同维度层之间跳跃
+    for (let i = 0; i < dimensionLayers.length; i++) {
+      const layer = dimensionLayers[i]
+      const layerStability = 1 - (i / dimensionLayers.length)
+
+      tl.to(props.camera.position, {
+        x: layer.x,
+        y: layer.y,
+        z: layer.z,
+        duration: 0.3,
+        ease: 'power1.inOut',
+        onUpdate: () => safeCameraTransform(
+          () => {
+            const time = tl.time()
+            const collapseAmount = collapse.value
+            const chaosAmount = chaos.value
+            const stabilityAmount = layerStability * (1 - collapseAmount)
+
+            // 维度混乱效果
+            const chaosX = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
+            const chaosY = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
+            const chaosZ = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
+
+            props.camera.position.x += chaosX
+            props.camera.position.y += chaosY
+            props.camera.position.z += chaosZ
+
+            // 相机混乱旋转
+            cameraRotation.value.x = (Math.random() - 0.5) * 0.5 * chaosAmount * (1 - stabilityAmount)
+            cameraRotation.value.y = (Math.random() - 0.5) * 0.5 * chaosAmount * (1 - stabilityAmount)
+            cameraRotation.value.z = (Math.random() - 0.5) * 0.3 * chaosAmount * (1 - stabilityAmount)
+
+            props.camera.rotation.set(
+              cameraRotation.value.x,
+              cameraRotation.value.y,
+              cameraRotation.value.z
+            )
+
+            props.camera.lookAt(props.controls.target)
+          },
+          '维度混乱错误'
+        )
+      }, 1.5 + i * 0.3)
+
+      // 视觉冲击效果
+      if (i % 2 === 0) {
+        tl.to(props.renderer.domElement, {
+          opacity: 0.7,
+          duration: 0.1,
+          ease: 'none'
+        }, 1.5 + i * 0.3)
+
+        tl.to(props.renderer.domElement, {
+          opacity: 1,
+          duration: 0.1,
+          ease: 'none'
+        }, 1.6 + i * 0.3)
+      }
+    }
+
+    // 动画阶段4: 维度重组
+    tl.to(restoration, {
+      value: 1,
+      duration: 2,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(collapse, {
+      value: 0.2,
+      duration: 2,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(chaos, {
+      value: 0.1,
+      duration: 2,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(props.camera.position, {
+      x: 100,
+      y: 50,
+      z: 100,
+      duration: 2,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const collapseAmount = collapse.value
+          const chaosAmount = chaos.value
+          const restorationAmount = restoration.value
+
+          // 减少的维度混乱效果
+          const chaosX = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
+          const chaosY = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
+          const chaosZ = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
+
+          props.camera.position.x = 100 - 80 * restorationAmount + chaosX
+          props.camera.position.y = 50 - 40 * restorationAmount + chaosY
+          props.camera.position.z = 100 - 80 * restorationAmount + chaosZ
+
+          // 减少的相机混乱旋转
+          cameraRotation.value.x = (Math.random() - 0.5) * 0.2 * chaosAmount * (1 - restorationAmount * 0.9)
+          cameraRotation.value.y = (Math.random() - 0.5) * 0.2 * chaosAmount * (1 - restorationAmount * 0.9)
+          cameraRotation.value.z = (Math.random() - 0.5) * 0.1 * chaosAmount * (1 - restorationAmount * 0.9)
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '维度重组错误'
+      )
+    }, 3)
+
+    // 动画阶段5: 最终稳定
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终稳定错误'
+      )
+    }, 5)
+
+    tl.to(collapse, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(chaos, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终稳定位置错误'
+      )
+    }, 5)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5.5)
+
+  } catch (error) {
+    onAnimationError(error, '维度崩溃')
+  }
+}
+
+/**
+ * 新增：时空逆流动画
+ */
+const animateTimeRewind = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1200, 800, 1200))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const rewind = { value: 0 }
+    const reverse = { value: 0 }
+    const causality = { value: 1 }
+    const restore = { value: 0 }
+    const temporalSpeed = { value: 1 }
+
+    // 创建时间线上的关键点（从未来到过去）
+    const timePoints = [
+      { position: new THREE.Vector3(1000, 700, 1000), time: 100 },   // 未来
+      { position: new THREE.Vector3(700, 500, 700), time: 50 },      // 近未来
+      { position: new THREE.Vector3(400, 300, 400), time: 0 },       // 现在
+      { position: new THREE.Vector3(200, 150, 200), time: -50 },     // 近过去
+      { position: new THREE.Vector3(50, 30, 50), time: -100 }         // 远过去
+    ]
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '时空逆流'),
+      '时空逆流'
+    )
+
+    // 动画阶段1: 接近现在
+    tl.to(props.camera.position, {
+      x: 1000,
+      y: 700,
+      z: 1000,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 开始时间倒流
+    tl.to(rewind, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(temporalSpeed, {
+      value: -1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(props.camera.position, {
+      x: 700,
+      y: 500,
+      z: 700,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const rewindAmount = rewind.value
+          const speedAmount = temporalSpeed.value
+
+          // 时间逆流效果
+          const reverseX = Math.sin(time * 5 * Math.abs(speedAmount)) * 10 * rewindAmount
+          const reverseY = Math.cos(time * 4 * Math.abs(speedAmount)) * 8 * rewindAmount
+          const reverseZ = Math.sin(time * 6 * Math.abs(speedAmount)) * 10 * rewindAmount
+
+          props.camera.position.x += reverseX
+          props.camera.position.y += reverseY
+          props.camera.position.z += reverseZ
+
+          // 相机轻微旋转
+          cameraRotation.value.x = Math.sin(time * 3 * Math.abs(speedAmount)) * 0.1 * rewindAmount
+          cameraRotation.value.y = Math.cos(time * 2 * Math.abs(speedAmount)) * 0.1 * rewindAmount
+          cameraRotation.value.z = Math.sin(time * 4 * Math.abs(speedAmount)) * 0.05 * rewindAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '时间逆流错误'
+      )
+    }, 0.8)
+
+    // 动画阶段3: 快速时间倒流
+    tl.to(reverse, {
+      value: 1,
+      duration: 2,
+      ease: 'power4.inOut'
+    }, 1.5)
+
+    tl.to(temporalSpeed, {
+      value: -3,
+      duration: 2,
+      ease: 'power4.inOut'
+    }, 1.5)
+
+    // 在时间线上逆流（从未来到过去）
+    for (let i = 0; i < timePoints.length - 1; i++) {
+      const startPoint = timePoints[i]
+      const endPoint = timePoints[i + 1]
+
+      tl.to(props.camera.position, {
+        x: endPoint.x,
+        y: endPoint.y,
+        z: endPoint.z,
+        duration: 0.5,
+        ease: 'power1.inOut',
+        onUpdate: () => safeCameraTransform(
+          () => {
+            const time = tl.time()
+            const reverseAmount = reverse.value
+            const speedAmount = temporalSpeed.value
+            const causalityAmount = causality.value
+
+            // 时间逆流增强效果
+            const reverseX = Math.sin(time * 10 * Math.abs(speedAmount)) * 15 * reverseAmount
+            const reverseY = Math.cos(time * 8 * Math.abs(speedAmount)) * 12 * reverseAmount
+            const reverseZ = Math.sin(time * 12 * Math.abs(speedAmount)) * 15 * reverseAmount
+
+            props.camera.position.x += reverseX * causalityAmount
+            props.camera.position.y += reverseY * causalityAmount
+            props.camera.position.z += reverseZ * causalityAmount
+
+            // 因果律混乱效果
+            const causalityX = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
+            const causalityY = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
+            const causalityZ = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
+
+            props.camera.position.x += causalityX
+            props.camera.position.y += causalityY
+            props.camera.position.z += causalityZ
+
+            // 相机旋转混乱
+            cameraRotation.value.x = Math.sin(time * 5 * Math.abs(speedAmount)) * 0.2 * reverseAmount
+            cameraRotation.value.y = Math.cos(time * 4 * Math.abs(speedAmount)) * 0.2 * reverseAmount
+            cameraRotation.value.z = Math.sin(time * 6 * Math.abs(speedAmount)) * 0.1 * reverseAmount
+
+            props.camera.rotation.set(
+              cameraRotation.value.x,
+              cameraRotation.value.y,
+              cameraRotation.value.z
+            )
+
+            props.camera.lookAt(props.controls.target)
+          },
+          '时间逆流增强错误'
+        )
+      }, 1.8 + i * 0.5)
+
+      // 视觉冲击效果
+      tl.to(props.renderer.domElement, {
+        opacity: 0.8,
+        duration: 0.1,
+        ease: 'none'
+      }, 2 + i * 0.5)
+
+      tl.to(props.renderer.domElement, {
+        opacity: 1,
+        duration: 0.1,
+        ease: 'none'
+      }, 2.1 + i * 0.5)
+    }
+
+    // 动画阶段4: 因果律恢复
+    tl.to(restore, {
+      value: 1,
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 4)
+
+    tl.to(causality, {
+      value: 0.3,
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 4)
+
+    tl.to(temporalSpeed, {
+      value: -0.5,
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 4)
+
+    tl.to(props.camera.position, {
+      x: 20,
+      y: 15,
+      z: 20,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const reverseAmount = reverse.value
+          const speedAmount = temporalSpeed.value
+          const causalityAmount = causality.value
+          const restoreAmount = restore.value
+
+          // 减少的时间逆流效果
+          const reverseX = Math.sin(time * 5 * Math.abs(speedAmount)) * 5 * reverseAmount * (1 - restoreAmount * 0.9)
+          const reverseY = Math.cos(time * 4 * Math.abs(speedAmount)) * 4 * reverseAmount * (1 - restoreAmount * 0.9)
+          const reverseZ = Math.sin(time * 6 * Math.abs(speedAmount)) * 5 * reverseAmount * (1 - restoreAmount * 0.9)
+
+          props.camera.position.x += reverseX * causalityAmount
+          props.camera.position.y += reverseY * causalityAmount
+          props.camera.position.z += reverseZ * causalityAmount
+
+          // 减少的相机旋转
+          cameraRotation.value.x = Math.sin(time * 3 * Math.abs(speedAmount)) * 0.05 * reverseAmount * (1 - restoreAmount * 0.9)
+          cameraRotation.value.y = Math.cos(time * 2 * Math.abs(speedAmount)) * 0.05 * reverseAmount * (1 - restoreAmount * 0.9)
+          cameraRotation.value.z = Math.sin(time * 4 * Math.abs(speedAmount)) * 0.02 * reverseAmount * (1 - restoreAmount * 0.9)
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '因果律恢复错误'
+      )
+    }, 4)
+
+    // 动画阶段5: 时间恢复正流
+    tl.to(temporalSpeed, {
+      value: 0.5,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5.5)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV时间恢复正流错误'
+      )
+    }, 5.5)
+
+    tl.to(reverse, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5.5)
+
+    tl.to(restore, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '时间恢复正流位置错误'
+      )
+    }, 5.5)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 6)
+
+    // 动画阶段7: 视觉冲击效果 - 闪烁
+    for (let i = 0; i < 3; i++) {
+      tl.to(props.renderer.domElement, {
+        opacity: 0.8,
+        duration: 0.1,
+        ease: 'none'
+      }, 2.5 + i)
+
+      tl.to(props.renderer.domElement, {
+        opacity: 0.4,
+        duration: 0.1,
+        ease: 'none'
+      }, 2.6 + i)
+
+      tl.to(props.renderer.domElement, {
+        opacity: 1,
+        duration: 0.1,
+        ease: 'none'
+      }, 2.7 + i)
+    }
+
+  } catch (error) {
+    onAnimationError(error, '时空逆流')
+  }
+}
 
 
 
@@ -3249,6 +5472,8 @@ const animateVirtualReality = () => {
 /**
  * 动画函数映射
  */
+
+
 const animationFunctions = {
   [ANIMATION_CONFIG.EPIC_DIVE]: animateEpicDive,
   [ANIMATION_CONFIG.SPACE_WARP]: animateSpaceWarp,
@@ -3263,7 +5488,17 @@ const animationFunctions = {
   [ANIMATION_CONFIG.TIME_RIFT]: animateTimeRift,
   [ANIMATION_CONFIG.PLANET_EXPLOSION]: animatePlanetExplosion,
   [ANIMATION_CONFIG.QUANTUM_ENTANGLEMENT]: animateQuantumEntanglement,
-  [ANIMATION_CONFIG.VIRTUAL_REALITY]: animateVirtualReality
+  [ANIMATION_CONFIG.VIRTUAL_REALITY]: animateVirtualReality,
+  // 游走和环游动画映射
+  [ANIMATION_CONFIG.SCENE_ROAMING]: animateSceneRoaming,
+  [ANIMATION_CONFIG.ORBITAL_ROTATION]: animateOrbitalRotation,
+  [ANIMATION_CONFIG.DIMENSIONAL_PORTAL]: animateDimensionalPortal,
+  [ANIMATION_CONFIG.TIME_TRAVEL]: animateTimeTravel,
+  // 新增的炸裂动画映射
+  [ANIMATION_CONFIG.BLACK_HOLE]: animateBlackHole,
+  [ANIMATION_CONFIG.COSMIC_BIG_BANG]: animateCosmicBigBang,
+  [ANIMATION_CONFIG.DIMENSION_COLLAPSE]: animateDimensionCollapse,
+  [ANIMATION_CONFIG.TIME_REWIND]: animateTimeRewind
 }
 
 
@@ -4119,8 +6354,617 @@ defineExpose({
 
 
 
+  // 新增：场景漫游效果
+  &__scene-roaming-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__viewfinder {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 20px solid transparent;
+    opacity: 0;
+    animation: viewfinderEffect 7s ease-in-out forwards;
+  }
+
+  &__path-indicator {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            45deg,
+            transparent 0%,
+            rgba(100, 200, 255, 0.1) 25%,
+            transparent 50%,
+            rgba(100, 200, 255, 0.1) 75%,
+            transparent 100%
+    );
+    opacity: 0;
+    animation: pathIndicatorEffect 7s ease-in-out forwards;
+  }
+
+  &__scene-transition {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: sceneTransitionEffect 7s ease-in-out forwards;
+  }
+
+  // 新增：轨道环绕效果
+  &__orbital-rotation-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__orbit-path {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 2px dashed rgba(100, 200, 255, 0.3);
+    opacity: 0;
+    animation: orbitPathEffect 6s ease-in-out forwards;
+  }
+
+  &__gravity-well {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(100, 200, 255, 0) 0%,
+            rgba(100, 200, 255, 0.2) 20%,
+            rgba(100, 200, 255, 0.1) 40%,
+            transparent 70%
+    );
+    opacity: 0;
+    animation: gravityWellEffect 6s ease-in-out forwards;
+  }
+
+  &__ascending-spiral {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(
+            from 0deg at 50% 50%,
+            transparent 0deg,
+            rgba(100, 200, 255, 0.1) 90deg,
+            transparent 180deg,
+            rgba(100, 200, 255, 0.1) 270deg,
+            transparent 360deg
+    );
+    opacity: 0;
+    animation: ascendingSpiralEffect 6s ease-in-out forwards;
+  }
+
+  // 新增：维度传送门效果
+  &__dimensional-portal-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__portal-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 10px solid transparent;
+    opacity: 0;
+    animation: portalRingEffect 9s ease-in-out forwards;
+  }
+
+  &__dimension-shift {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            45deg,
+            rgba(0, 255, 255, 0) 0%,
+            rgba(0, 255, 255, 0.2) 50%,
+            rgba(0, 255, 255, 0) 100%
+    );
+    opacity: 0;
+    animation: dimensionShiftEffect 9s ease-in-out forwards;
+  }
+
+  &__portal-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: portalParticlesEffect 9s ease-in-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 6px;
+      height: 6px;
+      border-radius: 50%;
+      background: rgba(0, 255, 255, 0.8);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    }
+
+    &::before {
+      top: 25%;
+      left: 30%;
+      animation: portalParticleFloat1 2s infinite ease-in-out;
+    }
+
+    &::after {
+      top: 65%;
+      right: 35%;
+      animation: portalParticleFloat2 2.5s infinite ease-in-out;
+    }
+  }
+
+  // 新增：时空穿梭效果
+  &__time-travel-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__time-ripples {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: timeRipplesEffect 6s ease-in-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      border-radius: 50%;
+      border: 2px solid rgba(136, 68, 255, 0.5);
+    }
+
+    &::before {
+      animation: rippleExpand1 3s infinite ease-out;
+    }
+
+    &::after {
+      animation: rippleExpand2 3s infinite ease-out;
+      animation-delay: 1.5s;
+    }
+  }
+
+  &__past-future-shift {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            90deg,
+            rgba(136, 68, 255, 0.2) 0%,
+            rgba(255, 255, 255, 0) 50%,
+            rgba(68, 136, 255, 0.2) 100%
+    );
+    opacity: 0;
+    animation: pastFutureShiftEffect 6s ease-in-out forwards;
+  }
+
+  &__temporal-distortion {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(136, 68, 255, 0.1) 2px,
+            rgba(136, 68, 255, 0.1) 4px
+    );
+    opacity: 0;
+    animation: temporalDistortionEffect 6s ease-in-out forwards;
+  }
+
+  // 新增动画类型变体
+  &--scene-roaming {
+    .cinematic-intro__title {
+      color: #64b5f6;
+      text-shadow: 0 0 10px #64b5f6;
+
+      &::before {
+        color: rgba(100, 181, 246, 0.5);
+        animation: roamingGlow 1s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #64b5f6;
+    }
+  }
+
+  &--orbital-rotation {
+    .cinematic-intro__title {
+      color: #7b1fa2;
+      text-shadow: 0 0 10px #7b1fa2;
+
+      &::before {
+        color: rgba(123, 31, 162, 0.5);
+        animation: orbitalGlow 0.8s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #7b1fa2;
+    }
+  }
+
+  &--dimensional-portal {
+    .cinematic-intro__title {
+      color: #00bcd4;
+      text-shadow: 0 0 10px #00bcd4;
+
+      &::before {
+        color: rgba(0, 188, 212, 0.5);
+        animation: portalGlow 0.6s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #00bcd4;
+    }
+  }
+
+  &--time-travel {
+    .cinematic-intro__title {
+      color: #8844ff;
+      text-shadow: 0 0 10px #8844ff;
+
+      &::before {
+        color: rgba(136, 68, 255, 0.5);
+        animation: timeGlow 0.9s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #8844ff;
+    }
+  }
 
 
+
+
+  // 新增：黑洞吞噬效果
+  &__black-hole-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__event-horizon {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(0, 0, 0, 1) 0%,
+            rgba(0, 0, 0, 0.8) 10%,
+            rgba(0, 0, 0, 0.5) 20%,
+            rgba(0, 0, 0, 0.2) 30%,
+            transparent 50%
+    );
+    opacity: 0;
+    animation: eventHorizonEffect 6s ease-in-out forwards;
+  }
+
+  &__accretion-disk {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border-radius: 50%;
+    border: 20px solid transparent;
+    opacity: 0;
+    animation: accretionDiskEffect 6s ease-in-out forwards;
+  }
+
+  &__gravitational-lensing {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(
+            from 0deg at 50% 50%,
+            transparent 0deg,
+            rgba(255, 100, 0, 0.1) 90deg,
+            transparent 180deg,
+            rgba(255, 100, 0, 0.1) 270deg,
+            transparent 360deg
+    );
+    opacity: 0;
+    animation: gravitationalLensingEffect 6s ease-in-out forwards;
+  }
+
+  // 新增：宇宙大爆炸效果
+  &__cosmic-big-bang-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__singularity {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(255, 255, 255, 0.8) 5%,
+            rgba(255, 200, 100, 0.5) 10%,
+            rgba(255, 150, 50, 0.2) 20%,
+            transparent 40%
+    );
+    opacity: 0;
+    animation: singularityEffect 6s ease-in-out forwards;
+  }
+
+  &__explosion-wave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 0) 0%,
+            rgba(255, 255, 255, 0.8) 20%,
+            rgba(255, 200, 100, 0.5) 40%,
+            rgba(255, 150, 50, 0.2) 60%,
+            transparent 80%
+    );
+    opacity: 0;
+    animation: explosionWaveEffect 6s ease-in-out forwards;
+  }
+
+  &__universe-formation {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(0, 0, 50, 0.2) 0%,
+            rgba(0, 0, 100, 0.1) 30%,
+            rgba(0, 50, 200, 0.05) 60%,
+            transparent 90%
+    );
+    opacity: 0;
+    animation: universeFormationEffect 6s ease-in-out forwards;
+  }
+
+  // 新增：维度崩溃效果
+  &__dimension-collapse-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__reality-fracture {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 5px,
+            rgba(255, 0, 0, 0.1) 5px,
+            rgba(255, 0, 0, 0.1) 10px
+    );
+    opacity: 0;
+    animation: realityFractureEffect 6s ease-in-out forwards;
+  }
+
+  &__dimensional-shards {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: dimensionalShardsEffect 6s ease-in-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 30px;
+      height: 30px;
+      background: rgba(255, 0, 0, 0.7);
+      box-shadow: 0 0 10px rgba(255, 0, 0, 0.8);
+    }
+
+    &::before {
+      top: 20%;
+      left: 30%;
+      animation: shardFloat1 2s infinite ease-in-out;
+    }
+
+    &::after {
+      top: 60%;
+      right: 25%;
+      animation: shardFloat2 2.5s infinite ease-in-out;
+    }
+  }
+
+  &__chaos-vortex {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(
+            from 0deg at 50% 50%,
+            transparent 0deg,
+            rgba(255, 0, 0, 0.1) 90deg,
+            transparent 180deg,
+            rgba(255, 0, 0, 0.1) 270deg,
+            transparent 360deg
+    );
+    opacity: 0;
+    animation: chaosVortexEffect 6s ease-in-out forwards;
+  }
+
+  // 新增：时空逆流效果
+  &__time-rewind-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__reverse-flow {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            90deg,
+            transparent,
+            transparent 10px,
+            rgba(136, 68, 255, 0.1) 10px,
+            rgba(136, 68, 255, 0.1) 20px
+    );
+    opacity: 0;
+    animation: reverseFlowEffect 6s ease-in-out forwards;
+  }
+
+  &__temporal-fragments {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: temporalFragmentsEffect 6s ease-in-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 25px;
+      height: 25px;
+      background: rgba(136, 68, 255, 0.7);
+      box-shadow: 0 0 10px rgba(136, 68, 255, 0.8);
+    }
+
+    &::before {
+      top: 30%;
+      left: 20%;
+      animation: temporalFloat1 2s infinite ease-in-out;
+    }
+
+    &::after {
+      top: 65%;
+      right: 25%;
+      animation: temporalFloat2 2.5s infinite ease-in-out;
+    }
+  }
+
+  &__causality-loop {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 5px,
+            rgba(136, 68, 255, 0.05) 5px,
+            rgba(136, 68, 255, 0.05) 10px
+    );
+    opacity: 0;
+    animation: causalityLoopEffect 6s ease-in-out forwards;
+  }
+
+  // 新增动画类型变体
+  &--black-hole {
+    .cinematic-intro__title {
+      color: #f50;
+      text-shadow: 0 0 10px #f50;
+
+      &::before {
+        color: rgba(255, 50, 0, 0.5);
+        animation: blackHoleGlow 0.7s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #f50;
+    }
+  }
+
+  &--cosmic-big-bang {
+    .cinematic-intro__title {
+      color: #fff;
+      text-shadow: 0 0 10px #fff;
+
+      &::before {
+        color: rgba(255, 255, 255, 0.5);
+        animation: bigBangGlow 0.8s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #fff;
+    }
+  }
+
+  &--dimension-collapse {
+    .cinematic-intro__title {
+      color: #f00;
+      text-shadow: 0 0 10px #f00;
+
+      &::before {
+        color: rgba(255, 0, 0, 0.5);
+        animation: collapseGlow 0.6s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #f00;
+    }
+  }
+
+  &--time-rewind {
+    .cinematic-intro__title {
+      color: #88f;
+      text-shadow: 0 0 10px #88f;
+
+      &::before {
+        color: rgba(136, 136, 255, 0.5);
+        animation: rewindGlow 0.9s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #88f;
+    }
+  }
 
 
 
@@ -4761,6 +7605,275 @@ defineExpose({
 
 
 
+// 新增动画定义：场景漫游效果
+@keyframes viewfinderEffect {
+  0% {
+    opacity: 0;
+    border-width: 20px;
+  }
+  20% {
+    opacity: 0.8;
+    border-width: 15px;
+  }
+  40% {
+    opacity: 0.6;
+    border-width: 10px;
+  }
+  70% {
+    opacity: 0.3;
+    border-width: 5px;
+  }
+  100% {
+    opacity: 0;
+    border-width: 0px;
+  }
+}
+
+@keyframes pathIndicatorEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0.7; }
+  40% { opacity: 0.5; }
+  70% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes sceneTransitionEffect {
+  0% { opacity: 0; }
+  15% { opacity: 0; }
+  20% { opacity: 0.8; }
+  25% { opacity: 0; }
+  55% { opacity: 0; }
+  60% { opacity: 0.8; }
+  65% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+// 新增动画定义：轨道环绕效果
+@keyframes orbitPathEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.8);
+  }
+  20% {
+    opacity: 0.7;
+    transform: scale(0.9);
+  }
+  50% {
+    opacity: 0.5;
+    transform: scale(1);
+  }
+  80% {
+    opacity: 0.2;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+}
+
+@keyframes gravityWellEffect {
+  0% { opacity: 0; }
+  30% { opacity: 0; }
+  50% { opacity: 0.7; }
+  70% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
+@keyframes ascendingSpiralEffect {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  30% {
+    opacity: 0.6;
+    transform: rotate(180deg);
+  }
+  60% {
+    opacity: 0.4;
+    transform: rotate(540deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(1080deg);
+  }
+}
+
+// 新增动画定义：维度传送门效果
+@keyframes portalRingEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  10% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  25% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+  40% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  60% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  75% {
+    opacity: 0.6;
+    transform: scale(1.1);
+  }
+  90% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+}
+
+@keyframes dimensionShiftEffect {
+  0% { opacity: 0; }
+  10% { opacity: 0; }
+  25% { opacity: 0.8; }
+  40% { opacity: 0; }
+  50% { opacity: 0; }
+  60% { opacity: 0.8; }
+  75% { opacity: 0; }
+  90% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes portalParticlesEffect {
+  0% { opacity: 0; }
+  10% { opacity: 0; }
+  25% { opacity: 0.8; }
+  40% { opacity: 0.4; }
+  50% { opacity: 0; }
+  60% { opacity: 0.8; }
+  75% { opacity: 0.4; }
+  90% { opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes portalParticleFloat1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(15px, -20px);
+  }
+}
+
+@keyframes portalParticleFloat2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-20px, -15px);
+  }
+}
+
+// 新增动画定义：时空穿梭效果
+@keyframes rippleExpand1 {
+  0% {
+    transform: scale(0.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes rippleExpand2 {
+  0% {
+    transform: scale(0.1);
+    opacity: 0.8;
+  }
+  100% {
+    transform: scale(1.5);
+    opacity: 0;
+  }
+}
+
+@keyframes timeRipplesEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0.8; }
+  40% { opacity: 0.4; }
+  60% { opacity: 0.8; }
+  80% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+
+@keyframes pastFutureShiftEffect {
+  0% { opacity: 0; }
+  30% { opacity: 0.7; }
+  50% { opacity: 0; }
+  70% { opacity: 0.7; }
+  100% { opacity: 0; }
+}
+
+@keyframes temporalDistortionEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0.8; }
+  40% { opacity: 0.4; }
+  60% { opacity: 0.8; }
+  80% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+
+// 新增标题动画
+@keyframes roamingGlow {
+  0% {
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  100% {
+    filter: blur(12px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes orbitalGlow {
+  0% {
+    filter: blur(7px);
+    opacity: 0.35;
+  }
+  100% {
+    filter: blur(11px);
+    opacity: 0.75;
+  }
+}
+
+@keyframes portalGlow {
+  0% {
+    filter: blur(6px);
+    opacity: 0.4;
+  }
+  100% {
+    filter: blur(10px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes timeGlow {
+  0% {
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  100% {
+    filter: blur(12px);
+    opacity: 0.7;
+  }
+}
 
 
 
@@ -4768,6 +7881,304 @@ defineExpose({
 
 
 
+// 新增动画定义：黑洞吞噬效果
+@keyframes eventHorizonEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  20% {
+    opacity: 0.8;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.7;
+    transform: scale(2);
+  }
+  80% {
+    opacity: 0.5;
+    transform: scale(5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(10);
+  }
+}
+
+@keyframes accretionDiskEffect {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg) scale(0.5);
+  }
+  20% {
+    opacity: 0.8;
+    transform: rotate(180deg) scale(1);
+  }
+  50% {
+    opacity: 0.6;
+    transform: rotate(720deg) scale(1.5);
+  }
+  80% {
+    opacity: 0.3;
+    transform: rotate(1440deg) scale(2);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(2160deg) scale(3);
+  }
+}
+
+@keyframes gravitationalLensingEffect {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  20% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  40% {
+    opacity: 0.8;
+    transform: rotate(180deg);
+  }
+  60% {
+    opacity: 0.4;
+    transform: rotate(360deg);
+  }
+  80% {
+    opacity: 0.2;
+    transform: rotate(540deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(720deg);
+  }
+}
+
+// 新增动画定义：宇宙大爆炸效果
+@keyframes singularityEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.01);
+  }
+  10% {
+    opacity: 1;
+    transform: scale(0.1);
+  }
+  30% {
+    opacity: 0.8;
+    transform: scale(1);
+  }
+  60% {
+    opacity: 0.5;
+    transform: scale(3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(10);
+  }
+}
+
+@keyframes explosionWaveEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.01);
+  }
+  10% {
+    opacity: 0;
+    transform: scale(0.01);
+  }
+  30% {
+    opacity: 1;
+    transform: scale(2);
+  }
+  60% {
+    opacity: 0.5;
+    transform: scale(5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(10);
+  }
+}
+
+@keyframes universeFormationEffect {
+  0% {
+    opacity: 0;
+    background-size: 10% 10%;
+  }
+  30% {
+    opacity: 0;
+    background-size: 10% 10%;
+  }
+  60% {
+    opacity: 0.8;
+    background-size: 50% 50%;
+  }
+  80% {
+    opacity: 0.4;
+    background-size: 80% 80%;
+  }
+  100% {
+    opacity: 0;
+    background-size: 100% 100%;
+  }
+}
+
+// 新增动画定义：维度崩溃效果
+@keyframes realityFractureEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes dimensionalShardsEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes shardFloat1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(30px, -20px);
+  }
+}
+
+@keyframes shardFloat2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-25px, -15px);
+  }
+}
+
+@keyframes chaosVortexEffect {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  20% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  40% {
+    opacity: 0.8;
+    transform: rotate(360deg);
+  }
+  60% {
+    opacity: 0.4;
+    transform: rotate(720deg);
+  }
+  80% {
+    opacity: 0.2;
+    transform: rotate(1080deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(1440deg);
+  }
+}
+
+// 新增动画定义：时空逆流效果
+@keyframes reverseFlowEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0.8; }
+  40% { opacity: 0.6; }
+  60% { opacity: 0.8; }
+  80% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+
+@keyframes temporalFragmentsEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0.8; }
+  40% { opacity: 0.4; }
+  60% { opacity: 0.8; }
+  80% { opacity: 0.4; }
+  100% { opacity: 0; }
+}
+
+@keyframes temporalFloat1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(25px, -20px);
+  }
+}
+
+@keyframes temporalFloat2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-20px, -15px);
+  }
+}
+
+@keyframes causalityLoopEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0.7; }
+  40% { opacity: 0.5; }
+  60% { opacity: 0.7; }
+  80% { opacity: 0.3; }
+  100% { opacity: 0; }
+}
+
+// 新增标题动画
+@keyframes blackHoleGlow {
+  0% {
+    filter: blur(7px);
+    opacity: 0.3;
+  }
+  100% {
+    filter: blur(12px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes bigBangGlow {
+  0% {
+    filter: blur(5px);
+    opacity: 0.4;
+  }
+  100% {
+    filter: blur(10px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes collapseGlow {
+  0% {
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  100% {
+    filter: blur(13px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes rewindGlow {
+  0% {
+    filter: blur(6px);
+    opacity: 0.4;
+  }
+  100% {
+    filter: blur(11px);
+    opacity: 0.8;
+  }
+}
 
 
 

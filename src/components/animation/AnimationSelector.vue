@@ -42,6 +42,7 @@ const props = defineProps({
 const emit = defineEmits(['update:modelValue', 'reset', 'change'])
 
 // 动画选项数组 - 使用 v-for 渲染
+// 修改animationOptions数组，添加新的动画类型
 const animationOptions = ref([
   { value: 'epic-dive', label: '史诗俯冲' },
   { value: 'space-warp', label: '空间扭曲' },
@@ -56,8 +57,19 @@ const animationOptions = ref([
   { value: 'time-rift', label: '时空裂缝' },
   { value: 'planet-explosion', label: '星球爆炸' },
   { value: 'quantum-entanglement', label: '量子纠缠' },
-  { value: 'virtual-reality', label: '虚拟现实' }
+  { value: 'virtual-reality', label: '虚拟现实' },
+  // 游走和环游类型
+  { value: 'scene-roaming', label: '场景漫游' },
+  { value: 'orbital-rotation', label: '轨道环绕' },
+  { value: 'dimensional-portal', label: '维度传送门' },
+  { value: 'time-travel', label: '时空穿梭' },
+  // 新增的炸裂动画类型
+  { value: 'black-hole', label: '黑洞吞噬' },
+  { value: 'cosmic-big-bang', label: '宇宙大爆炸' },
+  { value: 'dimension-collapse', label: '维度崩溃' },
+  { value: 'time-rewind', label: '时空逆流' }
 ])
+
 
 
 const handleChange = (event) => {
@@ -91,7 +103,7 @@ const resetAnimation = () => {
   }
 
   select, button {
-    background: rgba(255, 255, 255, 0.1);
+    background: rgba(14, 54, 53, 0.5);
     color: white;
     border: 1px solid rgba(255, 255, 255, 0.2);
     border-radius: 4px;
@@ -100,7 +112,7 @@ const resetAnimation = () => {
     transition: all 0.2s ease;
 
     &:hover {
-      background: rgba(255, 255, 255, 0.2);
+      background: rgba(9, 82, 89, 0.5);
     }
 
     &:focus {
