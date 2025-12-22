@@ -70,40 +70,13 @@
       </div>
     </div>
 
-    <!-- 动画选择器（开发时可见，生产环境可隐藏） -->
-    <div
+    <!-- 动画选择器组件 -->
+    <AnimationSelector
       v-if="!isLoading"
-      class="animation-selector"
-      role="region"
-      aria-label="动画控制"
-    >
-      <label for="animation-type">动画类型:</label>
-      <select
-        id="animation-type"
-        v-model="animationType"
-        aria-label="选择开场动画类型"
-        @change="resetAnimation"
-      >
-        <option value="epic-dive">
-          史诗俯冲
-        </option>
-        <option value="space-warp">
-          空间扭曲
-        </option>
-        <option value="matrix-hack">
-          黑客帝国
-        </option>
-        <option value="quantum-shift">
-          量子跃迁
-        </option>
-      </select>
-      <button
-        aria-label="重新播放动画"
-        @click="resetAnimation"
-      >
-        重新播放
-      </button>
-    </div>
+      v-model="animationType"
+      @reset="resetAnimation"
+      @change="resetAnimation"
+    />
 
     <!-- 视角控制组件 -->
     <CameraControls @set-camera-view="setCameraView" />
@@ -114,7 +87,6 @@
     </div>
   </div>
 </template>
-
 <script setup>
 /** Home View Component
 * 主页视图组件，包含3D全景展示和交互控制
@@ -135,6 +107,9 @@ import { onMounted, ref, onUnmounted, computed } from 'vue'
 import homeImage from '@/assets/image/home1.png'
 // 导入新创建的组件
 import CameraControls from '@/components/viewControls.vue'
+
+import AnimationSelector from '@/components/AnimationSelector.vue'
+
 
 
 // 响应式引用
@@ -1922,50 +1897,6 @@ onUnmounted(() => {
     50% { backdrop-filter: blur(2px); }
     70% { backdrop-filter: blur(1px); }
     100% { backdrop-filter: blur(0px); }
-  }
-
-  // 动画选择器样式
-  .animation-selector {
-    position: absolute;
-    top: 20px;
-    left: 20px;
-    background: rgba(0, 0, 0, 0.8);
-    color: white;
-    padding: 10px 15px;
-    border-radius: 8px;
-    font-size: 14px;
-    z-index: 100;
-    display: flex;
-    align-items: center;
-    gap: 10px;
-
-    label {
-      font-weight: 500;
-      white-space: nowrap;
-    }
-
-    select, button {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      border-radius: 4px;
-      padding: 5px 10px;
-      cursor: pointer;
-      transition: all 0.2s ease;
-
-      &:hover {
-        background: rgba(255, 255, 255, 0.2);
-      }
-
-      &:focus {
-        outline: 2px solid rgba(100, 200, 255, 0.5);
-        outline-offset: 1px;
-      }
-    }
-
-    select {
-      min-width: 120px;
-    }
   }
 
   // 视角控制面板

@@ -7,6 +7,8 @@ export {}
 
 declare module 'vue' {
   export interface GlobalComponents {
+    AnimationSelector: typeof import('./src/components/AnimationSelector.vue')['default']
+    CinematicAnimations: typeof import('./src/components/CinematicAnimations.vue')['default']
     CinematicIntro: typeof import('./src/components/CinematicIntro.vue')['default']
     HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
