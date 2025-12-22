@@ -2,44 +2,47 @@
   <div
     v-if="!isLoading && !animationComplete"
     class="cinematic-intro"
-    :data-animation-type="animationType"
+    :class="`cinematic-intro--${animationType}`"
     aria-hidden="true"
   >
-    <div class="fade-out" />
-    <div class="title-card">
+    <div class="cinematic-intro__fade-out" />
+    <div class="cinematic-intro__title-card">
       <div
-        class="particles-container"
+        class="cinematic-intro__particles-container"
         aria-hidden="true"
       >
         <div
           v-for="i in particleCount"
           :key="i"
-          class="particle"
+          class="cinematic-intro__particle"
           :style="getParticleStyle(i)"
           :aria-hidden="true"
         />
       </div>
-      <h1>ZOOOW</h1>
-      <p>IMMERSIVE EXPERIENCE</p>
+      <h1 class="cinematic-intro__title">
+        ZOOOW
+      </h1>
+      <p class="cinematic-intro__subtitle">
+        IMMERSIVE EXPERIENCE
+      </p>
       <div
-        class="scanlines"
+        class="cinematic-intro__scanlines"
         aria-hidden="true"
       />
       <div
-        class="lens-flare"
+        class="cinematic-intro__lens-flare"
         aria-hidden="true"
       />
     </div>
 
-    <!-- 添加动态效果层，特别是为史诗俯冲 -->
     <div
       v-if="animationType === 'epic-dive'"
-      class="dynamic-effects"
+      class="cinematic-intro__dynamic-effects"
       aria-hidden="true"
     >
-      <div class="speed-lines" />
-      <div class="vignette" />
-      <div class="motion-blur" />
+      <div class="cinematic-intro__speed-lines" />
+      <div class="cinematic-intro__vignette" />
+      <div class="cinematic-intro__motion-blur" />
     </div>
   </div>
 </template>
@@ -47,9 +50,48 @@
 <script setup>
 import * as THREE from 'three'
 import { gsap } from 'gsap'
-import { ref, watch } from 'vue'
+import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 
-// Props
+/**
+ * 动画配置常量 - 移到模块顶层，以便在defineProps中使用
+ */
+const ANIMATION_CONFIG = {
+  EPIC_DIVE: 'epic-dive',
+  SPACE_WARP: 'space-warp',
+  MATRIX_HACK: 'matrix-hack',
+  QUANTUM_SHIFT: 'quantum-shift',
+  DEFAULT_DURATION: 7000, // 默认动画持续时间(ms)
+  PARTICLE_COUNT: 50,
+  START_FOV: 170,
+  FINAL_FOV: 75,
+  FINAL_POSITION: { x: 0.01, y: 0.01, z: 0.01 },
+  FINAL_THETA: Math.PI / 2.5,
+  FINAL_PHI: Math.PI / 1.9
+}
+
+/**
+ * 错误信息常量
+ */
+const ERROR_MESSAGES = {
+  NO_CAMERA: 'Camera not available for animation',
+  NO_CONTROLS: 'Controls not available for animation',
+  ANIMATION_FAILED: 'Animation failed',
+  RENDER_FAILED: 'Render failed during animation'
+}
+
+/**
+ * 获取动画类型列表用于验证
+ */
+const getAnimationTypes = () => [
+  ANIMATION_CONFIG.EPIC_DIVE,
+  ANIMATION_CONFIG.SPACE_WARP,
+  ANIMATION_CONFIG.MATRIX_HACK,
+  ANIMATION_CONFIG.QUANTUM_SHIFT
+]
+
+/**
+ * Props定义
+ */
 const props = defineProps({
   isLoading: {
     type: Boolean,
@@ -57,38 +99,81 @@ const props = defineProps({
   },
   scene: {
     type: Object,
-    required: true
+    required: true,
+    validator: (value) => value && typeof value.isScene === 'function'
   },
   camera: {
     type: Object,
-    required: true
+    required: true,
+    validator: (value) => value && typeof value.isCamera === 'function'
   },
   renderer: {
     type: Object,
-    required: true
+    required: true,
+    validator: (value) => value && typeof value.isWebGLRenderer === 'function'
   },
   controls: {
     type: Object,
-    required: true
+    required: true,
+    validator: (value) => value && typeof value.update === 'function'
+  },
+  animationType: {
+    type: String,
+    default: 'epic-dive' // ANIMATION_CONFIG.EPIC_DIVE
   }
 })
 
-// Emits
-const emit = defineEmits(['animation-complete'])
+/**
+ * Emits定义
+ */
+const emit = defineEmits({
+  'animation-complete': (payload) => payload !== undefined,
+  'animation-error': (error) => error instanceof Error
+})
 
-// 内部状态
-const animationType = ref('epic-dive')
+/**
+ * 响应式状态
+ */
 const animationComplete = ref(false)
-const particleCount = 50
+const particleCount = ref(ANIMATION_CONFIG.PARTICLE_COUNT)
+const animationType = ref(props.animationType)
 
-// 创建自定义对象来保存相机旋转值，这样GSAP可以动画
-const cameraRotation = {
-  x: 0,
-  y: 0,
-  z: 0
+// 使用shallowRef来避免Vue的深度响应式处理Three.js对象
+const timeline = shallowRef(null)
+const cameraRotation = shallowRef({ x: 0, y: 0, z: 0 })
+
+/**
+ * 组件生命周期
+ */
+onMounted(() => {
+  // 组件挂载后，如果已加载且动画未完成，则开始动画
+  if (!props.isLoading && !animationComplete.value) {
+    startAnimation()
+  }
+})
+
+onUnmounted(() => {
+  // 组件卸载时清理资源
+  cleanup()
+})
+
+/**
+ * 清理资源
+ */
+const cleanup = () => {
+  if (timeline.value) {
+    timeline.value.kill()
+    timeline.value = null
+  }
+  // 重新启用控制器
+  if (props.controls) {
+    props.controls.enabled = true
+  }
 }
 
-// 获取粒子样式
+/**
+ * 获取粒子样式
+ */
 const getParticleStyle = (index) => {
   const size = Math.random() * 3 + 1
   const x = (Math.random() - 0.5) * 500
@@ -106,91 +191,177 @@ const getParticleStyle = (index) => {
   }
 }
 
-// 重置动画
-const resetAnimation = () => {
-  animationComplete.value = false
-  setTimeout(() => {
-    animateToDefaultView()
-  }, 100)
-}
-
-// 动画进入默认视角
-const animateToDefaultView = () => {
-  if (!props.camera || !props.controls) return
-
-  // 确保目标点在球心
-  props.controls.target.set(0, 0, 0)
-
-  // 根据选择的动画类型执行不同的动画序列
-  switch(animationType.value) {
-  case 'epic-dive':
-    animateEpicDive()
-    break
-  case 'space-warp':
-    animateSpaceWarp()
-    break
-  case 'matrix-hack':
-    animateMatrixHack()
-    break
-  case 'quantum-shift':
-    animateQuantumShift()
-    break
-  default:
-    animateEpicDive()
+/**
+ * 渲染场景
+ */
+const renderScene = () => {
+  try {
+    if (props.renderer && props.scene && props.camera) {
+      props.renderer.render(props.scene, props.camera)
+      return true
+    }
+    return false
+  } catch (error) {
+    console.error(ERROR_MESSAGES.RENDER_FAILED, error)
+    return false
   }
 }
 
-// 动画1: 史诗俯冲
+/**
+ * 设置初始相机状态
+ */
+const setupInitialCameraState = (startPosition, fov = ANIMATION_CONFIG.START_FOV) => {
+  if (!props.camera) {
+    throw new Error(ERROR_MESSAGES.NO_CAMERA)
+  }
+
+  // 设置起始位置
+  props.camera.position.copy(startPosition)
+
+  // 设置FOV
+  props.camera.fov = fov
+  props.camera.updateProjectionMatrix()
+
+  // 渲染初始状态
+  renderScene()
+}
+
+/**
+ * 设置最终相机状态
+ */
+const setupFinalCameraState = () => {
+  // 使用球坐标系统定位最终位置
+  const spherical = new THREE.Spherical()
+  spherical.radius = 0.01
+  spherical.theta = ANIMATION_CONFIG.FINAL_THETA
+  spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+  props.camera.position.setFromSpherical(spherical)
+  props.camera.lookAt(props.controls?.target || new THREE.Vector3(0, 0, 0))
+
+  // 设置最终FOV
+  props.camera.fov = ANIMATION_CONFIG.FINAL_FOV
+  props.camera.updateProjectionMatrix()
+}
+
+/**
+ * 动画完成回调
+ */
+const onAnimationComplete = () => {
+  console.log(`${animationType.value} 动画完成`)
+  animationComplete.value = true
+
+  // 重新启用控制器
+  if (props.controls) {
+    props.controls.enabled = true
+    props.controls.update()
+  }
+
+  // 触发完成事件
+  emit('animation-complete', { type: animationType.value })
+}
+
+/**
+ * 动画错误回调
+ */
+const onAnimationError = (error, animationName) => {
+  console.error(`${animationName} 动画失败:`, error)
+
+  // 确保控制器启用
+  if (props.controls) {
+    props.controls.enabled = true
+  }
+
+  // 标记动画完成，即使出错也要继续
+  animationComplete.value = true
+
+  // 触发错误事件
+  emit('animation-error', error)
+}
+
+/**
+ * 创建动画时间轴
+ */
+const createTimeline = (onComplete, onError, animationName) => {
+  // 清理之前的timeline
+  if (timeline.value) {
+    timeline.value.kill()
+  }
+
+  // 创建新的timeline
+  const tl = gsap.timeline({
+    onComplete,
+    // 添加错误处理回调
+    callbackScope: { animationName },
+    onUpdate: function() {
+      try {
+        // 更新控制器
+        if (props.controls) {
+          props.controls.update()
+        }
+      } catch (error) {
+        console.error('控制器更新错误:', error)
+      }
+    }
+  })
+
+  timeline.value = tl
+  return tl
+}
+
+/**
+ * 安全执行相机变换
+ */
+const safeCameraTransform = (transformFn, errorContext) => {
+  try {
+    return transformFn()
+  } catch (error) {
+    console.error(`${errorContext}:`, error)
+    return null
+  }
+}
+
+/**
+ * 史诗俯冲动画
+ */
 const animateEpicDive = () => {
   try {
-    // 起始相机位置：从更高更远的位置开始
+    // 初始设置
     const startPos = new THREE.Vector3(2000, 2500, 2000)
-    props.camera.position.copy(startPos)
-
-    // 初始FOV：更极端的广角视野
-    props.camera.fov = 170
-    props.camera.updateProjectionMatrix()
-
-    // 初始渲染
-    if (props.renderer && props.scene && props.camera) {
-      props.renderer.render(props.scene, props.camera)
-    }
+    setupInitialCameraState(startPos)
 
     // 暂时禁用用户交互
-    props.controls.enabled = false
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
 
     // 创建辅助变量用于螺旋效果
-    let spiralIntensity = { value: 0 }
+    const spiralIntensity = { value: 0 }
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        console.log('优化后的史诗俯冲动画完成')
-        props.controls.enabled = true
-        animationComplete.value = true
-        emit('animation-complete')
-      }
-    })
+    // 创建timeline
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '史诗俯冲'),
+      '史诗俯冲'
+    )
 
-    // 第一阶段：空中悬浮观察
+    // 动画阶段1: 空中悬浮观察
     tl.to(props.camera.position, {
       x: 1800,
       y: 2200,
       z: 1800,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
+      onUpdate: () => safeCameraTransform(
+        () => {
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('相机位置更新错误:', error)
-        }
-      }
+        },
+        '相机位置更新错误'
+      )
     })
 
-    // 第二阶段：开始加速俯冲，轻微螺旋
+    // 动画阶段2: 开始加速俯冲，轻微螺旋
     tl.to(spiralIntensity, {
       value: 1,
       duration: 0.5,
@@ -203,39 +374,31 @@ const animateEpicDive = () => {
       z: 800,
       duration: 2,
       ease: 'power2.in',
-      onUpdate: () => {
-        try {
-          // 添加螺旋效果
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const spiralX = Math.sin(time * 2) * 30 * spiralIntensity.value
           const spiralZ = Math.cos(time * 2) * 30 * spiralIntensity.value
           props.camera.position.x += spiralX * 0.1
           props.camera.position.z += spiralZ * 0.1
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('螺旋效果更新错误:', error)
-        }
-      }
+        },
+        '螺旋效果更新错误'
+      )
     }, 1)
 
-    // 同时开始收缩FOV，增强速度感
+    // 动画阶段3: 收缩FOV增强速度感
     tl.to(props.camera, {
       fov: 140,
       duration: 1.5,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('相机FOV更新错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        '相机FOV更新错误'
+      )
     }, 1.5)
 
-    // 第三阶段：高速俯冲，剧烈螺旋
+    // 动画阶段4: 高速俯冲，剧烈螺旋
     tl.to(spiralIntensity, {
       value: 3,
       duration: 1,
@@ -248,39 +411,31 @@ const animateEpicDive = () => {
       z: 200,
       duration: 1.5,
       ease: 'power4.in',
-      onUpdate: () => {
-        try {
-          // 增强螺旋效果
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const spiralX = Math.sin(time * 3) * 50 * spiralIntensity.value
           const spiralZ = Math.cos(time * 3) * 50 * spiralIntensity.value
           props.camera.position.x += spiralX * 0.2
           props.camera.position.z += spiralZ * 0.2
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('螺旋效果增强错误:', error)
-        }
-      }
+        },
+        '螺旋效果增强错误'
+      )
     }, 2.5)
 
-    // 快速收缩FOV，增强速度冲击感
+    // 动画阶段5: 快速收缩FOV
     tl.to(props.camera, {
       fov: 100,
       duration: 1,
       ease: 'power2.in',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('相机FOV快速更新错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        '相机FOV快速更新错误'
+      )
     }, 3)
 
-    // 第四阶段：穿越云层，减速开始
+    // 动画阶段6: 穿越云层，减速开始
     tl.to(spiralIntensity, {
       value: 1.5,
       duration: 1,
@@ -293,39 +448,31 @@ const animateEpicDive = () => {
       z: 50,
       duration: 1.5,
       ease: 'power2.out',
-      onUpdate: () => {
-        try {
-          // 减弱螺旋效果
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const spiralX = Math.sin(time * 2) * 20 * spiralIntensity.value
           const spiralZ = Math.cos(time * 2) * 20 * spiralIntensity.value
           props.camera.position.x += spiralX * 0.15
           props.camera.position.z += spiralZ * 0.15
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('螺旋效果减弱错误:', error)
-        }
-      }
+        },
+        '螺旋效果减弱错误'
+      )
     }, 3.8)
 
-    // 继续收缩FOV
+    // 动画阶段7: 继续收缩FOV
     tl.to(props.camera, {
       fov: 85,
       duration: 1,
       ease: 'power2.out',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('相机FOV持续更新错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        '相机FOV持续更新错误'
+      )
     }, 4)
 
-    // 第五阶段：接近地面，稳定视角
+    // 动画阶段8: 接近地面，稳定视角
     tl.to(spiralIntensity, {
       value: 0.3,
       duration: 1,
@@ -338,39 +485,31 @@ const animateEpicDive = () => {
       z: 10,
       duration: 1.5,
       ease: 'power2.out',
-      onUpdate: () => {
-        try {
-          // 微弱螺旋
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const spiralX = Math.sin(time * 1.5) * 5 * spiralIntensity.value
           const spiralZ = Math.cos(time * 1.5) * 5 * spiralIntensity.value
           props.camera.position.x += spiralX * 0.1
           props.camera.position.z += spiralZ * 0.1
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('微弱螺旋效果错误:', error)
-        }
-      }
+        },
+        '微弱螺旋效果错误'
+      )
     }, 5)
 
-    // 调整FOV到接近正常
+    // 动画阶段9: 调整FOV到接近正常
     tl.to(props.camera, {
       fov: 78,
       duration: 0.8,
       ease: 'power2.out',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('相机FOV调整错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        '相机FOV调整错误'
+      )
     }, 6)
 
-    // 第六阶段：最终精准定位
+    // 动画阶段10: 最终精准定位
     tl.to(spiralIntensity, {
       value: 0,
       duration: 0.5,
@@ -378,64 +517,52 @@ const animateEpicDive = () => {
     }, 6.3)
 
     tl.to(props.camera.position, {
-      x: 0.01,
-      y: 0.01,
-      z: 0.01,
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
       duration: 0.8,
       ease: 'power1.out',
-      onUpdate: () => {
-        try {
-          props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('最终定位错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终定位错误'
+      )
     }, 6.3)
 
-    // 完全正常FOV
+    // 动画阶段11: 完全正常FOV
     tl.to(props.camera, {
-      fov: 75,
+      fov: ANIMATION_CONFIG.FINAL_FOV,
       duration: 0.5,
       ease: 'power1.out',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('相机FOV最终更新错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        '相机FOV最终更新错误'
+      )
     }, 6.5)
 
-    // 第七阶段：平滑旋转到最终视角
-    tl.to(cameraRotation, {
+    // 动画阶段12: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
       x: 0,
-      y: Math.PI / 2.5,
+      y: ANIMATION_CONFIG.FINAL_THETA,
       z: 0,
       duration: 1.2,
       ease: 'power2.inOut',
       onUpdate: function() {
-        try {
-          // 使用球坐标更新相机位置
-          const spherical = new THREE.Spherical()
-          spherical.radius = 0.01
-          spherical.theta = cameraRotation.y
-          spherical.phi = Math.PI / 1.9
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-          props.camera.position.setFromSpherical(spherical)
-          props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('最终视角旋转错误:', error)
-        }
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
       }
     }, 6.8)
 
-    // 添加视觉冲击效果 - 快速闪烁
+    // 动画阶段13: 视觉冲击效果 - 快速闪烁
     tl.to(props.renderer.domElement, {
       opacity: 0.8,
       duration: 0.05,
@@ -447,84 +574,65 @@ const animateEpicDive = () => {
       duration: 0.05,
       ease: 'none'
     }, 6.35)
+
   } catch (error) {
-    console.error('史诗俯冲动画失败:', error)
-    animationComplete.value = true
-    emit('animation-complete')
+    onAnimationError(error, '史诗俯冲')
   }
 }
 
-// 动画2: 空间扭曲
+/**
+ * 空间扭曲动画
+ */
 const animateSpaceWarp = () => {
   try {
     // 初始设置：从黑洞中心观察
-    props.camera.position.set(0, 0, 1000)
-
-    // 初始FOV：极广角
-    props.camera.fov = 170
-    props.camera.updateProjectionMatrix()
-
-    // 初始渲染
-    if (props.renderer && props.scene && props.camera) {
-      props.renderer.render(props.scene, props.camera)
-    }
+    setupInitialCameraState(new THREE.Vector3(0, 0, 1000))
 
     // 暂时禁用用户交互
-    props.controls.enabled = false
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
 
     // 重置旋转对象
-    cameraRotation.x = 0
-    cameraRotation.y = 0
-    cameraRotation.z = 0
+    cameraRotation.value = { x: 0, y: 0, z: 0 }
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        console.log('空间扭曲动画完成')
-        props.controls.enabled = true
-        animationComplete.value = true
-        emit('animation-complete')
-      }
-    })
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '空间扭曲'),
+      '空间扭曲'
+    )
 
-    // 第一阶段：剧烈扭曲，快速拉近
+    // 动画阶段1: 剧烈扭曲，快速拉近
     tl.to(props.camera.position, {
       x: 0,
       y: 0,
       z: 100,
       duration: 2,
       ease: 'power4.in',
-      onUpdate: () => {
-        try {
-          // 添加扭曲效果
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const warpAmount = 1 - (props.camera.position.z / 1000)
 
-          // 使用自定义旋转对象来应用扭曲效果
-          cameraRotation.z = Math.sin(time * 5) * warpAmount * 0.1
-          props.camera.rotation.z = cameraRotation.z
+          cameraRotation.value.z = Math.sin(time * 5) * warpAmount * 0.1
+          props.camera.rotation.z = cameraRotation.value.z
 
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('空间扭曲更新错误:', error)
-        }
-      }
+        },
+        '空间扭曲更新错误'
+      )
     })
 
-    // 第二阶段：FOV快速收缩，模拟时空压缩
+    // 动画阶段2: FOV快速收缩，模拟时空压缩
     tl.to(props.camera, {
       fov: 120,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV时空压缩错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV时空压缩错误'
+      )
     }, 1.5)
 
     tl.to(props.camera.position, {
@@ -533,36 +641,28 @@ const animateSpaceWarp = () => {
       z: 10,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          // 减弱扭曲效果
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const warpAmount = props.camera.position.z / 100
-          cameraRotation.z = Math.sin(time * 3) * warpAmount * 0.05
-          props.camera.rotation.z = cameraRotation.z
+          cameraRotation.value.z = Math.sin(time * 3) * warpAmount * 0.05
+          props.camera.rotation.z = cameraRotation.value.z
 
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('扭曲效果减弱错误:', error)
-        }
-      }
+        },
+        '扭曲效果减弱错误'
+      )
     }, 1.5)
 
-    // 第三阶段：螺旋下降
+    // 动画阶段3: 螺旋下降
     tl.to(props.camera, {
       fov: 85,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV螺旋下降错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV螺旋下降错误'
+      )
     }, 2.5)
 
     tl.to(props.camera.position, {
@@ -571,9 +671,8 @@ const animateSpaceWarp = () => {
       z: 2,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          // 螺旋旋转
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const spiralRadius = props.camera.position.z * 0.5
           const spiralX = Math.cos(time * 2) * spiralRadius
@@ -581,251 +680,203 @@ const animateSpaceWarp = () => {
           props.camera.position.x = spiralX
           props.camera.position.z = spiralZ
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('螺旋旋转更新错误:', error)
-        }
-      }
+        },
+        '螺旋旋转更新错误'
+      )
     }, 2.5)
 
-    // 第四阶段：最终定位
+    // 动画阶段4: 最终定位
     tl.to(props.camera, {
-      fov: 75,
+      fov: ANIMATION_CONFIG.FINAL_FOV,
       duration: 0.5,
       ease: 'power1.out',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV最终定位错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终定位错误'
+      )
     }, 3.5)
 
     // 重置扭曲旋转
-    tl.to(cameraRotation, {
+    tl.to(cameraRotation.value, {
       z: 0,
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: function() {
-        try {
-          props.camera.rotation.z = cameraRotation.z
-        } catch (error) {
-          console.error('扭曲旋转重置错误:', error)
-        }
+        safeCameraTransform(
+          () => props.camera.rotation.z = cameraRotation.value.z,
+          '扭曲旋转重置错误'
+        )
       }
     }, 3.5)
 
     tl.to(props.camera.position, {
-      x: 0.01,
-      y: 0.01,
-      z: 0.01,
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
       duration: 0.5,
       ease: 'power1.out',
-      onUpdate: () => {
-        try {
-          props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('相机位置最终定位错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置最终定位错误'
+      )
     }, 3.5)
 
-    // 第五阶段：平滑旋转到最终视角
-    tl.to(cameraRotation, {
+    // 动画阶段5: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
       x: 0,
-      y: Math.PI / 2.5,
+      y: ANIMATION_CONFIG.FINAL_THETA,
       z: 0,
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: function() {
-        try {
-          const spherical = new THREE.Spherical()
-          spherical.radius = 0.01
-          spherical.theta = cameraRotation.y
-          spherical.phi = Math.PI / 1.9
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-          props.camera.position.setFromSpherical(spherical)
-          props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('最终视角旋转错误:', error)
-        }
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
       }
     }, 4)
   } catch (error) {
-    console.error('空间扭曲动画失败:', error)
-    animationComplete.value = true
-    emit('animation-complete')
+    onAnimationError(error, '空间扭曲')
   }
 }
 
-// 动画3: 黑客帝国
+/**
+ * 黑客帝国动画
+ */
 const animateMatrixHack = () => {
   try {
     // 初始设置：从顶部俯视
-    props.camera.position.set(0, 500, 0)
+    setupInitialCameraState(new THREE.Vector3(0, 500, 0))
     props.camera.lookAt(0, 0, 0)
 
-    // 初始FOV：鸟瞰视角
-    props.camera.fov = 120
-    props.camera.updateProjectionMatrix()
-
-    // 初始渲染
-    if (props.renderer && props.scene && props.camera) {
-      props.renderer.render(props.scene, props.camera)
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
     }
 
-    // 暂时禁用用户交互
-    props.controls.enabled = false
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '黑客帝国'),
+      '黑客帝国'
+    )
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        console.log('黑客帝国动画完成')
-        props.controls.enabled = true
-        animationComplete.value = true
-        emit('animation-complete')
-      }
-    })
-
-    // 第一阶段：下落效果
+    // 动画阶段1: 下落效果
     tl.to(props.camera.position, {
       y: 50,
       duration: 2,
       ease: 'power4.in',
-      onUpdate: () => {
-        try {
-          // 添加轻微摇晃效果
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const wobbleX = Math.sin(time * 10) * 0.5
           const wobbleZ = Math.cos(time * 10) * 0.5
           props.camera.position.x = wobbleX
           props.camera.position.z = wobbleZ
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('下落效果更新错误:', error)
-        }
-      }
+        },
+        '下落效果更新错误'
+      )
     })
 
-    // 第二阶段：减速并调整视角
+    // 动画阶段2: 减速并调整视角
     tl.to(props.camera.position, {
       y: 10,
       x: 5,
       z: 5,
       duration: 1,
       ease: 'power2.out',
-      onUpdate: () => {
-        try {
-          // 逐渐减小摇晃
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const wobbleX = Math.sin(time * 5) * 0.2
           const wobbleZ = Math.cos(time * 5) * 0.2
           props.camera.position.x = 5 + wobbleX
           props.camera.position.z = 5 + wobbleZ
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('视角调整错误:', error)
-        }
-      }
+        },
+        '视角调整错误'
+      )
     }, 2)
 
     tl.to(props.camera, {
       fov: 90,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV视角调整错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV视角调整错误'
+      )
     }, 2)
 
-    // 第三阶段：平移到最终位置
+    // 动画阶段3: 平移到最终位置
     tl.to(props.camera.position, {
-      x: 0.01,
-      y: 0.01,
-      z: 0.01,
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          // 进一步减小摇晃
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const wobbleX = Math.sin(time * 3) * 0.05
           const wobbleZ = Math.cos(time * 3) * 0.05
           props.camera.position.x = wobbleX
           props.camera.position.z = wobbleZ
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('位置平移更新错误:', error)
-        }
-      }
+        },
+        '位置平移更新错误'
+      )
     }, 3)
 
     tl.to(props.camera, {
-      fov: 75,
+      fov: ANIMATION_CONFIG.FINAL_FOV,
       duration: 0.5,
       ease: 'power1.out',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV最终更新错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终更新错误'
+      )
     }, 3.5)
 
-    // 第五阶段：平滑旋转到最终视角
-    tl.to(cameraRotation, {
+    // 动画阶段5: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
       x: 0,
-      y: Math.PI / 2.5,
+      y: ANIMATION_CONFIG.FINAL_THETA,
       z: 0,
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: function() {
-        try {
-          const spherical = new THREE.Spherical()
-          spherical.radius = 0.01
-          spherical.theta = cameraRotation.y
-          spherical.phi = Math.PI / 1.9
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-          props.camera.position.setFromSpherical(spherical)
-          props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('最终视角旋转错误:', error)
-        }
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
       }
     }, 4)
   } catch (error) {
-    console.error('黑客帝国动画失败:', error)
-    animationComplete.value = true
-    emit('animation-complete')
+    onAnimationError(error, '黑客帝国')
   }
 }
 
-// 动画4: 量子跃迁
+/**
+ * 量子跃迁动画
+ */
 const animateQuantumShift = () => {
   try {
     // 初始设置：从随机位置开始
@@ -835,30 +886,21 @@ const animateQuantumShift = () => {
 
     const randomPos = new THREE.Vector3()
     randomPos.setFromSphericalCoords(randomRadius, randomPhi, randomTheta)
-    props.camera.position.copy(randomPos)
-
-    // 初始FOV：极广角
-    props.camera.fov = 170
-    props.camera.updateProjectionMatrix()
-
-    // 初始渲染
-    if (props.renderer && props.scene && props.camera) {
-      props.renderer.render(props.scene, props.camera)
-    }
+    setupInitialCameraState(randomPos)
 
     // 暂时禁用用户交互
-    props.controls.enabled = false
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
 
-    const tl = gsap.timeline({
-      onComplete: () => {
-        console.log('量子跃迁动画完成')
-        props.controls.enabled = true
-        animationComplete.value = true
-        emit('animation-complete')
-      }
-    })
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '量子跃迁'),
+      '量子跃迁'
+    )
 
-    // 第一阶段：多次跃迁
+    // 动画阶段1: 多次跃迁
     let targetPosition = new THREE.Vector3()
     for (let i = 0; i < 3; i++) {
       targetPosition.set(
@@ -873,16 +915,10 @@ const animateQuantumShift = () => {
         z: targetPosition.z,
         duration: 0.3,
         ease: 'power1.inOut',
-        onUpdate: () => {
-          try {
-            props.camera.lookAt(props.controls.target)
-            if (props.controls) {
-              props.controls.update()
-            }
-          } catch (error) {
-            console.error('量子跃迁位置更新错误:', error)
-          }
-        }
+        onUpdate: () => safeCameraTransform(
+          () => props.camera.lookAt(props.controls.target),
+          '量子跃迁位置更新错误'
+        )
       }, i * 0.4)
 
       // 闪烁效果
@@ -899,48 +935,38 @@ const animateQuantumShift = () => {
       }, i * 0.4 + 0.2)
     }
 
-    // 第二阶段：最终跃迁到附近
+    // 动画阶段2: 最终跃迁到附近
     tl.to(props.camera.position, {
       x: 10,
       y: 15,
       z: 10,
       duration: 0.5,
       ease: 'power1.inOut',
-      onUpdate: () => {
-        try {
-          props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('最终跃迁位置更新错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终跃迁位置更新错误'
+      )
     }, 1.5)
 
     tl.to(props.camera, {
       fov: 120,
       duration: 0.5,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV最终跃迁错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终跃迁错误'
+      )
     }, 1.5)
 
-    // 第三阶段：稳定接近
+    // 动画阶段3: 稳定接近
     tl.to(props.camera.position, {
       x: 2,
       y: 3,
       z: 2,
       duration: 1,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          // 添加轻微量子抖动
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const wobbleX = (Math.random() - 0.5) * 0.1
           const wobbleY = (Math.random() - 0.5) * 0.1
@@ -949,38 +975,30 @@ const animateQuantumShift = () => {
           props.camera.position.y = 3 + wobbleY
           props.camera.position.z = 2 + wobbleZ
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('量子抖动更新错误:', error)
-        }
-      }
+        },
+        '量子抖动更新错误'
+      )
     }, 2)
 
     tl.to(props.camera, {
       fov: 90,
       duration: 0.5,
       ease: 'power2.inOut',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV稳定接近错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV稳定接近错误'
+      )
     }, 2.5)
 
-    // 第四阶段：最终定位
+    // 动画阶段4: 最终定位
     tl.to(props.camera.position, {
-      x: 0.01,
-      y: 0.01,
-      z: 0.01,
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
       duration: 0.5,
       ease: 'power1.out',
-      onUpdate: () => {
-        try {
-          // 进一步减小抖动
+      onUpdate: () => safeCameraTransform(
+        () => {
           const time = tl.time()
           const wobbleX = (Math.random() - 0.5) * 0.02
           const wobbleY = (Math.random() - 0.5) * 0.02
@@ -989,71 +1007,116 @@ const animateQuantumShift = () => {
           props.camera.position.y = wobbleY
           props.camera.position.z = wobbleZ
           props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('量子抖动减小错误:', error)
-        }
-      }
+        },
+        '量子抖动减小错误'
+      )
     }, 3)
 
     tl.to(props.camera, {
-      fov: 75,
+      fov: ANIMATION_CONFIG.FINAL_FOV,
       duration: 0.5,
       ease: 'power1.out',
-      onUpdate: () => {
-        try {
-          props.camera.updateProjectionMatrix()
-        } catch (error) {
-          console.error('FOV最终定位错误:', error)
-        }
-      }
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终定位错误'
+      )
     }, 3.5)
 
-    // 第五阶段：平滑旋转到最终视角
-    tl.to(cameraRotation, {
+    // 动画阶段5: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
       x: 0,
-      y: Math.PI / 2.5,
+      y: ANIMATION_CONFIG.FINAL_THETA,
       z: 0,
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: function() {
-        try {
-          const spherical = new THREE.Spherical()
-          spherical.radius = 0.01
-          spherical.theta = cameraRotation.y
-          spherical.phi = Math.PI / 1.9
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-          props.camera.position.setFromSpherical(spherical)
-          props.camera.lookAt(props.controls.target)
-          if (props.controls) {
-            props.controls.update()
-          }
-        } catch (error) {
-          console.error('最终视角旋转错误:', error)
-        }
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
       }
     }, 4)
   } catch (error) {
-    console.error('量子跃迁动画失败:', error)
-    animationComplete.value = true
-    emit('animation-complete')
+    onAnimationError(error, '量子跃迁')
   }
 }
 
-// 暴露给父组件的方法和状态
+/**
+ * 动画函数映射
+ */
+const animationFunctions = {
+  [ANIMATION_CONFIG.EPIC_DIVE]: animateEpicDive,
+  [ANIMATION_CONFIG.SPACE_WARP]: animateSpaceWarp,
+  [ANIMATION_CONFIG.MATRIX_HACK]: animateMatrixHack,
+  [ANIMATION_CONFIG.QUANTUM_SHIFT]: animateQuantumShift
+}
+
+/**
+ * 启动动画
+ */
+const startAnimation = () => {
+  if (!props.camera || !props.controls) {
+    console.error(ERROR_MESSAGES.NO_CAMERA, ERROR_MESSAGES.NO_CONTROLS)
+    return
+  }
+
+  // 确保目标点在球心
+  props.controls.target.set(0, 0, 0)
+
+  // 根据动画类型执行相应的动画函数
+  const animationFn = animationFunctions[animationType.value]
+  if (animationFn) {
+    animationFn()
+  } else {
+    // 默认使用史诗俯冲动画
+    animateEpicDive()
+  }
+}
+
+/**
+ * 重置动画
+ */
+const resetAnimation = () => {
+  cleanup()
+  animationComplete.value = false
+  setTimeout(() => {
+    startAnimation()
+  }, 100)
+}
+
+/**
+ * 动画进入默认视角 - 添加此方法以解决home.vue中的调用错误
+ */
+const animateToDefaultView = () => {
+  if (!props.isLoading && !animationComplete.value) {
+    startAnimation()
+  }
+}
+
+/**
+ * 暴露给父组件的方法和状态
+ */
 defineExpose({
   animationType,
   animationComplete,
   resetAnimation,
-  animateToDefaultView,
-  getParticleStyle
+  startAnimation,
+  animateToDefaultView, // 添加此方法以解决home.vue中的调用错误
+  getParticleStyle,
+  cleanup
 })
 </script>
 
 <style scoped lang="scss">
-/* 电影级开场效果 */
+/* 电影级开场效果 - 使用BEM命名规范 */
 .cinematic-intro {
   position: absolute;
   top: 0;
@@ -1063,7 +1126,7 @@ defineExpose({
   z-index: 50;
   pointer-events: none;
 
-  .fade-out {
+  &__fade-out {
     position: absolute;
     top: 0;
     left: 0;
@@ -1073,7 +1136,7 @@ defineExpose({
     animation: fadeOut 2s ease-out forwards;
   }
 
-  .title-card {
+  &__title-card {
     position: absolute;
     top: 50%;
     left: 50%;
@@ -1082,193 +1145,192 @@ defineExpose({
     color: white;
     animation: titleCard 3s ease-out forwards;
     z-index: 10;
-
-    // 添加3D透视和转换
     transform-style: preserve-3d;
     perspective: 1000px;
+  }
 
-    h1 {
-      font-size: 4rem;
-      font-weight: 100;
-      letter-spacing: 8px;
-      margin: 0 0 10px 0;
-      text-transform: uppercase;
-      text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+  &__title {
+    font-size: 4rem;
+    font-weight: 100;
+    letter-spacing: 8px;
+    margin: 0 0 10px 0;
+    text-transform: uppercase;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.5);
+    transform: translateZ(20px);
+    font-family: 'Orbitron', 'Arial', sans-serif;
+    position: relative;
 
-      // 3D文字效果
-      transform: translateZ(20px);
-      font-family: 'Orbitron', 'Arial', sans-serif;
-      position: relative;
-
-      // 添加科技感辉光效果
-      &::before {
-        content: "ZOOOW";
-        position: absolute;
-        left: 0;
-        top: 0;
-        z-index: -1;
-        color: rgba(100, 200, 255, 0.5);
-        filter: blur(8px);
-        transform: scale(1.05);
-        animation: glowPulse 2s infinite alternate;
-      }
-
-      // 添加3D边缘发光
-      &::after {
-        content: "ZOOOW";
-        position: absolute;
-        left: 2px;
-        top: 2px;
-        z-index: -2;
-        color: rgba(0, 100, 255, 0.3);
-        transform: translateZ(-5px);
-      }
-
-      // 线框效果
-      text-stroke: 1px rgba(100, 200, 255, 0.3);
-      -webkit-text-stroke: 1px rgba(100, 200, 255, 0.3);
-    }
-
-    p {
-      font-size: 1rem;
-      letter-spacing: 4px;
-      margin: 0;
-      opacity: 0.8;
-      text-transform: uppercase;
-      transform: translateZ(10px);
-      font-family: 'Orbitron', 'Arial', sans-serif;
-
-      // 添加打字机效果
-      overflow: hidden;
-      white-space: nowrap;
-      animation: typing 3s steps(30) forwards;
-      max-width: 0;
-      margin: 0 auto;
-    }
-
-    // 粒子容器
-    .particles-container {
+    &::before {
+      content: "ZOOOW";
       position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      pointer-events: none;
-      z-index: -1;
-
-      .particle {
-        position: absolute;
-        background: rgba(100, 200, 255, 0.8);
-        border-radius: 50%;
-        box-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
-        animation: float 3s infinite ease-in-out;
-      }
-    }
-
-    // 扫描线效果
-    .scanlines {
-      position: absolute;
-      top: 0;
       left: 0;
-      width: 100%;
-      height: 100%;
-      background: repeating-linear-gradient(
-              0deg,
-              transparent,
-              transparent 2px,
-              rgba(100, 200, 255, 0.03) 2px,
-              rgba(100, 200, 255, 0.03) 4px
-      );
-      pointer-events: none;
-      z-index: 1;
-    }
-
-    // 镜头光晕效果
-    .lens-flare {
-      position: absolute;
-      top: 20%;
-      left: 30%;
-      width: 40px;
-      height: 40px;
-      background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(100,200,255,0.4) 40%, transparent 70%);
-      border-radius: 50%;
-      filter: blur(2px);
-      opacity: 0;
-      animation: flare 2s ease-out forwards;
-      z-index: 2;
-    }
-
-    // 不同动画类型的标题特效
-    .cinematic-intro[data-animation-type="space-warp"] & {
-      h1 {
-        animation: titleGlitch 0.5s infinite;
-      }
-    }
-
-    .cinematic-intro[data-animation-type="matrix-hack"] & {
-      h1 {
-        color: #0f0;
-        text-shadow: 0 0 10px #0f0;
-
-        &::before {
-          color: rgba(0, 255, 0, 0.5);
-          animation: matrixGlow 1s infinite alternate;
-        }
-      }
-
-      p {
-        color: #0f0;
-      }
-    }
-
-    .cinematic-intro[data-animation-type="quantum-shift"] & {
-      .particles-container .particle {
-        animation: quantumFloat 1s infinite ease-in-out;
-      }
-
-      h1 {
-        animation: titleFlicker 0.2s infinite;
-      }
-    }
-  }
-
-  // 添加科技感发光动画
-  @keyframes glowPulse {
-    0% {
+      top: 0;
+      z-index: -1;
+      color: rgba(100, 200, 255, 0.5);
       filter: blur(8px);
-      opacity: 0.5;
+      transform: scale(1.05);
+      animation: glowPulse 2s infinite alternate;
     }
-    100% {
-      filter: blur(12px);
-      opacity: 0.8;
+
+    &::after {
+      content: "ZOOOW";
+      position: absolute;
+      left: 2px;
+      top: 2px;
+      z-index: -2;
+      color: rgba(0, 100, 255, 0.3);
+      transform: translateZ(-5px);
+    }
+
+    text-stroke: 1px rgba(100, 200, 255, 0.3);
+    -webkit-text-stroke: 1px rgba(100, 200, 255, 0.3);
+  }
+
+  &__subtitle {
+    font-size: 1rem;
+    letter-spacing: 4px;
+    margin: 0;
+    opacity: 0.8;
+    text-transform: uppercase;
+    transform: translateZ(10px);
+    font-family: 'Orbitron', 'Arial', sans-serif;
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 3s steps(30) forwards;
+    max-width: 0;
+    margin: 0 auto;
+  }
+
+  &__particles-container {
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    pointer-events: none;
+    z-index: -1;
+  }
+
+  &__particle {
+    position: absolute;
+    background: rgba(100, 200, 255, 0.8);
+    border-radius: 50%;
+    box-shadow: 0 0 10px rgba(100, 200, 255, 0.8);
+    animation: float 3s infinite ease-in-out;
+  }
+
+  &__scanlines {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 2px,
+            rgba(100, 200, 255, 0.03) 2px,
+            rgba(100, 200, 255, 0.03) 4px
+    );
+    pointer-events: none;
+    z-index: 1;
+  }
+
+  &__lens-flare {
+    position: absolute;
+    top: 20%;
+    left: 30%;
+    width: 40px;
+    height: 40px;
+    background: radial-gradient(circle, rgba(255,255,255,0.8) 0%, rgba(100,200,255,0.4) 40%, transparent 70%);
+    border-radius: 50%;
+    filter: blur(2px);
+    opacity: 0;
+    animation: flare 2s ease-out forwards;
+    z-index: 2;
+  }
+
+  &__dynamic-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__speed-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            0deg,
+            transparent 0%,
+            rgba(255, 255, 255, 0.03) 45%,
+            rgba(255, 255, 255, 0.05) 50%,
+            rgba(255, 255, 255, 0.03) 55%,
+            transparent 100%
+    );
+    opacity: 0;
+    animation: speedLinesFlash 8s ease-in-out forwards;
+  }
+
+  &__vignette {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 300px rgba(0, 0, 0, 0);
+    animation: vignetteAppear 8s ease-in-out forwards;
+  }
+
+  &__motion-blur {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(0px);
+    animation: motionBlurEffect 8s ease-in-out forwards;
+  }
+
+  // 动画类型变体
+  &--space-warp &__title {
+    animation: titleGlitch 0.5s infinite;
+  }
+
+  &--matrix-hack {
+    .cinematic-intro__title {
+      color: #0f0;
+      text-shadow: 0 0 10px #0f0;
+
+      &::before {
+        color: rgba(0, 255, 0, 0.5);
+        animation: matrixGlow 1s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #0f0;
     }
   }
 
-  // 打字机效果
-  @keyframes typing {
-    0% {
-      max-width: 0;
-    }
-    70% {
-      max-width: 100%;
-    }
-    100% {
-      max-width: 100%;
-    }
+  &--quantum-shift &__particle {
+    animation: quantumFloat 1s infinite ease-in-out;
+  }
+
+  &--quantum-shift &__title {
+    animation: titleFlicker 0.2s infinite;
+  }
+
+  &--epic-dive &__title {
+    animation: titleShake 8s ease-in-out forwards;
   }
 }
 
+// 动画定义
 @keyframes fadeOut {
-  0% {
-    opacity: 1;
-  }
-  70% {
-    opacity: 1;
-  }
-  100% {
-    opacity: 0;
-    visibility: hidden;
-  }
+  0% { opacity: 1; }
+  70% { opacity: 1; }
+  100% { opacity: 0; visibility: hidden; }
 }
 
 @keyframes titleCard {
@@ -1294,46 +1356,88 @@ defineExpose({
   }
 }
 
-// 添加相应的CSS
-.dynamic-effects {
-  position: absolute;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  pointer-events: none;
-  z-index: 5;
+@keyframes glowPulse {
+  0% {
+    filter: blur(8px);
+    opacity: 0.5;
+  }
+  100% {
+    filter: blur(12px);
+    opacity: 0.8;
+  }
+}
 
-  .speed-lines {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(
-            0deg,
-            transparent 0%,
-            rgba(255, 255, 255, 0.03) 45%,
-            rgba(255, 255, 255, 0.05) 50%,
-            rgba(255, 255, 255, 0.03) 55%,
-            transparent 100%
-    );
+@keyframes typing {
+  0% { max-width: 0; }
+  70% { max-width: 100%; }
+  100% { max-width: 100%; }
+}
+
+@keyframes float {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
+    opacity: 0.8;
+  }
+  50% {
+    transform: translate(0, -20px) scale(1.2);
+    opacity: 1;
+  }
+}
+
+@keyframes quantumFloat {
+  0%, 100% {
+    transform: translate(0, 0) scale(1);
     opacity: 0;
-    animation: speedLinesFlash 8s ease-in-out forwards;
   }
-
-  .vignette {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    box-shadow: inset 0 0 300px rgba(0, 0, 0, 0);
-    animation: vignetteAppear 8s ease-in-out forwards;
+  50% {
+    transform: translate(0, -30px) scale(1.5);
+    opacity: 1;
   }
+}
 
-  .motion-blur {
-    position: absolute;
-    width: 100%;
-    height: 100%;
-    backdrop-filter: blur(0px);
-    animation: motionBlurEffect 8s ease-in-out forwards;
+@keyframes titleGlitch {
+  0%, 100% { transform: translateZ(20px); }
+  20% { transform: translateX(-5px) translateZ(20px); }
+  40% { transform: translateX(5px) translateZ(20px); }
+}
+
+@keyframes matrixGlow {
+  0% {
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  100% {
+    filter: blur(10px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes titleFlicker {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.8; }
+}
+
+@keyframes titleShake {
+  0%, 20% { transform: translateZ(20px); }
+  40%, 45% { transform: translateZ(20px) translateX(2px); }
+  50%, 55% { transform: translateZ(20px) translateX(-2px); }
+  60% { transform: translateZ(20px) translateX(1px); }
+  70% { transform: translateZ(20px); }
+  100% { transform: translateZ(20px) translateY(-10px); }
+}
+
+@keyframes flare {
+  0% {
+    opacity: 0;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 1;
+    transform: scale(1.2);
+  }
+  100% {
+    opacity: 0.7;
+    transform: scale(1);
   }
 }
 
@@ -1359,91 +1463,5 @@ defineExpose({
   50% { backdrop-filter: blur(2px); }
   70% { backdrop-filter: blur(1px); }
   100% { backdrop-filter: blur(0px); }
-}
-
-// 为史诗俯冲添加标题特殊效果
-.cinematic-intro[data-animation-type="epic-dive"] .title-card {
-  h1 {
-    animation: titleShake 8s ease-in-out forwards;
-  }
-}
-
-@keyframes titleShake {
-  0%, 20% { transform: translateZ(20px); }
-  40%, 45% { transform: translateZ(20px) translateX(2px); }
-  50%, 55% { transform: translateZ(20px) translateX(-2px); }
-  60% { transform: translateZ(20px) translateX(1px); }
-  70% { transform: translateZ(20px); }
-  100% { transform: translateZ(20px) translateY(-10px); }
-}
-
-// 动画效果定义
-@keyframes float {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0.8;
-  }
-  50% {
-    transform: translate(0, -20px) scale(1.2);
-    opacity: 1;
-  }
-}
-
-@keyframes quantumFloat {
-  0%, 100% {
-    transform: translate(0, 0) scale(1);
-    opacity: 0;
-  }
-  50% {
-    transform: translate(0, -30px) scale(1.5);
-    opacity: 1;
-  }
-}
-
-@keyframes titleGlitch {
-  0%, 100% {
-    transform: translateZ(20px);
-  }
-  20% {
-    transform: translateX(-5px) translateZ(20px);
-  }
-  40% {
-    transform: translateX(5px) translateZ(20px);
-  }
-}
-
-@keyframes matrixGlow {
-  0% {
-    filter: blur(8px);
-    opacity: 0.3;
-  }
-  100% {
-    filter: blur(10px);
-    opacity: 0.7;
-  }
-}
-
-@keyframes titleFlicker {
-  0%, 100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0.8;
-  }
-}
-
-@keyframes flare {
-  0% {
-    opacity: 0;
-    transform: scale(0.5);
-  }
-  50% {
-    opacity: 1;
-    transform: scale(1.2);
-  }
-  100% {
-    opacity: 0.7;
-    transform: scale(1);
-  }
 }
 </style>
