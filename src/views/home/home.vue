@@ -105,65 +105,8 @@
       </button>
     </div>
 
-    <!-- 视角控制面板 -->
-    <div
-      class="view-controls"
-      role="region"
-      aria-label="视角控制面板"
-    >
-      <h4>视角控制</h4>
-      <div class="view-buttons">
-        <button
-          class="view-btn"
-          aria-label="正前方视角"
-          @click="setCameraView('front')"
-        >
-          正前方
-        </button>
-        <button
-          class="view-btn"
-          aria-label="右侧视角"
-          @click="setCameraView('right')"
-        >
-          右侧
-        </button>
-        <button
-          class="view-btn"
-          aria-label="左侧视角"
-          @click="setCameraView('left')"
-        >
-          左侧
-        </button>
-        <button
-          class="view-btn"
-          aria-label="后方视角"
-          @click="setCameraView('back')"
-        >
-          后方
-        </button>
-        <button
-          class="view-btn"
-          aria-label="仰视角"
-          @click="setCameraView('up')"
-        >
-          仰视
-        </button>
-        <button
-          class="view-btn"
-          aria-label="俯视角"
-          @click="setCameraView('down')"
-        >
-          俯视
-        </button>
-        <button
-          class="view-btn default"
-          aria-label="默认视角"
-          @click="setCameraView('default')"
-        >
-          默认
-        </button>
-      </div>
-    </div>
+    <!-- 视角控制组件 -->
+    <CameraControls @set-camera-view="setCameraView" />
 
     <div class="controls-hint">
       <p>🖱️ 左键拖拽旋转 | 🔍 滚轮缩放 | 📱 触摸手势控制</p>
@@ -173,15 +116,14 @@
 </template>
 
 <script setup>
-/**
- * Home View Component
- * 主页视图组件，包含3D全景展示和交互控制
- *
- * @file src/views/home/HomeView.vue
- * @author ZOOOW Team
- * @version 1.0.0
- * @license MIT
- */
+/** Home View Component
+* 主页视图组件，包含3D全景展示和交互控制
+*
+* @file src/views/home/HomeView.vue
+* @author ZOOOW Team
+* @version 1.0.0
+* @license MIT
+*!/*/
 
 // 导入依赖
 import * as THREE from 'three'
@@ -191,6 +133,9 @@ import { onMounted, ref, onUnmounted, computed } from 'vue'
 
 // 导入本地图片资源
 import homeImage from '@/assets/image/home1.png'
+// 导入新创建的组件
+import CameraControls from '@/components/viewControls.vue'
+
 
 // 响应式引用
 const containerRef = ref(null)

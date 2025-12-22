@@ -1,46 +1,57 @@
-<!-- src/components/ViewControls.vue -->
+<!-- src/components/CameraControls.vue -->
 <template>
-  <div class="view-controls">
+  <div
+    class="view-controls"
+    role="region"
+    aria-label="视角控制面板"
+  >
     <h4>视角控制</h4>
     <div class="view-buttons">
       <button
         class="view-btn"
+        aria-label="正前方视角"
         @click="setView('front')"
       >
         正前方
       </button>
       <button
         class="view-btn"
+        aria-label="右侧视角"
         @click="setView('right')"
       >
         右侧
       </button>
       <button
         class="view-btn"
+        aria-label="左侧视角"
         @click="setView('left')"
       >
         左侧
       </button>
       <button
         class="view-btn"
+        aria-label="后方视角"
         @click="setView('back')"
       >
         后方
       </button>
       <button
         class="view-btn"
+        aria-label="仰视角"
         @click="setView('up')"
       >
         仰视
       </button>
       <button
         class="view-btn"
+        aria-label="俯视角"
         @click="setView('down')"
       >
         俯视
       </button>
       <button
         class="view-btn default"
+        aria-label="默认视角"
         @click="setView('default')"
       >
         默认
@@ -50,15 +61,10 @@
 </template>
 
 <script setup>
-import { inject } from 'vue'
-
-// 注入父组件提供的方法和依赖
-const setCameraView = inject('setCameraView')
+const emit = defineEmits(['set-camera-view'])
 
 const setView = (view) => {
-  if (setCameraView) {
-    setCameraView(view)
-  }
+  emit('set-camera-view', view)
 }
 </script>
 
