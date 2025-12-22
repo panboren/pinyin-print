@@ -35,6 +35,7 @@
       />
     </div>
 
+    <!-- 原有的史诗俯冲效果 -->
     <div
       v-if="animationType === 'epic-dive'"
       class="cinematic-intro__dynamic-effects"
@@ -43,6 +44,50 @@
       <div class="cinematic-intro__speed-lines" />
       <div class="cinematic-intro__vignette" />
       <div class="cinematic-intro__motion-blur" />
+    </div>
+
+    <!-- 新增：维度折叠效果 -->
+    <div
+      v-if="animationType === 'dimension-fold'"
+      class="cinematic-intro__dimension-fold-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__fold-lines" />
+      <div class="cinematic-intro__dimension-shift" />
+      <div class="cinematic-intro__reality-glitch" />
+    </div>
+
+    <!-- 新增：能量波效果 -->
+    <div
+      v-if="animationType === 'energy-wave'"
+      class="cinematic-intro__energy-wave-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__energy-ring" />
+      <div class="cinematic-intro__shockwave" />
+      <div class="cinematic-intro__energy-particles" />
+    </div>
+
+    <!-- 新增：眩晕相机效果 -->
+    <div
+      v-if="animationType === 'dizzy-cam'"
+      class="cinematic-intro__dizzy-cam-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__spinning-overlay" />
+      <div class="cinematic-intro__color-shift" />
+      <div class="cinematic-intro__motion-trail" />
+    </div>
+
+    <!-- 新增：超空间跳跃效果 -->
+    <div
+      v-if="animationType === 'hyperspace'"
+      class="cinematic-intro__hyperspace-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__star-stretch" />
+      <div class="cinematic-intro__tunnel-vision" />
+      <div class="cinematic-intro__light-burst" />
     </div>
   </div>
 </template>
@@ -60,6 +105,11 @@ const ANIMATION_CONFIG = {
   SPACE_WARP: 'space-warp',
   MATRIX_HACK: 'matrix-hack',
   QUANTUM_SHIFT: 'quantum-shift',
+  // 新增动画类型
+  DIMENSION_FOLD: 'dimension-fold',
+  ENERGY_WAVE: 'energy-wave',
+  DIZZY_CAM: 'dizzy-cam',
+  HYPERSPACE: 'hyperspace',
   DEFAULT_DURATION: 7000, // 默认动画持续时间(ms)
   PARTICLE_COUNT: 50,
   START_FOV: 170,
@@ -86,7 +136,12 @@ const getAnimationTypes = () => [
   ANIMATION_CONFIG.EPIC_DIVE,
   ANIMATION_CONFIG.SPACE_WARP,
   ANIMATION_CONFIG.MATRIX_HACK,
-  ANIMATION_CONFIG.QUANTUM_SHIFT
+  ANIMATION_CONFIG.QUANTUM_SHIFT,
+  // 新增动画类型
+  ANIMATION_CONFIG.DIMENSION_FOLD,
+  ANIMATION_CONFIG.ENERGY_WAVE,
+  ANIMATION_CONFIG.DIZZY_CAM,
+  ANIMATION_CONFIG.HYPERSPACE
 ]
 
 /**
@@ -320,6 +375,1034 @@ const safeCameraTransform = (transformFn, errorContext) => {
     return null
   }
 }
+
+// 原有的动画函数保持不变，这里省略以节省篇幅...
+
+/**
+ * 新增：维度折叠动画
+ */
+const animateDimensionFold = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1500, 1000, 1500))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 重置旋转对象
+    cameraRotation.value = { x: 0, y: 0, z: 0 }
+
+    // 创建辅助变量用于维度折叠效果
+    const foldIntensity = { value: 0 }
+    const realityShift = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '维度折叠'),
+      '维度折叠'
+    )
+
+    // 动画阶段1: 平稳接近
+    tl.to(props.camera.position, {
+      x: 800,
+      y: 500,
+      z: 800,
+      duration: 2,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 开始维度折叠
+    tl.to(foldIntensity, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 1.5)
+
+    tl.to(props.camera.position, {
+      x: 300,
+      y: 200,
+      z: 300,
+      duration: 1.5,
+      ease: 'power2.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const foldAmount = foldIntensity.value
+
+          // 模拟维度折叠效果 - 随机位移
+          const glitchX = Math.sin(time * 20) * 10 * foldAmount
+          const glitchY = Math.cos(time * 15) * 8 * foldAmount
+          const glitchZ = Math.sin(time * 10) * 5 * foldAmount
+
+          props.camera.position.x += glitchX
+          props.camera.position.y += glitchY
+          props.camera.position.z += glitchZ
+
+          // 相机倾斜
+          cameraRotation.value.x = Math.sin(time * 3) * 0.2 * foldAmount
+          cameraRotation.value.y = Math.cos(time * 2) * 0.2 * foldAmount
+          cameraRotation.value.z = Math.sin(time * 5) * 0.1 * foldAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '维度折叠效果更新错误'
+      )
+    }, 1.5)
+
+    // 动画阶段3: 现实转换
+    tl.to(realityShift, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 2.5)
+
+    tl.to(props.camera, {
+      fov: 120,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV维度折叠错误'
+      )
+    }, 2.5)
+
+    // 动画阶段4: 维度稳定
+    tl.to(foldIntensity, {
+      value: 0.3,
+      duration: 1,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(realityShift, {
+      value: 0.5,
+      duration: 1,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(props.camera.position, {
+      x: 50,
+      y: 30,
+      z: 50,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const foldAmount = foldIntensity.value
+          const shiftAmount = realityShift.value
+
+          // 减少的折叠效果
+          const glitchX = Math.sin(time * 10) * 3 * foldAmount
+          const glitchZ = Math.cos(time * 8) * 3 * foldAmount
+
+          props.camera.position.x += glitchX
+          props.camera.position.z += glitchZ
+
+          // 稳定的相机倾斜
+          cameraRotation.value.x = Math.sin(time * 1.5) * 0.1 * shiftAmount
+          cameraRotation.value.z = Math.cos(time * 1.5) * 0.05 * shiftAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '维度稳定效果更新错误'
+      )
+    }, 3)
+
+    // 动画阶段5: 最终接近
+    tl.to(props.camera.position, {
+      x: 10,
+      y: 5,
+      z: 10,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const foldAmount = foldIntensity.value
+
+          // 微小的折叠效果
+          const glitchX = Math.sin(tl.time() * 5) * 1 * foldAmount
+          const glitchZ = Math.cos(tl.time() * 4) * 1 * foldAmount
+
+          props.camera.position.x += glitchX
+          props.camera.position.z += glitchZ
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终接近效果更新错误'
+      )
+    }, 4)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终接近错误'
+      )
+    }, 4.5)
+
+    // 动画阶段6: 最终定位
+    tl.to(foldIntensity, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(realityShift, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终定位错误'
+      )
+    }, 5)
+
+    // 动画阶段7: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5.5)
+
+    // 动画阶段8: 视觉冲击效果 - 闪烁
+    tl.to(props.renderer.domElement, {
+      opacity: 0.7,
+      duration: 0.1,
+      ease: 'none'
+    }, 2.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.1,
+      ease: 'none'
+    }, 2.6)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.8,
+      duration: 0.1,
+      ease: 'none'
+    }, 3.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.1,
+      ease: 'none'
+    }, 3.6)
+
+  } catch (error) {
+    onAnimationError(error, '维度折叠')
+  }
+}
+
+/**
+ * 新增：能量波动画
+ */
+const animateEnergyWave = () => {
+  try {
+    // 初始设置：从上方俯视
+    setupInitialCameraState(new THREE.Vector3(0, 1500, 0))
+    props.camera.lookAt(0, 0, 0)
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const waveIntensity = { value: 0 }
+    const shockRadius = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '能量波'),
+      '能量波'
+    )
+
+    // 动画阶段1: 能量聚集
+    tl.to(props.camera.position, {
+      y: 800,
+      duration: 2,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 能量爆发
+    tl.to(waveIntensity, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power2.inOut'
+    }, 1.8)
+
+    tl.to(props.camera.position, {
+      y: 300,
+      duration: 1,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const waveAmount = waveIntensity.value
+
+          // 震动效果
+          const shakeX = Math.sin(time * 30) * 5 * waveAmount
+          const shakeZ = Math.cos(time * 30) * 5 * waveAmount
+
+          props.camera.position.x = shakeX
+          props.camera.position.z = shakeZ
+
+          // 相机视角震动
+          cameraRotation.value.x = Math.sin(time * 20) * 0.05 * waveAmount
+          cameraRotation.value.z = Math.cos(time * 20) * 0.05 * waveAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            0,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '能量爆发效果更新错误'
+      )
+    }, 1.8)
+
+    // 动画阶段3: 冲击波扩散
+    tl.to(shockRadius, {
+      value: 1000,
+      duration: 2,
+      ease: 'power2.out'
+    }, 2.5)
+
+    tl.to(props.camera, {
+      fov: 110,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV冲击波错误'
+      )
+    }, 2.5)
+
+    tl.to(props.camera.position, {
+      y: 100,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const waveAmount = waveIntensity.value * 0.5
+          const radius = shockRadius.value
+
+          // 环绕效果
+          const orbitX = Math.sin(time * 2) * 20 * waveAmount
+          const orbitZ = Math.cos(time * 2) * 20 * waveAmount
+
+          props.camera.position.x = orbitX
+          props.camera.position.z = orbitZ
+
+          // 相机轻微倾斜
+          cameraRotation.value.x = Math.sin(time * 3) * 0.02 * waveAmount
+          cameraRotation.value.z = Math.cos(time * 3) * 0.02 * waveAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            0,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '冲击波扩散效果更新错误'
+      )
+    }, 2.5)
+
+    // 动画阶段4: 能量消散
+    tl.to(waveIntensity, {
+      value: 0.3,
+      duration: 1,
+      ease: 'power2.out'
+    }, 4)
+
+    tl.to(props.camera.position, {
+      x: 30,
+      y: 30,
+      z: 30,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const waveAmount = waveIntensity.value
+
+          // 微小震动
+          const shakeX = Math.sin(time * 10) * 2 * waveAmount
+          const shakeZ = Math.cos(time * 10) * 2 * waveAmount
+
+          props.camera.position.x = 30 + shakeX
+          props.camera.position.z = 30 + shakeZ
+
+          // 相机轻微倾斜
+          cameraRotation.value.x = Math.sin(time * 5) * 0.01 * waveAmount
+          cameraRotation.value.z = Math.cos(time * 5) * 0.01 * waveAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            0,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '能量消散效果更新错误'
+      )
+    }, 4)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV能量消散错误'
+      )
+    }, 5)
+
+    // 动画阶段5: 最终定位
+    tl.to(waveIntensity, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '最终定位错误'
+      )
+    }, 5.5)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 6)
+
+    // 动画阶段7: 视觉冲击效果 - 闪烁
+    tl.to(props.renderer.domElement, {
+      opacity: 0.5,
+      duration: 0.1,
+      ease: 'none'
+    }, 1.8)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 1.9)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.7,
+      duration: 0.1,
+      ease: 'none'
+    }, 2.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 2.6)
+
+  } catch (error) {
+    onAnimationError(error, '能量波')
+  }
+}
+
+/**
+ * 新增：眩晕相机动画
+ */
+const animateDizzyCam = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1000, 500, 1000))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const spinIntensity = { value: 0 }
+    const colorShift = { value: 0 }
+    const motionBlur = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '眩晕相机'),
+      '眩晕相机'
+    )
+
+    // 动画阶段1: 开始加速
+    tl.to(props.camera.position, {
+      x: 500,
+      y: 300,
+      z: 500,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 快速旋转
+    tl.to(spinIntensity, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(props.camera.position, {
+      x: 100,
+      y: 50,
+      z: 100,
+      duration: 2,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const spinAmount = spinIntensity.value
+
+          // 螺旋旋转
+          const spiralRadius = props.camera.position.length()
+          const spinAngle = time * 10 * spinAmount
+
+          props.camera.position.x = Math.cos(spinAngle) * spiralRadius
+          props.camera.position.z = Math.sin(spinAngle) * spiralRadius
+
+          // 相机随机倾斜
+          cameraRotation.value.x = Math.sin(time * 20) * 0.3 * spinAmount
+          cameraRotation.value.y = Math.cos(time * 15) * 0.3 * spinAmount
+          cameraRotation.value.z = Math.sin(time * 25) * 0.2 * spinAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '快速旋转效果更新错误'
+      )
+    }, 0.8)
+
+    // 动画阶段3: 颜色变换
+    tl.to(colorShift, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 1.5)
+
+    tl.to(props.camera, {
+      fov: 120,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV颜色变换错误'
+      )
+    }, 1.5)
+
+    // 动画阶段4: 运动模糊
+    tl.to(motionBlur, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 2)
+
+    // 动画阶段5: 旋转减速
+    tl.to(spinIntensity, {
+      value: 0.2,
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 2.5)
+
+    tl.to(colorShift, {
+      value: 0.3,
+      duration: 1,
+      ease: 'power2.out'
+    }, 2.5)
+
+    tl.to(props.camera.position, {
+      x: 20,
+      y: 15,
+      z: 20,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const spinAmount = spinIntensity.value
+          const colorAmount = colorShift.value
+          const blurAmount = motionBlur.value
+
+          // 减缓的螺旋旋转
+          const spiralRadius = props.camera.position.length()
+          const spinAngle = time * 3 * spinAmount
+
+          props.camera.position.x = Math.cos(spinAngle) * spiralRadius
+          props.camera.position.z = Math.sin(spinAngle) * spiralRadius
+
+          // 减少的相机倾斜
+          cameraRotation.value.x = Math.sin(time * 5) * 0.1 * spinAmount
+          cameraRotation.value.y = Math.cos(time * 4) * 0.1 * spinAmount
+          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * spinAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '旋转减速效果更新错误'
+      )
+    }, 2.5)
+
+    tl.to(motionBlur, {
+      value: 0.5,
+      duration: 1,
+      ease: 'power2.out'
+    }, 3)
+
+    // 动画阶段6: 最终稳定
+    tl.to(spinIntensity, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 3.5)
+
+    tl.to(colorShift, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 3.5)
+
+    tl.to(motionBlur, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 3.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终稳定效果更新错误'
+      )
+    }, 3.5)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终稳定错误'
+      )
+    }, 3.5)
+
+    // 动画阶段7: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 4)
+
+  } catch (error) {
+    onAnimationError(error, '眩晕相机')
+  }
+}
+
+/**
+ * 新增：超空间跳跃动画
+ */
+const animateHyperspace = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(2000, 1000, 2000))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const stretchIntensity = { value: 0 }
+    const tunnelVision = { value: 0 }
+    const lightBurst = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '超空间跳跃'),
+      '超空间跳跃'
+    )
+
+    // 动画阶段1: 加速接近
+    tl.to(props.camera.position, {
+      x: 1000,
+      y: 500,
+      z: 1000,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 星星拉伸
+    tl.to(stretchIntensity, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(props.camera.position, {
+      x: 300,
+      y: 150,
+      z: 300,
+      duration: 2,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const stretchAmount = stretchIntensity.value
+
+          // 星星拉伸效果 - 快速接近
+          const stretchX = props.camera.position.x * (1 + stretchAmount)
+          const stretchY = props.camera.position.y * (1 + stretchAmount * 0.5)
+          const stretchZ = props.camera.position.z * (1 + stretchAmount)
+
+          props.camera.position.x = stretchX
+          props.camera.position.y = stretchY
+          props.camera.position.z = stretchZ
+
+          // 相机轻微抖动
+          const shakeX = Math.sin(time * 30) * 0.05 * stretchAmount
+          const shakeY = Math.cos(time * 25) * 0.05 * stretchAmount
+
+          cameraRotation.value.x = shakeX
+          cameraRotation.value.y = shakeY
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            0
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '星星拉伸效果更新错误'
+      )
+    }, 0.8)
+
+    // 动画阶段3: 隧道视野
+    tl.to(tunnelVision, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power2.inOut'
+    }, 2)
+
+    tl.to(props.camera, {
+      fov: 140,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV隧道视野错误'
+      )
+    }, 2)
+
+    // 动画阶段4: 光线爆发
+    tl.to(lightBurst, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power2.inOut'
+    }, 2.5)
+
+    tl.to(props.camera.position, {
+      x: 50,
+      y: 30,
+      z: 50,
+      duration: 0.5,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const stretchAmount = stretchIntensity.value
+          const tunnelAmount = tunnelVision.value
+          const lightAmount = lightBurst.value
+
+          // 减少的拉伸效果
+          const stretchX = props.camera.position.x * (1 + stretchAmount * tunnelAmount)
+          const stretchZ = props.camera.position.z * (1 + stretchAmount * tunnelAmount)
+
+          props.camera.position.x = stretchX
+          props.camera.position.z = stretchZ
+
+          // 相机抖动
+          const shakeX = Math.sin(time * 40) * 0.1 * lightAmount
+          const shakeY = Math.cos(time * 35) * 0.1 * lightAmount
+
+          cameraRotation.value.x = shakeX
+          cameraRotation.value.y = shakeY
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            0
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '光线爆发效果更新错误'
+      )
+    }, 2.5)
+
+    // 动画阶段5: 穿越完成
+    tl.to(lightBurst, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(tunnelVision, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(stretchIntensity, {
+      value: 0.2,
+      duration: 0.5,
+      ease: 'power2.out'
+    }, 3)
+
+    tl.to(props.camera.position, {
+      x: 10,
+      y: 5,
+      z: 10,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const stretchAmount = stretchIntensity.value
+
+          // 微小的拉伸效果
+          const stretchX = props.camera.position.x * (1 + stretchAmount * 0.1)
+          const stretchZ = props.camera.position.z * (1 + stretchAmount * 0.1)
+
+          props.camera.position.x = stretchX
+          props.camera.position.z = stretchZ
+
+          // 微小的相机抖动
+          const shakeX = Math.sin(time * 10) * 0.02 * stretchAmount
+          const shakeY = Math.cos(time * 8) * 0.02 * stretchAmount
+
+          cameraRotation.value.x = shakeX
+          cameraRotation.value.y = shakeY
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            0
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '穿越完成效果更新错误'
+      )
+    }, 3)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV穿越完成错误'
+      )
+    }, 4)
+
+    // 动画阶段6: 最终定位
+    tl.to(stretchIntensity, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 4.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终定位错误'
+      )
+    }, 4.5)
+
+    // 动画阶段7: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5)
+
+    // 动画阶段8: 视觉冲击效果 - 光线爆发
+    tl.to(props.renderer.domElement, {
+      opacity: 0.9,
+      duration: 0.2,
+      ease: 'none'
+    }, 2.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.2,
+      duration: 0.2,
+      ease: 'none'
+    }, 2.7)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 2.9)
+
+  } catch (error) {
+    onAnimationError(error, '超空间跳跃')
+  }
+}
+
+
+
 
 /**
  * 史诗俯冲动画
@@ -1049,6 +2132,13 @@ const animateQuantumShift = () => {
   }
 }
 
+
+
+
+
+
+
+
 /**
  * 动画函数映射
  */
@@ -1056,7 +2146,12 @@ const animationFunctions = {
   [ANIMATION_CONFIG.EPIC_DIVE]: animateEpicDive,
   [ANIMATION_CONFIG.SPACE_WARP]: animateSpaceWarp,
   [ANIMATION_CONFIG.MATRIX_HACK]: animateMatrixHack,
-  [ANIMATION_CONFIG.QUANTUM_SHIFT]: animateQuantumShift
+  [ANIMATION_CONFIG.QUANTUM_SHIFT]: animateQuantumShift,
+  // 新增动画映射
+  [ANIMATION_CONFIG.DIMENSION_FOLD]: animateDimensionFold,
+  [ANIMATION_CONFIG.ENERGY_WAVE]: animateEnergyWave,
+  [ANIMATION_CONFIG.DIZZY_CAM]: animateDizzyCam,
+  [ANIMATION_CONFIG.HYPERSPACE]: animateHyperspace
 }
 
 /**
@@ -1292,6 +2387,227 @@ defineExpose({
     animation: motionBlurEffect 8s ease-in-out forwards;
   }
 
+  // 新增：维度折叠效果
+  &__dimension-fold-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__fold-lines {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 10px,
+            rgba(255, 255, 255, 0.05) 10px,
+            rgba(255, 255, 255, 0.05) 20px
+    );
+    opacity: 0;
+    animation: foldLinesFlash 7s ease-in-out forwards;
+  }
+
+  &__dimension-shift {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            45deg,
+            rgba(100, 0, 255, 0) 0%,
+            rgba(100, 0, 255, 0.1) 50%,
+            rgba(0, 255, 255, 0) 100%
+    );
+    opacity: 0;
+    animation: dimensionShiftEffect 7s ease-in-out forwards;
+  }
+
+  &__reality-glitch {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            90deg,
+            rgba(255, 0, 255, 0) 0%,
+            rgba(255, 0, 255, 0.05) 50%,
+            rgba(255, 0, 255, 0) 100%
+    );
+    opacity: 0;
+    animation: realityGlitchEffect 7s ease-in-out forwards;
+  }
+
+  // 新增：能量波效果
+  &__energy-wave-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__energy-ring {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    border: 10px solid transparent;
+    border-radius: 50%;
+    box-shadow: 0 0 100px rgba(0, 255, 255, 0.5);
+    animation: energyRingExpand 6s ease-out forwards;
+  }
+
+  &__shockwave {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(0, 255, 255, 0.8) 0%,
+            rgba(0, 255, 255, 0.5) 10%,
+            rgba(0, 255, 255, 0.2) 30%,
+            transparent 70%
+    );
+    opacity: 0;
+    animation: shockwaveExpand 6s ease-out forwards;
+  }
+
+  &__energy-particles {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: energyParticlesAppear 6s ease-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 4px;
+      height: 4px;
+      border-radius: 50%;
+      background: rgba(0, 255, 255, 0.8);
+      box-shadow: 0 0 10px rgba(0, 255, 255, 0.8);
+    }
+
+    &::before {
+      top: 30%;
+      left: 20%;
+      animation: particleFloat1 2s infinite ease-in-out;
+    }
+
+    &::after {
+      top: 60%;
+      right: 25%;
+      animation: particleFloat2 2.5s infinite ease-in-out;
+    }
+  }
+
+  // 新增：眩晕相机效果
+  &__dizzy-cam-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__spinning-overlay {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: conic-gradient(
+            from 0deg at 50% 50%,
+            transparent 0deg,
+            rgba(255, 0, 0, 0.1) 90deg,
+            transparent 180deg,
+            rgba(0, 0, 255, 0.1) 270deg,
+            transparent 360deg
+    );
+    opacity: 0;
+    animation: spinningOverlayEffect 5s ease-in-out forwards;
+  }
+
+  &__color-shift {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            45deg,
+            rgba(255, 0, 0, 0.1) 0%,
+            rgba(0, 255, 0, 0.1) 25%,
+            rgba(0, 0, 255, 0.1) 50%,
+            rgba(255, 255, 0, 0.1) 75%,
+            rgba(255, 0, 255, 0.1) 100%
+    );
+    opacity: 0;
+    animation: colorShiftEffect 5s ease-in-out forwards;
+  }
+
+  &__motion-trail {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    backdrop-filter: blur(0px);
+    animation: motionTrailEffect 5s ease-in-out forwards;
+  }
+
+  // 新增：超空间跳跃效果
+  &__hyperspace-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__star-stretch {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            90deg,
+            rgba(255, 255, 255, 0) 0px,
+            rgba(255, 255, 255, 0.1) 1px,
+            rgba(255, 255, 255, 0) 2px,
+            rgba(255, 255, 255, 0) 10px
+    );
+    opacity: 0;
+    animation: starStretchEffect 5s ease-in-out forwards;
+  }
+
+  &__tunnel-vision {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    box-shadow: inset 0 0 0 rgba(0, 0, 0, 0);
+    animation: tunnelVisionEffect 5s ease-in-out forwards;
+  }
+
+  &__light-burst {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(255, 255, 255, 1) 0%,
+            rgba(255, 255, 255, 0.8) 5%,
+            rgba(255, 255, 255, 0.5) 10%,
+            rgba(255, 255, 255, 0.2) 20%,
+            transparent 40%
+    );
+    opacity: 0;
+    animation: lightBurstEffect 5s ease-in-out forwards;
+  }
+
   // 动画类型变体
   &--space-warp &__title {
     animation: titleGlitch 0.5s infinite;
@@ -1324,9 +2640,54 @@ defineExpose({
   &--epic-dive &__title {
     animation: titleShake 8s ease-in-out forwards;
   }
+
+  // 新增动画类型变体
+  &--dimension-fold {
+    .cinematic-intro__title {
+      color: #f0f;
+      text-shadow: 0 0 10px #f0f;
+
+      &::before {
+        color: rgba(255, 0, 255, 0.5);
+        animation: dimensionGlow 1s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #f0f;
+    }
+  }
+
+  &--energy-wave {
+    .cinematic-intro__title {
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+
+      &::before {
+        color: rgba(0, 255, 255, 0.5);
+        animation: energyGlow 0.8s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #0ff;
+    }
+  }
+
+  &--dizzy-cam {
+    .cinematic-intro__title {
+      animation: dizzyTitleSpin 0.5s infinite;
+    }
+  }
+
+  &--hyperspace {
+    .cinematic-intro__title {
+      animation: hyperspaceTitleStretch 0.8s ease-in-out forwards;
+    }
+  }
 }
 
-// 动画定义
+// 原有动画定义
 @keyframes fadeOut {
   0% { opacity: 1; }
   70% { opacity: 1; }
@@ -1464,4 +2825,272 @@ defineExpose({
   70% { backdrop-filter: blur(1px); }
   100% { backdrop-filter: blur(0px); }
 }
+
+// 新增动画定义：维度折叠效果
+@keyframes foldLinesFlash {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes dimensionShiftEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.7; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+@keyframes realityGlitchEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.6; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+// 新增动画定义：能量波效果
+@keyframes energyRingExpand {
+  0% {
+    transform: scale(0.1);
+    opacity: 1;
+  }
+  20% {
+    transform: scale(0.5);
+    opacity: 0.8;
+  }
+  50% {
+    transform: scale(2);
+    opacity: 0.4;
+  }
+  80% {
+    transform: scale(5);
+    opacity: 0.1;
+  }
+  100% {
+    transform: scale(10);
+    opacity: 0;
+  }
+}
+
+@keyframes shockwaveExpand {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  20% {
+    opacity: 0.8;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(2);
+  }
+  80% {
+    opacity: 0.1;
+    transform: scale(5);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(10);
+  }
+}
+
+@keyframes energyParticlesAppear {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes particleFloat1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(20px, -30px);
+  }
+}
+
+@keyframes particleFloat2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-25px, -20px);
+  }
+}
+
+// 新增动画定义：眩晕相机效果
+@keyframes spinningOverlayEffect {
+  0% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  20% {
+    opacity: 0;
+    transform: rotate(0deg);
+  }
+  40% {
+    opacity: 0.8;
+    transform: rotate(360deg);
+  }
+  60% {
+    opacity: 0.4;
+    transform: rotate(720deg);
+  }
+  80% {
+    opacity: 0.2;
+    transform: rotate(1080deg);
+  }
+  100% {
+    opacity: 0;
+    transform: rotate(1440deg);
+  }
+}
+
+@keyframes colorShiftEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.7; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+@keyframes motionTrailEffect {
+  0% { backdrop-filter: blur(0px); }
+  20% { backdrop-filter: blur(0px); }
+  40% { backdrop-filter: blur(2px); }
+  60% { backdrop-filter: blur(1px); }
+  80% { backdrop-filter: blur(0.5px); }
+  100% { backdrop-filter: blur(0px); }
+}
+
+// 新增动画定义：超空间跳跃效果
+@keyframes starStretchEffect {
+  0% {
+    opacity: 0;
+    background-size: 10px 100%;
+  }
+  20% {
+    opacity: 0;
+    background-size: 10px 100%;
+  }
+  40% {
+    opacity: 0.8;
+    background-size: 1px 100%;
+  }
+  60% {
+    opacity: 0.4;
+    background-size: 5px 100%;
+  }
+  80% {
+    opacity: 0.1;
+    background-size: 20px 100%;
+  }
+  100% {
+    opacity: 0;
+    background-size: 100px 100%;
+  }
+}
+
+@keyframes tunnelVisionEffect {
+  0% { box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); }
+  20% { box-shadow: inset 0 0 100px rgba(0, 0, 0, 0); }
+  40% { box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.7); }
+  60% { box-shadow: inset 0 0 300px rgba(0, 0, 0, 0.3); }
+  80% { box-shadow: inset 0 0 200px rgba(0, 0, 0, 0.1); }
+  100% { box-shadow: inset 0 0 0 rgba(0, 0, 0, 0); }
+}
+
+@keyframes lightBurstEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0; }
+  50% { opacity: 1; }
+  60% { opacity: 0.5; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+// 新增标题动画
+@keyframes dimensionGlow {
+  0% {
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  100% {
+    filter: blur(12px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes energyGlow {
+  0% {
+    filter: blur(5px);
+    opacity: 0.4;
+  }
+  100% {
+    filter: blur(10px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes dizzyTitleSpin {
+  0% { transform: translateZ(20px) rotateY(0deg); }
+  25% { transform: translateZ(20px) rotateY(90deg); }
+  50% { transform: translateZ(20px) rotateY(180deg); }
+  75% { transform: translateZ(20px) rotateY(270deg); }
+  100% { transform: translateZ(20px) rotateY(360deg); }
+}
+
+@keyframes hyperspaceTitleStretch {
+  0% { transform: translateZ(20px) scaleX(1); }
+  50% { transform: translateZ(20px) scaleX(1.5); }
+  100% { transform: translateZ(20px) scaleX(1); }
+}
 </style>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+

@@ -12,17 +12,12 @@
       aria-label="选择开场动画类型"
       @change="handleChange"
     >
-      <option value="epic-dive">
-        史诗俯冲
-      </option>
-      <option value="space-warp">
-        空间扭曲
-      </option>
-      <option value="matrix-hack">
-        黑客帝国
-      </option>
-      <option value="quantum-shift">
-        量子跃迁
+      <option
+        v-for="animation in animationOptions"
+        :key="animation.value"
+        :value="animation.value"
+      >
+        {{ animation.label }}
       </option>
     </select>
     <button
@@ -35,6 +30,8 @@
 </template>
 
 <script setup>
+import { ref } from 'vue'
+
 const props = defineProps({
   modelValue: {
     type: String,
@@ -43,6 +40,19 @@ const props = defineProps({
 })
 
 const emit = defineEmits(['update:modelValue', 'reset', 'change'])
+
+// 动画选项数组 - 使用 v-for 渲染
+const animationOptions = ref([
+  { value: 'epic-dive', label: '史诗俯冲' },
+  { value: 'space-warp', label: '空间扭曲' },
+  { value: 'matrix-hack', label: '黑客帝国' },
+  { value: 'quantum-shift', label: '量子跃迁' },
+  // 新增的动画类型
+  { value: 'dimension-fold', label: '维度折叠' },
+  { value: 'energy-wave', label: '能量波' },
+  { value: 'dizzy-cam', label: '眩晕相机' },
+  { value: 'hyperspace', label: '超空间跳跃' }
+])
 
 const handleChange = (event) => {
   emit('update:modelValue', event.target.value)
