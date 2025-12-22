@@ -89,6 +89,51 @@
       <div class="cinematic-intro__tunnel-vision" />
       <div class="cinematic-intro__light-burst" />
     </div>
+
+
+    <!-- 新增：时空裂缝效果 -->
+    <div
+      v-if="animationType === 'time-rift'"
+      class="cinematic-intro__time-rift-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__rift-cracks" />
+      <div class="cinematic-intro__time-fragments" />
+      <div class="cinematic-intro__reality-reassemble" />
+    </div>
+
+    <!-- 新增：星球爆炸效果 -->
+    <div
+      v-if="animationType === 'planet-explosion'"
+      class="cinematic-intro__planet-explosion-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__explosion-core" />
+      <div class="cinematic-intro__debris-field" />
+      <div class="cinematic-intro__shockwave-sphere" />
+    </div>
+
+    <!-- 新增：量子纠缠效果 -->
+    <div
+      v-if="animationType === 'quantum-entanglement'"
+      class="cinematic-intro__quantum-entanglement-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__parallel-worlds" />
+      <div class="cinematic-intro__quantum-bridge" />
+      <div class="cinematic-intro__reality-merge" />
+    </div>
+
+    <!-- 新增：虚拟现实效果 -->
+    <div
+      v-if="animationType === 'virtual-reality'"
+      class="cinematic-intro__virtual-reality-effects"
+      aria-hidden="true"
+    >
+      <div class="cinematic-intro__pixelation" />
+      <div class="cinematic-intro__digital-noise" />
+      <div class="cinematic-intro__reality-materialize" />
+    </div>
   </div>
 </template>
 
@@ -100,16 +145,22 @@ import { ref, onMounted, onUnmounted, shallowRef } from 'vue'
 /**
  * 动画配置常量 - 移到模块顶层，以便在defineProps中使用
  */
+
 const ANIMATION_CONFIG = {
   EPIC_DIVE: 'epic-dive',
   SPACE_WARP: 'space-warp',
   MATRIX_HACK: 'matrix-hack',
   QUANTUM_SHIFT: 'quantum-shift',
-  // 新增动画类型
+  // 之前新增的动画类型
   DIMENSION_FOLD: 'dimension-fold',
   ENERGY_WAVE: 'energy-wave',
   DIZZY_CAM: 'dizzy-cam',
   HYPERSPACE: 'hyperspace',
+  // 最新新增的动画类型
+  TIME_RIFT: 'time-rift',
+  PLANET_EXPLOSION: 'planet-explosion',
+  QUANTUM_ENTANGLEMENT: 'quantum-entanglement',
+  VIRTUAL_REALITY: 'virtual-reality',
   DEFAULT_DURATION: 7000, // 默认动画持续时间(ms)
   PARTICLE_COUNT: 50,
   START_FOV: 170,
@@ -118,6 +169,7 @@ const ANIMATION_CONFIG = {
   FINAL_THETA: Math.PI / 2.5,
   FINAL_PHI: Math.PI / 1.9
 }
+
 
 /**
  * 错误信息常量
@@ -137,12 +189,18 @@ const getAnimationTypes = () => [
   ANIMATION_CONFIG.SPACE_WARP,
   ANIMATION_CONFIG.MATRIX_HACK,
   ANIMATION_CONFIG.QUANTUM_SHIFT,
-  // 新增动画类型
+  // 之前新增的动画类型
   ANIMATION_CONFIG.DIMENSION_FOLD,
   ANIMATION_CONFIG.ENERGY_WAVE,
   ANIMATION_CONFIG.DIZZY_CAM,
-  ANIMATION_CONFIG.HYPERSPACE
+  ANIMATION_CONFIG.HYPERSPACE,
+  // 最新新增的动画类型
+  ANIMATION_CONFIG.TIME_RIFT,
+  ANIMATION_CONFIG.PLANET_EXPLOSION,
+  ANIMATION_CONFIG.QUANTUM_ENTANGLEMENT,
+  ANIMATION_CONFIG.VIRTUAL_REALITY
 ]
+
 
 /**
  * Props定义
@@ -2136,6 +2194,1055 @@ const animateQuantumShift = () => {
 
 
 
+/**
+ * 新增：时空裂缝动画
+ */
+const animateTimeRift = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1200, 800, 1200))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量用于时空裂缝效果
+    const riftIntensity = { value: 0 }
+    const fragmentCount = { value: 0 }
+    const realityStability = { value: 1 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '时空裂缝'),
+      '时空裂缝'
+    )
+
+    // 动画阶段1: 平稳接近
+    tl.to(props.camera.position, {
+      x: 600,
+      y: 400,
+      z: 600,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 时空裂缝形成
+    tl.to(riftIntensity, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 1.2)
+
+    tl.to(props.camera.position, {
+      x: 200,
+      y: 150,
+      z: 200,
+      duration: 1.5,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const riftAmount = riftIntensity.value
+
+          // 时空扭曲效果 - 随机位移
+          const riftX = Math.sin(time * 15) * 20 * riftAmount
+          const riftY = Math.cos(time * 12) * 15 * riftAmount
+          const riftZ = Math.sin(time * 18) * 20 * riftAmount
+
+          props.camera.position.x += riftX
+          props.camera.position.y += riftY
+          props.camera.position.z += riftZ
+
+          // 相机随机倾斜
+          cameraRotation.value.x = Math.sin(time * 8) * 0.3 * riftAmount
+          cameraRotation.value.y = Math.cos(time * 6) * 0.3 * riftAmount
+          cameraRotation.value.z = Math.sin(time * 10) * 0.2 * riftAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '时空裂缝效果更新错误'
+      )
+    }, 1.2)
+
+    // 动画阶段3: 时间碎片化
+    tl.to(fragmentCount, {
+      value: 100,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 2.5)
+
+    tl.to(realityStability, {
+      value: 0.2,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 2.5)
+
+    tl.to(props.camera, {
+      fov: 130,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV时间碎片化错误'
+      )
+    }, 2.5)
+
+    // 动画阶段4: 现实重组
+    tl.to(realityStability, {
+      value: 0.8,
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 3.5)
+
+    tl.to(riftIntensity, {
+      value: 0.4,
+      duration: 1.5,
+      ease: 'power2.out'
+    }, 3.5)
+
+    tl.to(props.camera.position, {
+      x: 50,
+      y: 30,
+      z: 50,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const riftAmount = riftIntensity.value
+          const stability = realityStability.value
+
+          // 减少的时空扭曲效果
+          const riftX = Math.sin(time * 8) * 5 * riftAmount
+          const riftY = Math.cos(time * 6) * 4 * riftAmount
+          const riftZ = Math.sin(time * 10) * 5 * riftAmount
+
+          props.camera.position.x += riftX * stability
+          props.camera.position.y += riftY * stability
+          props.camera.position.z += riftZ * stability
+
+          // 稳定的相机倾斜
+          cameraRotation.value.x = Math.sin(time * 4) * 0.1 * riftAmount
+          cameraRotation.value.y = Math.cos(time * 3) * 0.1 * riftAmount
+          cameraRotation.value.z = Math.sin(time * 5) * 0.05 * riftAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '现实重组效果更新错误'
+      )
+    }, 3.5)
+
+    // 动画阶段5: 最终稳定
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终稳定错误'
+      )
+    }, 5)
+
+    tl.to(riftIntensity, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(fragmentCount, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(realityStability, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终稳定位置错误'
+      )
+    }, 5)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5.5)
+
+    // 动画阶段7: 视觉冲击效果 - 闪烁
+    tl.to(props.renderer.domElement, {
+      opacity: 0.7,
+      duration: 0.1,
+      ease: 'none'
+    }, 2.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.1,
+      ease: 'none'
+    }, 2.6)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.5,
+      duration: 0.1,
+      ease: 'none'
+    }, 3.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.1,
+      ease: 'none'
+    }, 3.6)
+
+  } catch (error) {
+    onAnimationError(error, '时空裂缝')
+  }
+}
+
+/**
+ * 新增：星球爆炸动画
+ */
+const animatePlanetExplosion = () => {
+  try {
+    // 初始设置：从星球表面附近开始
+    setupInitialCameraState(new THREE.Vector3(300, 200, 300))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const explosionIntensity = { value: 0 }
+    const debrisField = { value: 0 }
+    const shockwaveRadius = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '星球爆炸'),
+      '星球爆炸'
+    )
+
+    // 动画阶段1: 靠近星球
+    tl.to(props.camera.position, {
+      x: 150,
+      y: 100,
+      z: 150,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 爆炸开始
+    tl.to(explosionIntensity, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    tl.to(props.camera.position, {
+      x: 200,
+      y: 150,
+      z: 200,
+      duration: 1,
+      ease: 'power4.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const explosionAmount = explosionIntensity.value
+
+          // 爆炸冲击效果
+          const shockX = Math.sin(time * 20) * 15 * explosionAmount
+          const shockY = Math.cos(time * 20) * 15 * explosionAmount
+          const shockZ = Math.sin(time * 20) * 15 * explosionAmount
+
+          props.camera.position.x += shockX
+          props.camera.position.y += shockY
+          props.camera.position.z += shockZ
+
+          // 相机剧烈震动
+          cameraRotation.value.x = Math.sin(time * 25) * 0.2 * explosionAmount
+          cameraRotation.value.y = Math.cos(time * 25) * 0.2 * explosionAmount
+          cameraRotation.value.z = Math.sin(time * 25) * 0.15 * explosionAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '爆炸冲击效果更新错误'
+      )
+    }, 0.8)
+
+    // 动画阶段3: 碎片场形成
+    tl.to(debrisField, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 1.5)
+
+    tl.to(props.camera, {
+      fov: 120,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV碎片场错误'
+      )
+    }, 1.5)
+
+    // 动画阶段4: 冲击波扩散
+    tl.to(shockwaveRadius, {
+      value: 500,
+      duration: 2,
+      ease: 'power2.out'
+    }, 2)
+
+    tl.to(props.camera.position, {
+      x: 100,
+      y: 80,
+      z: 100,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const explosionAmount = explosionIntensity.value * 0.7
+          const debrisAmount = debrisField.value
+          const radius = shockwaveRadius.value
+
+          // 减少的震动效果
+          const shockX = Math.sin(time * 15) * 8 * explosionAmount
+          const shockY = Math.cos(time * 15) * 8 * explosionAmount
+          const shockZ = Math.sin(time * 15) * 8 * explosionAmount
+
+          props.camera.position.x += shockX
+          props.camera.position.y += shockY
+          props.camera.position.z += shockZ
+
+          // 碎片场效果
+          const debrisX = Math.sin(time * 5) * 10 * debrisAmount
+          const debrisZ = Math.cos(time * 5) * 10 * debrisAmount
+
+          props.camera.position.x += debrisX
+          props.camera.position.z += debrisZ
+
+          // 相机轻微震动
+          cameraRotation.value.x = Math.sin(time * 10) * 0.1 * explosionAmount
+          cameraRotation.value.y = Math.cos(time * 10) * 0.1 * explosionAmount
+          cameraRotation.value.z = Math.sin(time * 10) * 0.08 * explosionAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '冲击波扩散效果更新错误'
+      )
+    }, 2)
+
+    // 动画阶段5: 能量消散
+    tl.to(explosionIntensity, {
+      value: 0.3,
+      duration: 1,
+      ease: 'power2.out'
+    }, 3.5)
+
+    tl.to(debrisField, {
+      value: 0.5,
+      duration: 1,
+      ease: 'power2.out'
+    }, 3.5)
+
+    tl.to(props.camera.position, {
+      x: 20,
+      y: 15,
+      z: 20,
+      duration: 1,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const explosionAmount = explosionIntensity.value
+          const debrisAmount = debrisField.value
+
+          // 微小震动
+          const shockX = Math.sin(time * 8) * 2 * explosionAmount
+          const shockY = Math.cos(time * 8) * 2 * explosionAmount
+          const shockZ = Math.sin(time * 8) * 2 * explosionAmount
+
+          props.camera.position.x += shockX
+          props.camera.position.y += shockY
+          props.camera.position.z += shockZ
+
+          // 碎片场效果
+          const debrisX = Math.sin(time * 3) * 5 * debrisAmount
+          const debrisZ = Math.cos(time * 3) * 5 * debrisAmount
+
+          props.camera.position.x += debrisX
+          props.camera.position.z += debrisZ
+
+          // 相机轻微震动
+          cameraRotation.value.x = Math.sin(time * 5) * 0.05 * explosionAmount
+          cameraRotation.value.y = Math.cos(time * 5) * 0.05 * explosionAmount
+          cameraRotation.value.z = Math.sin(time * 5) * 0.03 * explosionAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '能量消散效果更新错误'
+      )
+    }, 3.5)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV能量消散错误'
+      )
+    }, 4.5)
+
+    // 动画阶段6: 最终稳定
+    tl.to(explosionIntensity, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(debrisField, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终稳定位置错误'
+      )
+    }, 5)
+
+    // 动画阶段7: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5.5)
+
+    // 动画阶段8: 视觉冲击效果 - 闪烁
+    tl.to(props.renderer.domElement, {
+      opacity: 0.4,
+      duration: 0.1,
+      ease: 'none'
+    }, 0.8)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 0.9)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.6,
+      duration: 0.1,
+      ease: 'none'
+    }, 1.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.2,
+      ease: 'none'
+    }, 1.6)
+
+  } catch (error) {
+    onAnimationError(error, '星球爆炸')
+  }
+}
+
+/**
+ * 新增：量子纠缠动画
+ */
+const animateQuantumEntanglement = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(1000, 700, 1000))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const entanglementStrength = { value: 0 }
+    const parallelWorlds = { value: 1 }
+    const realityMerge = { value: 0 }
+    const quantumPositions = [
+      new THREE.Vector3(500, 300, 500),
+      new THREE.Vector3(-500, 300, -500),
+      new THREE.Vector3(500, 300, -500),
+      new THREE.Vector3(-500, 300, 500)
+    ]
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '量子纠缠'),
+      '量子纠缠'
+    )
+
+    // 动画阶段1: 平稳接近
+    tl.to(props.camera.position, {
+      x: 500,
+      y: 350,
+      z: 500,
+      duration: 1.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    // 动画阶段2: 量子纠缠开始
+    tl.to(entanglementStrength, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 1.2)
+
+    // 动画阶段3: 多重空间同时出现
+    for (let i = 0; i < quantumPositions.length; i++) {
+      tl.to(props.camera.position, {
+        x: quantumPositions[i].x,
+        y: quantumPositions[i].y,
+        z: quantumPositions[i].z,
+        duration: 0.3,
+        ease: 'power1.inOut',
+        onUpdate: () => safeCameraTransform(
+          () => {
+            const time = tl.time()
+            const entangleAmount = entanglementStrength.value
+
+            // 量子抖动效果
+            const quantumX = Math.sin(time * 30) * 5 * entangleAmount
+            const quantumY = Math.cos(time * 25) * 5 * entangleAmount
+            const quantumZ = Math.sin(time * 35) * 5 * entangleAmount
+
+            props.camera.position.x += quantumX
+            props.camera.position.y += quantumY
+            props.camera.position.z += quantumZ
+
+            // 相机量子旋转
+            cameraRotation.value.x = Math.sin(time * 10) * 0.1 * entangleAmount
+            cameraRotation.value.y = Math.cos(time * 8) * 0.1 * entangleAmount
+            cameraRotation.value.z = Math.sin(time * 12) * 0.1 * entangleAmount
+
+            props.camera.rotation.set(
+              cameraRotation.value.x,
+              cameraRotation.value.y,
+              cameraRotation.value.z
+            )
+
+            props.camera.lookAt(props.controls.target)
+          },
+          '量子纠缠效果更新错误'
+        )
+      }, 1.2 + i * 0.4)
+    }
+
+    // 动画阶段4: 现实融合
+    tl.to(realityMerge, {
+      value: 1,
+      duration: 2,
+      ease: 'power2.inOut'
+    }, 3)
+
+    tl.to(props.camera, {
+      fov: 110,
+      duration: 0.5,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV现实融合错误'
+      )
+    }, 3)
+
+    tl.to(props.camera.position, {
+      x: 100,
+      y: 70,
+      z: 100,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const entangleAmount = entanglementStrength.value
+          const mergeAmount = realityMerge.value
+
+          // 减少的量子抖动效果
+          const quantumX = Math.sin(time * 20) * 3 * entangleAmount * (1 - mergeAmount)
+          const quantumY = Math.cos(time * 15) * 3 * entangleAmount * (1 - mergeAmount)
+          const quantumZ = Math.sin(time * 25) * 3 * entangleAmount * (1 - mergeAmount)
+
+          props.camera.position.x += quantumX
+          props.camera.position.y += quantumY
+          props.camera.position.z += quantumZ
+
+          // 相机量子旋转
+          cameraRotation.value.x = Math.sin(time * 5) * 0.05 * entangleAmount * (1 - mergeAmount)
+          cameraRotation.value.y = Math.cos(time * 4) * 0.05 * entangleAmount * (1 - mergeAmount)
+          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * entangleAmount * (1 - mergeAmount)
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '现实融合效果更新错误'
+      )
+    }, 3)
+
+    // 动画阶段5: 最终稳定
+    tl.to(entanglementStrength, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 5)
+
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV最终稳定错误'
+      )
+    }, 5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '最终稳定位置错误'
+      )
+    }, 5)
+
+    // 动画阶段6: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5.5)
+
+    // 动画阶段7: 视觉冲击效果 - 闪烁
+    for (let i = 0; i < quantumPositions.length; i++) {
+      tl.to(props.renderer.domElement, {
+        opacity: 0.7,
+        duration: 0.1,
+        ease: 'none'
+      }, 1.2 + i * 0.4)
+
+      tl.to(props.renderer.domElement, {
+        opacity: 1,
+        duration: 0.1,
+        ease: 'none'
+      }, 1.3 + i * 0.4)
+    }
+
+  } catch (error) {
+    onAnimationError(error, '量子纠缠')
+  }
+}
+
+/**
+ * 新增：虚拟现实动画
+ */
+const animateVirtualReality = () => {
+  try {
+    // 初始设置：从远处观察
+    setupInitialCameraState(new THREE.Vector3(800, 600, 800))
+
+    // 暂时禁用用户交互
+    if (props.controls) {
+      props.controls.target.set(0, 0, 0)
+      props.controls.enabled = false
+    }
+
+    // 创建辅助变量
+    const pixelation = { value: 10 }
+    const digitalNoise = { value: 0 }
+    const realityLevel = { value: 0 }
+
+    const tl = createTimeline(
+      () => onAnimationComplete(),
+      (error) => onAnimationError(error, '虚拟现实'),
+      '虚拟现实'
+    )
+
+    // 动画阶段1: 像素化开始
+    tl.to(props.camera.position, {
+      x: 400,
+      y: 300,
+      z: 400,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.lookAt(props.controls.target),
+        '相机位置更新错误'
+      )
+    })
+
+    tl.to(pixelation, {
+      value: 30,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 0.8)
+
+    // 动画阶段2: 数字噪音增加
+    tl.to(digitalNoise, {
+      value: 1,
+      duration: 1,
+      ease: 'power2.inOut'
+    }, 1.5)
+
+    tl.to(props.camera.position, {
+      x: 200,
+      y: 150,
+      z: 200,
+      duration: 1.5,
+      ease: 'power4.in',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const pixelAmount = pixelation.value / 10
+          const noiseAmount = digitalNoise.value
+
+          // 像素化效果 - 块状移动
+          const pixelSize = Math.floor(pixelAmount)
+          const pixelX = Math.floor(props.camera.position.x / pixelSize) * pixelSize
+          const pixelY = Math.floor(props.camera.position.y / pixelSize) * pixelSize
+          const pixelZ = Math.floor(props.camera.position.z / pixelSize) * pixelSize
+
+          props.camera.position.x = pixelX + (pixelSize / 2)
+          props.camera.position.y = pixelY + (pixelSize / 2)
+          props.camera.position.z = pixelZ + (pixelSize / 2)
+
+          // 数字噪音效果
+          const noiseX = (Math.random() - 0.5) * 10 * noiseAmount
+          const noiseY = (Math.random() - 0.5) * 10 * noiseAmount
+          const noiseZ = (Math.random() - 0.5) * 10 * noiseAmount
+
+          props.camera.position.x += noiseX
+          props.camera.position.y += noiseY
+          props.camera.position.z += noiseZ
+
+          // 相机数字抖动
+          cameraRotation.value.x = (Math.random() - 0.5) * 0.1 * noiseAmount
+          cameraRotation.value.y = (Math.random() - 0.5) * 0.1 * noiseAmount
+          cameraRotation.value.z = (Math.random() - 0.5) * 0.05 * noiseAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '像素化效果更新错误'
+      )
+    }, 1.5)
+
+    // 动画阶段3: 现实化开始
+    tl.to(realityLevel, {
+      value: 1,
+      duration: 2,
+      ease: 'power2.out'
+    }, 2.5)
+
+    tl.to(pixelation, {
+      value: 5,
+      duration: 2,
+      ease: 'power2.out'
+    }, 2.5)
+
+    tl.to(digitalNoise, {
+      value: 0.2,
+      duration: 2,
+      ease: 'power2.out'
+    }, 2.5)
+
+    tl.to(props.camera.position, {
+      x: 50,
+      y: 30,
+      z: 50,
+      duration: 1.5,
+      ease: 'power2.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          const time = tl.time()
+          const pixelAmount = pixelation.value / 10
+          const noiseAmount = digitalNoise.value
+          const reality = realityLevel.value
+
+          // 减少的像素化效果
+          const pixelSize = Math.max(1, Math.floor(pixelAmount * reality))
+          const pixelX = Math.floor(props.camera.position.x / pixelSize) * pixelSize
+          const pixelY = Math.floor(props.camera.position.y / pixelSize) * pixelSize
+          const pixelZ = Math.floor(props.camera.position.z / pixelSize) * pixelSize
+
+          props.camera.position.x = pixelX + (pixelSize / 2)
+          props.camera.position.y = pixelY + (pixelSize / 2)
+          props.camera.position.z = pixelZ + (pixelSize / 2)
+
+          // 减少的数字噪音效果
+          const noiseX = (Math.random() - 0.5) * 5 * noiseAmount
+          const noiseY = (Math.random() - 0.5) * 5 * noiseAmount
+          const noiseZ = (Math.random() - 0.5) * 5 * noiseAmount
+
+          props.camera.position.x += noiseX
+          props.camera.position.y += noiseY
+          props.camera.position.z += noiseZ
+
+          // 减少的相机数字抖动
+          cameraRotation.value.x = (Math.random() - 0.5) * 0.05 * noiseAmount
+          cameraRotation.value.y = (Math.random() - 0.5) * 0.05 * noiseAmount
+          cameraRotation.value.z = (Math.random() - 0.5) * 0.02 * noiseAmount
+
+          props.camera.rotation.set(
+            cameraRotation.value.x,
+            cameraRotation.value.y,
+            cameraRotation.value.z
+          )
+
+          props.camera.lookAt(props.controls.target)
+        },
+        '现实化效果更新错误'
+      )
+    }, 2.5)
+
+    // 动画阶段4: 完全现实化
+    tl.to(props.camera, {
+      fov: ANIMATION_CONFIG.FINAL_FOV,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => props.camera.updateProjectionMatrix(),
+        'FOV完全现实化错误'
+      )
+    }, 4.5)
+
+    tl.to(pixelation, {
+      value: 1,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 4.5)
+
+    tl.to(digitalNoise, {
+      value: 0,
+      duration: 0.5,
+      ease: 'power1.out'
+    }, 4.5)
+
+    tl.to(props.camera.position, {
+      x: ANIMATION_CONFIG.FINAL_POSITION.x,
+      y: ANIMATION_CONFIG.FINAL_POSITION.y,
+      z: ANIMATION_CONFIG.FINAL_POSITION.z,
+      duration: 0.5,
+      ease: 'power1.out',
+      onUpdate: () => safeCameraTransform(
+        () => {
+          props.camera.rotation.set(0, 0, 0)
+          props.camera.lookAt(props.controls.target)
+        },
+        '完全现实化位置错误'
+      )
+    }, 4.5)
+
+    // 动画阶段5: 平滑旋转到最终视角
+    tl.to(cameraRotation.value, {
+      x: 0,
+      y: ANIMATION_CONFIG.FINAL_THETA,
+      z: 0,
+      duration: 1,
+      ease: 'power2.inOut',
+      onUpdate: function() {
+        safeCameraTransform(
+          () => {
+            const spherical = new THREE.Spherical()
+            spherical.radius = 0.01
+            spherical.theta = cameraRotation.value.y
+            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+
+            props.camera.position.setFromSpherical(spherical)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终视角旋转错误'
+        )
+      }
+    }, 5)
+
+    // 动画阶段6: 视觉冲击效果 - 闪烁
+    tl.to(props.renderer.domElement, {
+      opacity: 0.8,
+      duration: 0.1,
+      ease: 'none'
+    }, 2.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.1,
+      ease: 'none'
+    }, 2.6)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 0.9,
+      duration: 0.1,
+      ease: 'none'
+    }, 3.5)
+
+    tl.to(props.renderer.domElement, {
+      opacity: 1,
+      duration: 0.1,
+      ease: 'none'
+    }, 3.6)
+
+  } catch (error) {
+    onAnimationError(error, '虚拟现实')
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 
@@ -2147,12 +3254,18 @@ const animationFunctions = {
   [ANIMATION_CONFIG.SPACE_WARP]: animateSpaceWarp,
   [ANIMATION_CONFIG.MATRIX_HACK]: animateMatrixHack,
   [ANIMATION_CONFIG.QUANTUM_SHIFT]: animateQuantumShift,
-  // 新增动画映射
+  // 之前新增的动画映射
   [ANIMATION_CONFIG.DIMENSION_FOLD]: animateDimensionFold,
   [ANIMATION_CONFIG.ENERGY_WAVE]: animateEnergyWave,
   [ANIMATION_CONFIG.DIZZY_CAM]: animateDizzyCam,
-  [ANIMATION_CONFIG.HYPERSPACE]: animateHyperspace
+  [ANIMATION_CONFIG.HYPERSPACE]: animateHyperspace,
+  // 最新新增的动画映射
+  [ANIMATION_CONFIG.TIME_RIFT]: animateTimeRift,
+  [ANIMATION_CONFIG.PLANET_EXPLOSION]: animatePlanetExplosion,
+  [ANIMATION_CONFIG.QUANTUM_ENTANGLEMENT]: animateQuantumEntanglement,
+  [ANIMATION_CONFIG.VIRTUAL_REALITY]: animateVirtualReality
 }
+
 
 /**
  * 启动动画
@@ -2685,6 +3798,333 @@ defineExpose({
       animation: hyperspaceTitleStretch 0.8s ease-in-out forwards;
     }
   }
+
+
+
+
+  // 新增：时空裂缝效果
+  &__time-rift-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__rift-cracks {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            45deg,
+            transparent,
+            transparent 5px,
+            rgba(255, 0, 255, 0.1) 5px,
+            rgba(255, 0, 255, 0.1) 10px
+    );
+    opacity: 0;
+    animation: riftCracksAppear 6s ease-in-out forwards;
+  }
+
+  &__time-fragments {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: timeFragmentsEffect 6s ease-in-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 20px;
+      height: 20px;
+      background: rgba(255, 0, 255, 0.7);
+      box-shadow: 0 0 10px rgba(255, 0, 255, 0.8);
+    }
+
+    &::before {
+      top: 25%;
+      left: 30%;
+      animation: fragmentFloat1 2s infinite ease-in-out;
+    }
+
+    &::after {
+      top: 65%;
+      right: 35%;
+      animation: fragmentFloat2 2.5s infinite ease-in-out;
+    }
+  }
+
+  &__reality-reassemble {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(
+            90deg,
+            rgba(255, 0, 255, 0) 0%,
+            rgba(255, 0, 255, 0.1) 50%,
+            rgba(255, 0, 255, 0) 100%
+    );
+    opacity: 0;
+    animation: realityReassembleEffect 6s ease-in-out forwards;
+  }
+
+  // 新增：星球爆炸效果
+  &__planet-explosion-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__explosion-core {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(255, 100, 0, 0.8) 0%,
+            rgba(255, 200, 0, 0.5) 10%,
+            rgba(255, 255, 0, 0.2) 30%,
+            transparent 70%
+    );
+    opacity: 0;
+    animation: explosionCoreEffect 5s ease-in-out forwards;
+  }
+
+  &__debris-field {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: debrisFieldEffect 5s ease-in-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 10px;
+      height: 10px;
+      border-radius: 50%;
+      background: rgba(255, 150, 0, 0.7);
+      box-shadow: 0 0 10px rgba(255, 150, 0, 0.8);
+    }
+
+    &::before {
+      top: 30%;
+      left: 20%;
+      animation: debrisFloat1 2s infinite ease-in-out;
+    }
+
+    &::after {
+      top: 60%;
+      right: 25%;
+      animation: debrisFloat2 2.5s infinite ease-in-out;
+    }
+  }
+
+  &__shockwave-sphere {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(255, 200, 0, 0) 0%,
+            rgba(255, 200, 0, 0.2) 20%,
+            rgba(255, 200, 0, 0.1) 40%,
+            transparent 70%
+    );
+    opacity: 0;
+    animation: shockwaveSphereEffect 5s ease-in-out forwards;
+  }
+
+  // 新增：量子纠缠效果
+  &__quantum-entanglement-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__parallel-worlds {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: parallelWorldsEffect 6s ease-in-out forwards;
+
+    &::before, &::after {
+      content: '';
+      position: absolute;
+      width: 50%;
+      height: 50%;
+      background: rgba(0, 255, 255, 0.1);
+      border: 1px solid rgba(0, 255, 255, 0.3);
+    }
+
+    &::before {
+      top: 10%;
+      left: 10%;
+      animation: parallelFloat1 3s infinite ease-in-out;
+    }
+
+    &::after {
+      bottom: 10%;
+      right: 10%;
+      animation: parallelFloat2 3.5s infinite ease-in-out;
+    }
+  }
+
+  &__quantum-bridge {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: quantumBridgeEffect 6s ease-in-out forwards;
+  }
+
+  &__reality-merge {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: radial-gradient(
+            circle at center,
+            rgba(0, 255, 255, 0.2) 0%,
+            rgba(0, 255, 255, 0.1) 20%,
+            rgba(0, 255, 255, 0.05) 40%,
+            transparent 70%
+    );
+    opacity: 0;
+    animation: realityMergeEffect 6s ease-in-out forwards;
+  }
+
+  // 新增：虚拟现实效果
+  &__virtual-reality-effects {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    pointer-events: none;
+    z-index: 5;
+  }
+
+  &__pixelation {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background-image: linear-gradient(45deg, rgba(0, 255, 0, 0.05) 25%, transparent 25%, transparent 75%, rgba(0, 255, 0, 0.05) 75%, rgba(0, 255, 0, 0.05)),
+    linear-gradient(-45deg, rgba(0, 255, 0, 0.05) 25%, transparent 25%, transparent 75%, rgba(0, 255, 0, 0.05) 75%, rgba(0, 255, 0, 0.05));
+    background-size: 20px 20px;
+    opacity: 0;
+    animation: pixelationEffect 6s ease-in-out forwards;
+  }
+
+  &__digital-noise {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    background: repeating-linear-gradient(
+            0deg,
+            transparent,
+            transparent 1px,
+            rgba(0, 255, 0, 0.1) 1px,
+            rgba(0, 255, 0, 0.1) 2px
+    );
+    opacity: 0;
+    animation: digitalNoiseEffect 6s ease-in-out forwards;
+  }
+
+  &__reality-materialize {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    opacity: 0;
+    animation: realityMaterializeEffect 6s ease-in-out forwards;
+  }
+
+  // 新增动画类型变体
+  &--time-rift {
+    .cinematic-intro__title {
+      color: #f0f;
+      text-shadow: 0 0 10px #f0f;
+
+      &::before {
+        color: rgba(255, 0, 255, 0.5);
+        animation: timeRiftGlow 0.8s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #f0f;
+    }
+  }
+
+  &--planet-explosion {
+    .cinematic-intro__title {
+      color: #f50;
+      text-shadow: 0 0 10px #f50;
+
+      &::before {
+        color: rgba(255, 100, 0, 0.5);
+        animation: explosionGlow 0.7s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #f50;
+    }
+  }
+
+  &--quantum-entanglement {
+    .cinematic-intro__title {
+      color: #0ff;
+      text-shadow: 0 0 10px #0ff;
+
+      &::before {
+        color: rgba(0, 255, 255, 0.5);
+        animation: entanglementGlow 0.6s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #0ff;
+    }
+  }
+
+  &--virtual-reality {
+    .cinematic-intro__title {
+      color: #0f0;
+      text-shadow: 0 0 10px #0f0;
+
+      &::before {
+        color: rgba(0, 255, 0, 0.5);
+        animation: virtualRealityGlow 0.9s infinite alternate;
+      }
+    }
+
+    .cinematic-intro__subtitle {
+      color: #0f0;
+    }
+  }
+
+
+
+
+
+
+
+
+
+
+
 }
 
 // 原有动画定义
@@ -3057,6 +4497,287 @@ defineExpose({
   50% { transform: translateZ(20px) scaleX(1.5); }
   100% { transform: translateZ(20px) scaleX(1); }
 }
+
+
+
+
+// 新增动画定义：时空裂缝效果
+@keyframes riftCracksAppear {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes timeFragmentsEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes fragmentFloat1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(30px, -20px);
+  }
+}
+
+@keyframes fragmentFloat2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-25px, -15px);
+  }
+}
+
+@keyframes realityReassembleEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.7; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+// 新增动画定义：星球爆炸效果
+@keyframes explosionCoreEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  20% {
+    opacity: 1;
+    transform: scale(0.5);
+  }
+  40% {
+    opacity: 0.7;
+    transform: scale(1);
+  }
+  70% {
+    opacity: 0.3;
+    transform: scale(2);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(5);
+  }
+}
+
+@keyframes debrisFieldEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes debrisFloat1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(20px, -15px);
+  }
+}
+
+@keyframes debrisFloat2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-15px, -10px);
+  }
+}
+
+@keyframes shockwaveSphereEffect {
+  0% {
+    opacity: 0;
+    transform: scale(0.1);
+  }
+  20% {
+    opacity: 0.8;
+    transform: scale(0.5);
+  }
+  50% {
+    opacity: 0.4;
+    transform: scale(1.5);
+  }
+  80% {
+    opacity: 0.1;
+    transform: scale(3);
+  }
+  100% {
+    opacity: 0;
+    transform: scale(5);
+  }
+}
+
+// 新增动画定义：量子纠缠效果
+@keyframes parallelWorldsEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.8; }
+  60% { opacity: 0.4; }
+  80% { opacity: 0.2; }
+  100% { opacity: 0; }
+}
+
+@keyframes parallelFloat1 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(15px, -10px);
+  }
+}
+
+@keyframes parallelFloat2 {
+  0%, 100% {
+    transform: translate(0, 0);
+  }
+  50% {
+    transform: translate(-10px, -15px);
+  }
+}
+
+@keyframes quantumBridgeEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.7; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+@keyframes realityMergeEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.6; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+// 新增动画定义：虚拟现实效果
+@keyframes pixelationEffect {
+  0% {
+    opacity: 0;
+    background-size: 20px 20px;
+  }
+  20% {
+    opacity: 0.8;
+    background-size: 30px 30px;
+  }
+  40% {
+    opacity: 0.6;
+    background-size: 25px 25px;
+  }
+  60% {
+    opacity: 0.3;
+    background-size: 15px 15px;
+  }
+  80% {
+    opacity: 0.1;
+    background-size: 10px 10px;
+  }
+  100% {
+    opacity: 0;
+    background-size: 5px 5px;
+  }
+}
+
+@keyframes digitalNoiseEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0.8; }
+  40% { opacity: 0.6; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+@keyframes realityMaterializeEffect {
+  0% { opacity: 0; }
+  20% { opacity: 0; }
+  40% { opacity: 0.7; }
+  60% { opacity: 0.3; }
+  80% { opacity: 0.1; }
+  100% { opacity: 0; }
+}
+
+// 新增标题动画
+@keyframes timeRiftGlow {
+  0% {
+    filter: blur(8px);
+    opacity: 0.3;
+  }
+  100% {
+    filter: blur(12px);
+    opacity: 0.7;
+  }
+}
+
+@keyframes explosionGlow {
+  0% {
+    filter: blur(5px);
+    opacity: 0.4;
+  }
+  100% {
+    filter: blur(10px);
+    opacity: 0.8;
+  }
+}
+
+@keyframes entanglementGlow {
+  0% {
+    filter: blur(7px);
+    opacity: 0.35;
+  }
+  100% {
+    filter: blur(11px);
+    opacity: 0.75;
+  }
+}
+
+@keyframes virtualRealityGlow {
+  0% {
+    filter: blur(6px);
+    opacity: 0.4;
+  }
+  100% {
+    filter: blur(10px);
+    opacity: 0.8;
+  }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 </style>
 
 

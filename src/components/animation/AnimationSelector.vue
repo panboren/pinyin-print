@@ -47,12 +47,18 @@ const animationOptions = ref([
   { value: 'space-warp', label: '空间扭曲' },
   { value: 'matrix-hack', label: '黑客帝国' },
   { value: 'quantum-shift', label: '量子跃迁' },
-  // 新增的动画类型
+  // 之前新增的动画类型
   { value: 'dimension-fold', label: '维度折叠' },
   { value: 'energy-wave', label: '能量波' },
   { value: 'dizzy-cam', label: '眩晕相机' },
-  { value: 'hyperspace', label: '超空间跳跃' }
+  { value: 'hyperspace', label: '超空间跳跃' },
+  // 最新新增的动画类型
+  { value: 'time-rift', label: '时空裂缝' },
+  { value: 'planet-explosion', label: '星球爆炸' },
+  { value: 'quantum-entanglement', label: '量子纠缠' },
+  { value: 'virtual-reality', label: '虚拟现实' }
 ])
+
 
 const handleChange = (event) => {
   emit('update:modelValue', event.target.value)
