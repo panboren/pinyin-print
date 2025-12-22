@@ -152,7 +152,9 @@ const animateEpicDive = () => {
     props.camera.updateProjectionMatrix()
 
     // 初始渲染
-    props.renderer.render(props.scene, props.camera)
+    if (props.renderer && props.scene && props.camera) {
+      props.renderer.render(props.scene, props.camera)
+    }
 
     // 暂时禁用用户交互
     props.controls.enabled = false
@@ -177,8 +179,14 @@ const animateEpicDive = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('相机位置更新错误:', error)
+        }
       }
     })
 
@@ -196,14 +204,20 @@ const animateEpicDive = () => {
       duration: 2,
       ease: 'power2.in',
       onUpdate: () => {
-        // 添加螺旋效果
-        const time = tl.time()
-        const spiralX = Math.sin(time * 2) * 30 * spiralIntensity.value
-        const spiralZ = Math.cos(time * 2) * 30 * spiralIntensity.value
-        props.camera.position.x += spiralX * 0.1
-        props.camera.position.z += spiralZ * 0.1
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 添加螺旋效果
+          const time = tl.time()
+          const spiralX = Math.sin(time * 2) * 30 * spiralIntensity.value
+          const spiralZ = Math.cos(time * 2) * 30 * spiralIntensity.value
+          props.camera.position.x += spiralX * 0.1
+          props.camera.position.z += spiralZ * 0.1
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('螺旋效果更新错误:', error)
+        }
       }
     }, 1)
 
@@ -213,7 +227,11 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power2.inOut',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('相机FOV更新错误:', error)
+        }
       }
     }, 1.5)
 
@@ -231,14 +249,20 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power4.in',
       onUpdate: () => {
-        // 增强螺旋效果
-        const time = tl.time()
-        const spiralX = Math.sin(time * 3) * 50 * spiralIntensity.value
-        const spiralZ = Math.cos(time * 3) * 50 * spiralIntensity.value
-        props.camera.position.x += spiralX * 0.2
-        props.camera.position.z += spiralZ * 0.2
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 增强螺旋效果
+          const time = tl.time()
+          const spiralX = Math.sin(time * 3) * 50 * spiralIntensity.value
+          const spiralZ = Math.cos(time * 3) * 50 * spiralIntensity.value
+          props.camera.position.x += spiralX * 0.2
+          props.camera.position.z += spiralZ * 0.2
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('螺旋效果增强错误:', error)
+        }
       }
     }, 2.5)
 
@@ -248,7 +272,11 @@ const animateEpicDive = () => {
       duration: 1,
       ease: 'power2.in',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('相机FOV快速更新错误:', error)
+        }
       }
     }, 3)
 
@@ -266,14 +294,20 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => {
-        // 减弱螺旋效果
-        const time = tl.time()
-        const spiralX = Math.sin(time * 2) * 20 * spiralIntensity.value
-        const spiralZ = Math.cos(time * 2) * 20 * spiralIntensity.value
-        props.camera.position.x += spiralX * 0.15
-        props.camera.position.z += spiralZ * 0.15
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 减弱螺旋效果
+          const time = tl.time()
+          const spiralX = Math.sin(time * 2) * 20 * spiralIntensity.value
+          const spiralZ = Math.cos(time * 2) * 20 * spiralIntensity.value
+          props.camera.position.x += spiralX * 0.15
+          props.camera.position.z += spiralZ * 0.15
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('螺旋效果减弱错误:', error)
+        }
       }
     }, 3.8)
 
@@ -283,7 +317,11 @@ const animateEpicDive = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('相机FOV持续更新错误:', error)
+        }
       }
     }, 4)
 
@@ -301,14 +339,20 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => {
-        // 微弱螺旋
-        const time = tl.time()
-        const spiralX = Math.sin(time * 1.5) * 5 * spiralIntensity.value
-        const spiralZ = Math.cos(time * 1.5) * 5 * spiralIntensity.value
-        props.camera.position.x += spiralX * 0.1
-        props.camera.position.z += spiralZ * 0.1
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 微弱螺旋
+          const time = tl.time()
+          const spiralX = Math.sin(time * 1.5) * 5 * spiralIntensity.value
+          const spiralZ = Math.cos(time * 1.5) * 5 * spiralIntensity.value
+          props.camera.position.x += spiralX * 0.1
+          props.camera.position.z += spiralZ * 0.1
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('微弱螺旋效果错误:', error)
+        }
       }
     }, 5)
 
@@ -318,7 +362,11 @@ const animateEpicDive = () => {
       duration: 0.8,
       ease: 'power2.out',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('相机FOV调整错误:', error)
+        }
       }
     }, 6)
 
@@ -336,8 +384,14 @@ const animateEpicDive = () => {
       duration: 0.8,
       ease: 'power1.out',
       onUpdate: () => {
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('最终定位错误:', error)
+        }
       }
     }, 6.3)
 
@@ -347,7 +401,11 @@ const animateEpicDive = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('相机FOV最终更新错误:', error)
+        }
       }
     }, 6.5)
 
@@ -359,15 +417,21 @@ const animateEpicDive = () => {
       duration: 1.2,
       ease: 'power2.inOut',
       onUpdate: function() {
-        // 使用球坐标更新相机位置
-        const spherical = new THREE.Spherical()
-        spherical.radius = 0.01
-        spherical.theta = cameraRotation.y
-        spherical.phi = Math.PI / 1.9
+        try {
+          // 使用球坐标更新相机位置
+          const spherical = new THREE.Spherical()
+          spherical.radius = 0.01
+          spherical.theta = cameraRotation.y
+          spherical.phi = Math.PI / 1.9
 
-        props.camera.position.setFromSpherical(spherical)
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+          props.camera.position.setFromSpherical(spherical)
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('最终视角旋转错误:', error)
+        }
       }
     }, 6.8)
 
@@ -401,7 +465,9 @@ const animateSpaceWarp = () => {
     props.camera.updateProjectionMatrix()
 
     // 初始渲染
-    props.renderer.render(props.scene, props.camera)
+    if (props.renderer && props.scene && props.camera) {
+      props.renderer.render(props.scene, props.camera)
+    }
 
     // 暂时禁用用户交互
     props.controls.enabled = false
@@ -428,16 +494,22 @@ const animateSpaceWarp = () => {
       duration: 2,
       ease: 'power4.in',
       onUpdate: () => {
-        // 添加扭曲效果
-        const time = tl.time()
-        const warpAmount = 1 - (props.camera.position.z / 1000)
+        try {
+          // 添加扭曲效果
+          const time = tl.time()
+          const warpAmount = 1 - (props.camera.position.z / 1000)
 
-        // 使用自定义旋转对象来应用扭曲效果
-        cameraRotation.z = Math.sin(time * 5) * warpAmount * 0.1
-        props.camera.rotation.z = cameraRotation.z
+          // 使用自定义旋转对象来应用扭曲效果
+          cameraRotation.z = Math.sin(time * 5) * warpAmount * 0.1
+          props.camera.rotation.z = cameraRotation.z
 
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('空间扭曲更新错误:', error)
+        }
       }
     })
 
@@ -447,7 +519,11 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV时空压缩错误:', error)
+        }
       }
     }, 1.5)
 
@@ -458,14 +534,20 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        // 减弱扭曲效果
-        const time = tl.time()
-        const warpAmount = props.camera.position.z / 100
-        cameraRotation.z = Math.sin(time * 3) * warpAmount * 0.05
-        props.camera.rotation.z = cameraRotation.z
+        try {
+          // 减弱扭曲效果
+          const time = tl.time()
+          const warpAmount = props.camera.position.z / 100
+          cameraRotation.z = Math.sin(time * 3) * warpAmount * 0.05
+          props.camera.rotation.z = cameraRotation.z
 
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('扭曲效果减弱错误:', error)
+        }
       }
     }, 1.5)
 
@@ -475,7 +557,11 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV螺旋下降错误:', error)
+        }
       }
     }, 2.5)
 
@@ -486,15 +572,21 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        // 螺旋旋转
-        const time = tl.time()
-        const spiralRadius = props.camera.position.z * 0.5
-        const spiralX = Math.cos(time * 2) * spiralRadius
-        const spiralZ = Math.sin(time * 2) * spiralRadius
-        props.camera.position.x = spiralX
-        props.camera.position.z = spiralZ
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 螺旋旋转
+          const time = tl.time()
+          const spiralRadius = props.camera.position.z * 0.5
+          const spiralX = Math.cos(time * 2) * spiralRadius
+          const spiralZ = Math.sin(time * 2) * spiralRadius
+          props.camera.position.x = spiralX
+          props.camera.position.z = spiralZ
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('螺旋旋转更新错误:', error)
+        }
       }
     }, 2.5)
 
@@ -504,7 +596,11 @@ const animateSpaceWarp = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV最终定位错误:', error)
+        }
       }
     }, 3.5)
 
@@ -514,7 +610,11 @@ const animateSpaceWarp = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: function() {
-        props.camera.rotation.z = cameraRotation.z
+        try {
+          props.camera.rotation.z = cameraRotation.z
+        } catch (error) {
+          console.error('扭曲旋转重置错误:', error)
+        }
       }
     }, 3.5)
 
@@ -525,8 +625,14 @@ const animateSpaceWarp = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => {
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('相机位置最终定位错误:', error)
+        }
       }
     }, 3.5)
 
@@ -538,14 +644,20 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: function() {
-        const spherical = new THREE.Spherical()
-        spherical.radius = 0.01
-        spherical.theta = cameraRotation.y
-        spherical.phi = Math.PI / 1.9
+        try {
+          const spherical = new THREE.Spherical()
+          spherical.radius = 0.01
+          spherical.theta = cameraRotation.y
+          spherical.phi = Math.PI / 1.9
 
-        props.camera.position.setFromSpherical(spherical)
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+          props.camera.position.setFromSpherical(spherical)
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('最终视角旋转错误:', error)
+        }
       }
     }, 4)
   } catch (error) {
@@ -567,7 +679,9 @@ const animateMatrixHack = () => {
     props.camera.updateProjectionMatrix()
 
     // 初始渲染
-    props.renderer.render(props.scene, props.camera)
+    if (props.renderer && props.scene && props.camera) {
+      props.renderer.render(props.scene, props.camera)
+    }
 
     // 暂时禁用用户交互
     props.controls.enabled = false
@@ -587,14 +701,20 @@ const animateMatrixHack = () => {
       duration: 2,
       ease: 'power4.in',
       onUpdate: () => {
-        // 添加轻微摇晃效果
-        const time = tl.time()
-        const wobbleX = Math.sin(time * 10) * 0.5
-        const wobbleZ = Math.cos(time * 10) * 0.5
-        props.camera.position.x = wobbleX
-        props.camera.position.z = wobbleZ
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 添加轻微摇晃效果
+          const time = tl.time()
+          const wobbleX = Math.sin(time * 10) * 0.5
+          const wobbleZ = Math.cos(time * 10) * 0.5
+          props.camera.position.x = wobbleX
+          props.camera.position.z = wobbleZ
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('下落效果更新错误:', error)
+        }
       }
     })
 
@@ -606,14 +726,20 @@ const animateMatrixHack = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => {
-        // 逐渐减小摇晃
-        const time = tl.time()
-        const wobbleX = Math.sin(time * 5) * 0.2
-        const wobbleZ = Math.cos(time * 5) * 0.2
-        props.camera.position.x = 5 + wobbleX
-        props.camera.position.z = 5 + wobbleZ
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 逐渐减小摇晃
+          const time = tl.time()
+          const wobbleX = Math.sin(time * 5) * 0.2
+          const wobbleZ = Math.cos(time * 5) * 0.2
+          props.camera.position.x = 5 + wobbleX
+          props.camera.position.z = 5 + wobbleZ
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('视角调整错误:', error)
+        }
       }
     }, 2)
 
@@ -622,7 +748,11 @@ const animateMatrixHack = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV视角调整错误:', error)
+        }
       }
     }, 2)
 
@@ -634,14 +764,20 @@ const animateMatrixHack = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        // 进一步减小摇晃
-        const time = tl.time()
-        const wobbleX = Math.sin(time * 3) * 0.05
-        const wobbleZ = Math.cos(time * 3) * 0.05
-        props.camera.position.x = wobbleX
-        props.camera.position.z = wobbleZ
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 进一步减小摇晃
+          const time = tl.time()
+          const wobbleX = Math.sin(time * 3) * 0.05
+          const wobbleZ = Math.cos(time * 3) * 0.05
+          props.camera.position.x = wobbleX
+          props.camera.position.z = wobbleZ
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('位置平移更新错误:', error)
+        }
       }
     }, 3)
 
@@ -650,7 +786,11 @@ const animateMatrixHack = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV最终更新错误:', error)
+        }
       }
     }, 3.5)
 
@@ -662,14 +802,20 @@ const animateMatrixHack = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: function() {
-        const spherical = new THREE.Spherical()
-        spherical.radius = 0.01
-        spherical.theta = cameraRotation.y
-        spherical.phi = Math.PI / 1.9
+        try {
+          const spherical = new THREE.Spherical()
+          spherical.radius = 0.01
+          spherical.theta = cameraRotation.y
+          spherical.phi = Math.PI / 1.9
 
-        props.camera.position.setFromSpherical(spherical)
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+          props.camera.position.setFromSpherical(spherical)
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('最终视角旋转错误:', error)
+        }
       }
     }, 4)
   } catch (error) {
@@ -696,7 +842,9 @@ const animateQuantumShift = () => {
     props.camera.updateProjectionMatrix()
 
     // 初始渲染
-    props.renderer.render(props.scene, props.camera)
+    if (props.renderer && props.scene && props.camera) {
+      props.renderer.render(props.scene, props.camera)
+    }
 
     // 暂时禁用用户交互
     props.controls.enabled = false
@@ -726,8 +874,14 @@ const animateQuantumShift = () => {
         duration: 0.3,
         ease: 'power1.inOut',
         onUpdate: () => {
-          props.camera.lookAt(props.controls.target)
-          props.controls.update()
+          try {
+            props.camera.lookAt(props.controls.target)
+            if (props.controls) {
+              props.controls.update()
+            }
+          } catch (error) {
+            console.error('量子跃迁位置更新错误:', error)
+          }
         }
       }, i * 0.4)
 
@@ -753,8 +907,14 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power1.inOut',
       onUpdate: () => {
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('最终跃迁位置更新错误:', error)
+        }
       }
     }, 1.5)
 
@@ -763,7 +923,11 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV最终跃迁错误:', error)
+        }
       }
     }, 1.5)
 
@@ -775,16 +939,22 @@ const animateQuantumShift = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => {
-        // 添加轻微量子抖动
-        const time = tl.time()
-        const wobbleX = (Math.random() - 0.5) * 0.1
-        const wobbleY = (Math.random() - 0.5) * 0.1
-        const wobbleZ = (Math.random() - 0.5) * 0.1
-        props.camera.position.x = 2 + wobbleX
-        props.camera.position.y = 3 + wobbleY
-        props.camera.position.z = 2 + wobbleZ
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 添加轻微量子抖动
+          const time = tl.time()
+          const wobbleX = (Math.random() - 0.5) * 0.1
+          const wobbleY = (Math.random() - 0.5) * 0.1
+          const wobbleZ = (Math.random() - 0.5) * 0.1
+          props.camera.position.x = 2 + wobbleX
+          props.camera.position.y = 3 + wobbleY
+          props.camera.position.z = 2 + wobbleZ
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('量子抖动更新错误:', error)
+        }
       }
     }, 2)
 
@@ -793,7 +963,11 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV稳定接近错误:', error)
+        }
       }
     }, 2.5)
 
@@ -805,16 +979,22 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => {
-        // 进一步减小抖动
-        const time = tl.time()
-        const wobbleX = (Math.random() - 0.5) * 0.02
-        const wobbleY = (Math.random() - 0.5) * 0.02
-        const wobbleZ = (Math.random() - 0.5) * 0.02
-        props.camera.position.x = wobbleX
-        props.camera.position.y = wobbleY
-        props.camera.position.z = wobbleZ
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+        try {
+          // 进一步减小抖动
+          const time = tl.time()
+          const wobbleX = (Math.random() - 0.5) * 0.02
+          const wobbleY = (Math.random() - 0.5) * 0.02
+          const wobbleZ = (Math.random() - 0.5) * 0.02
+          props.camera.position.x = wobbleX
+          props.camera.position.y = wobbleY
+          props.camera.position.z = wobbleZ
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('量子抖动减小错误:', error)
+        }
       }
     }, 3)
 
@@ -823,7 +1003,11 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => {
-        props.camera.updateProjectionMatrix()
+        try {
+          props.camera.updateProjectionMatrix()
+        } catch (error) {
+          console.error('FOV最终定位错误:', error)
+        }
       }
     }, 3.5)
 
@@ -835,14 +1019,20 @@ const animateQuantumShift = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: function() {
-        const spherical = new THREE.Spherical()
-        spherical.radius = 0.01
-        spherical.theta = cameraRotation.y
-        spherical.phi = Math.PI / 1.9
+        try {
+          const spherical = new THREE.Spherical()
+          spherical.radius = 0.01
+          spherical.theta = cameraRotation.y
+          spherical.phi = Math.PI / 1.9
 
-        props.camera.position.setFromSpherical(spherical)
-        props.camera.lookAt(props.controls.target)
-        props.controls.update()
+          props.camera.position.setFromSpherical(spherical)
+          props.camera.lookAt(props.controls.target)
+          if (props.controls) {
+            props.controls.update()
+          }
+        } catch (error) {
+          console.error('最终视角旋转错误:', error)
+        }
       }
     }, 4)
   } catch (error) {

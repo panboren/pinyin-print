@@ -10,8 +10,6 @@
       v-model="input"
       placeholder="Please input"
     />
-
-    <HelloWorld msg="page1" />
   </div>
 </template>
 <script setup>
