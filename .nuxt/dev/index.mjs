@@ -1458,14 +1458,14 @@ const assets = {
   "/index.mjs": {
     "type": "text/javascript; charset=utf-8",
     "etag": "\"14768-q7Ax0T+KMNLsxQkknLFfWRY8upg\"",
-    "mtime": "2025-12-23T15:12:15.768Z",
+    "mtime": "2025-12-23T16:11:20.578Z",
     "size": 83816,
     "path": "index.mjs"
   },
   "/index.mjs.map": {
     "type": "application/json",
     "etag": "\"500bf-dldKh5GRaGHQAGTwWVlzTzSE+5o\"",
-    "mtime": "2025-12-23T15:12:15.768Z",
+    "mtime": "2025-12-23T16:11:20.579Z",
     "size": 327871,
     "path": "index.mjs.map"
   }
