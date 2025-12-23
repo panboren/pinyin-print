@@ -1,28 +1,28 @@
 <!-- src/components/AnimationSelector.vue -->
 <template>
   <div
-    class="animation-selector"
-    role="region"
-    aria-label="动画控制"
+      class="animation-selector"
+      role="region"
+      aria-label="动画控制"
   >
     <label for="animation-type">动画类型:</label>
     <select
-      id="animation-type"
-      :value="modelValue"
-      aria-label="选择开场动画类型"
-      @change="handleChange"
+        id="animation-type"
+        :value="modelValue"
+        aria-label="选择开场动画类型"
+        @change="handleChange"
     >
       <option
-        v-for="animation in animationOptions"
-        :key="animation.value"
-        :value="animation.value"
+          v-for="animation in animationOptions"
+          :key="animation.value"
+          :value="animation.value"
       >
         {{ animation.label }}
       </option>
     </select>
     <button
-      aria-label="重新播放动画"
-      @click="resetAnimation"
+        aria-label="重新播放动画"
+        @click="resetAnimation"
     >
       重新播放
     </button>

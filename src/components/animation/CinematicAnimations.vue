@@ -1,22 +1,22 @@
 <template>
   <div
-    v-if="!isLoading && !animationComplete"
-    class="cinematic-intro"
-    :class="`cinematic-intro--${animationType}`"
-    aria-hidden="true"
+      v-if="!isLoading && !animationComplete"
+      class="cinematic-intro"
+      :class="`cinematic-intro--${animationType}`"
+      aria-hidden="true"
   >
     <div class="cinematic-intro__fade-out" />
     <div class="cinematic-intro__title-card">
       <div
-        class="cinematic-intro__particles-container"
-        aria-hidden="true"
+          class="cinematic-intro__particles-container"
+          aria-hidden="true"
       >
         <div
-          v-for="i in particleCount"
-          :key="i"
-          class="cinematic-intro__particle"
-          :style="getParticleStyle(i)"
-          :aria-hidden="true"
+            v-for="i in particleCount"
+            :key="i"
+            class="cinematic-intro__particle"
+            :style="getParticleStyle(i)"
+            :aria-hidden="true"
         />
       </div>
       <h1 class="cinematic-intro__title">
@@ -26,20 +26,20 @@
         IMMERSIVE EXPERIENCE
       </p>
       <div
-        class="cinematic-intro__scanlines"
-        aria-hidden="true"
+          class="cinematic-intro__scanlines"
+          aria-hidden="true"
       />
       <div
-        class="cinematic-intro__lens-flare"
-        aria-hidden="true"
+          class="cinematic-intro__lens-flare"
+          aria-hidden="true"
       />
     </div>
 
     <!-- 原有的史诗俯冲效果 -->
     <div
-      v-if="animationType === 'epic-dive'"
-      class="cinematic-intro__dynamic-effects"
-      aria-hidden="true"
+        v-if="animationType === 'epic-dive'"
+        class="cinematic-intro__dynamic-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__speed-lines" />
       <div class="cinematic-intro__vignette" />
@@ -48,9 +48,9 @@
 
     <!-- 新增：维度折叠效果 -->
     <div
-      v-if="animationType === 'dimension-fold'"
-      class="cinematic-intro__dimension-fold-effects"
-      aria-hidden="true"
+        v-if="animationType === 'dimension-fold'"
+        class="cinematic-intro__dimension-fold-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__fold-lines" />
       <div class="cinematic-intro__dimension-shift" />
@@ -59,9 +59,9 @@
 
     <!-- 新增：能量波效果 -->
     <div
-      v-if="animationType === 'energy-wave'"
-      class="cinematic-intro__energy-wave-effects"
-      aria-hidden="true"
+        v-if="animationType === 'energy-wave'"
+        class="cinematic-intro__energy-wave-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__energy-ring" />
       <div class="cinematic-intro__shockwave" />
@@ -70,9 +70,9 @@
 
     <!-- 新增：眩晕相机效果 -->
     <div
-      v-if="animationType === 'dizzy-cam'"
-      class="cinematic-intro__dizzy-cam-effects"
-      aria-hidden="true"
+        v-if="animationType === 'dizzy-cam'"
+        class="cinematic-intro__dizzy-cam-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__spinning-overlay" />
       <div class="cinematic-intro__color-shift" />
@@ -81,9 +81,9 @@
 
     <!-- 新增：超空间跳跃效果 -->
     <div
-      v-if="animationType === 'hyperspace'"
-      class="cinematic-intro__hyperspace-effects"
-      aria-hidden="true"
+        v-if="animationType === 'hyperspace'"
+        class="cinematic-intro__hyperspace-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__star-stretch" />
       <div class="cinematic-intro__tunnel-vision" />
@@ -93,9 +93,9 @@
 
     <!-- 新增：时空裂缝效果 -->
     <div
-      v-if="animationType === 'time-rift'"
-      class="cinematic-intro__time-rift-effects"
-      aria-hidden="true"
+        v-if="animationType === 'time-rift'"
+        class="cinematic-intro__time-rift-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__rift-cracks" />
       <div class="cinematic-intro__time-fragments" />
@@ -104,9 +104,9 @@
 
     <!-- 新增：星球爆炸效果 -->
     <div
-      v-if="animationType === 'planet-explosion'"
-      class="cinematic-intro__planet-explosion-effects"
-      aria-hidden="true"
+        v-if="animationType === 'planet-explosion'"
+        class="cinematic-intro__planet-explosion-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__explosion-core" />
       <div class="cinematic-intro__debris-field" />
@@ -115,9 +115,9 @@
 
     <!-- 新增：量子纠缠效果 -->
     <div
-      v-if="animationType === 'quantum-entanglement'"
-      class="cinematic-intro__quantum-entanglement-effects"
-      aria-hidden="true"
+        v-if="animationType === 'quantum-entanglement'"
+        class="cinematic-intro__quantum-entanglement-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__parallel-worlds" />
       <div class="cinematic-intro__quantum-bridge" />
@@ -126,9 +126,9 @@
 
     <!-- 新增：虚拟现实效果 -->
     <div
-      v-if="animationType === 'virtual-reality'"
-      class="cinematic-intro__virtual-reality-effects"
-      aria-hidden="true"
+        v-if="animationType === 'virtual-reality'"
+        class="cinematic-intro__virtual-reality-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__pixelation" />
       <div class="cinematic-intro__digital-noise" />
@@ -140,9 +140,9 @@
 
     <!-- 新增：场景漫游效果 -->
     <div
-      v-if="animationType === 'scene-roaming'"
-      class="cinematic-intro__scene-roaming-effects"
-      aria-hidden="true"
+        v-if="animationType === 'scene-roaming'"
+        class="cinematic-intro__scene-roaming-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__viewfinder" />
       <div class="cinematic-intro__path-indicator" />
@@ -151,9 +151,9 @@
 
     <!-- 新增：轨道环绕效果 -->
     <div
-      v-if="animationType === 'orbital-rotation'"
-      class="cinematic-intro__orbital-rotation-effects"
-      aria-hidden="true"
+        v-if="animationType === 'orbital-rotation'"
+        class="cinematic-intro__orbital-rotation-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__orbit-path" />
       <div class="cinematic-intro__gravity-well" />
@@ -162,9 +162,9 @@
 
     <!-- 新增：维度传送门效果 -->
     <div
-      v-if="animationType === 'dimensional-portal'"
-      class="cinematic-intro__dimensional-portal-effects"
-      aria-hidden="true"
+        v-if="animationType === 'dimensional-portal'"
+        class="cinematic-intro__dimensional-portal-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__portal-ring" />
       <div class="cinematic-intro__dimension-shift" />
@@ -173,9 +173,9 @@
 
     <!-- 新增：时空穿梭效果 -->
     <div
-      v-if="animationType === 'time-travel'"
-      class="cinematic-intro__time-travel-effects"
-      aria-hidden="true"
+        v-if="animationType === 'time-travel'"
+        class="cinematic-intro__time-travel-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__time-ripples" />
       <div class="cinematic-intro__past-future-shift" />
@@ -185,9 +185,9 @@
 
     <!-- 新增：黑洞吞噬效果 -->
     <div
-      v-if="animationType === 'black-hole'"
-      class="cinematic-intro__black-hole-effects"
-      aria-hidden="true"
+        v-if="animationType === 'black-hole'"
+        class="cinematic-intro__black-hole-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__event-horizon" />
       <div class="cinematic-intro__accretion-disk" />
@@ -196,9 +196,9 @@
 
     <!-- 新增：宇宙大爆炸效果 -->
     <div
-      v-if="animationType === 'cosmic-big-bang'"
-      class="cinematic-intro__cosmic-big-bang-effects"
-      aria-hidden="true"
+        v-if="animationType === 'cosmic-big-bang'"
+        class="cinematic-intro__cosmic-big-bang-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__singularity" />
       <div class="cinematic-intro__explosion-wave" />
@@ -207,9 +207,9 @@
 
     <!-- 新增：维度崩溃效果 -->
     <div
-      v-if="animationType === 'dimension-collapse'"
-      class="cinematic-intro__dimension-collapse-effects"
-      aria-hidden="true"
+        v-if="animationType === 'dimension-collapse'"
+        class="cinematic-intro__dimension-collapse-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__reality-fracture" />
       <div class="cinematic-intro__dimensional-shards" />
@@ -218,9 +218,9 @@
 
     <!-- 新增：时空逆流效果 -->
     <div
-      v-if="animationType === 'time-rewind'"
-      class="cinematic-intro__time-rewind-effects"
-      aria-hidden="true"
+        v-if="animationType === 'time-rewind'"
+        class="cinematic-intro__time-rewind-effects"
+        aria-hidden="true"
     >
       <div class="cinematic-intro__reverse-flow" />
       <div class="cinematic-intro__temporal-fragments" />
@@ -576,9 +576,9 @@ const animateDimensionFold = () => {
     const realityShift = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '维度折叠'),
-      '维度折叠'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '维度折叠'),
+        '维度折叠'
     )
 
     // 动画阶段1: 平稳接近
@@ -589,8 +589,8 @@ const animateDimensionFold = () => {
       duration: 2,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -608,33 +608,33 @@ const animateDimensionFold = () => {
       duration: 1.5,
       ease: 'power2.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const foldAmount = foldIntensity.value
+          () => {
+            const time = tl.time()
+            const foldAmount = foldIntensity.value
 
-          // 模拟维度折叠效果 - 随机位移
-          const glitchX = Math.sin(time * 20) * 10 * foldAmount
-          const glitchY = Math.cos(time * 15) * 8 * foldAmount
-          const glitchZ = Math.sin(time * 10) * 5 * foldAmount
+            // 模拟维度折叠效果 - 随机位移
+            const glitchX = Math.sin(time * 20) * 10 * foldAmount
+            const glitchY = Math.cos(time * 15) * 8 * foldAmount
+            const glitchZ = Math.sin(time * 10) * 5 * foldAmount
 
-          props.camera.position.x += glitchX
-          props.camera.position.y += glitchY
-          props.camera.position.z += glitchZ
+            props.camera.position.x += glitchX
+            props.camera.position.y += glitchY
+            props.camera.position.z += glitchZ
 
-          // 相机倾斜
-          cameraRotation.value.x = Math.sin(time * 3) * 0.2 * foldAmount
-          cameraRotation.value.y = Math.cos(time * 2) * 0.2 * foldAmount
-          cameraRotation.value.z = Math.sin(time * 5) * 0.1 * foldAmount
+            // 相机倾斜
+            cameraRotation.value.x = Math.sin(time * 3) * 0.2 * foldAmount
+            cameraRotation.value.y = Math.cos(time * 2) * 0.2 * foldAmount
+            cameraRotation.value.z = Math.sin(time * 5) * 0.1 * foldAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '维度折叠效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '维度折叠效果更新错误'
       )
     }, 1.5)
 
@@ -650,8 +650,8 @@ const animateDimensionFold = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV维度折叠错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV维度折叠错误'
       )
     }, 2.5)
 
@@ -675,31 +675,31 @@ const animateDimensionFold = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const foldAmount = foldIntensity.value
-          const shiftAmount = realityShift.value
+          () => {
+            const time = tl.time()
+            const foldAmount = foldIntensity.value
+            const shiftAmount = realityShift.value
 
-          // 减少的折叠效果
-          const glitchX = Math.sin(time * 10) * 3 * foldAmount
-          const glitchZ = Math.cos(time * 8) * 3 * foldAmount
+            // 减少的折叠效果
+            const glitchX = Math.sin(time * 10) * 3 * foldAmount
+            const glitchZ = Math.cos(time * 8) * 3 * foldAmount
 
-          props.camera.position.x += glitchX
-          props.camera.position.z += glitchZ
+            props.camera.position.x += glitchX
+            props.camera.position.z += glitchZ
 
-          // 稳定的相机倾斜
-          cameraRotation.value.x = Math.sin(time * 1.5) * 0.1 * shiftAmount
-          cameraRotation.value.z = Math.cos(time * 1.5) * 0.05 * shiftAmount
+            // 稳定的相机倾斜
+            cameraRotation.value.x = Math.sin(time * 1.5) * 0.1 * shiftAmount
+            cameraRotation.value.z = Math.cos(time * 1.5) * 0.05 * shiftAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '维度稳定效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '维度稳定效果更新错误'
       )
     }, 3)
 
@@ -711,19 +711,19 @@ const animateDimensionFold = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const foldAmount = foldIntensity.value
+          () => {
+            const foldAmount = foldIntensity.value
 
-          // 微小的折叠效果
-          const glitchX = Math.sin(tl.time() * 5) * 1 * foldAmount
-          const glitchZ = Math.cos(tl.time() * 4) * 1 * foldAmount
+            // 微小的折叠效果
+            const glitchX = Math.sin(tl.time() * 5) * 1 * foldAmount
+            const glitchZ = Math.cos(tl.time() * 4) * 1 * foldAmount
 
-          props.camera.position.x += glitchX
-          props.camera.position.z += glitchZ
+            props.camera.position.x += glitchX
+            props.camera.position.z += glitchZ
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终接近效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终接近效果更新错误'
       )
     }, 4)
 
@@ -732,8 +732,8 @@ const animateDimensionFold = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终接近错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终接近错误'
       )
     }, 4.5)
 
@@ -757,8 +757,8 @@ const animateDimensionFold = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终定位错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终定位错误'
       )
     }, 5)
 
@@ -771,16 +771,16 @@ const animateDimensionFold = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5.5)
@@ -835,9 +835,9 @@ const animateEnergyWave = () => {
     const shockRadius = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '能量波'),
-      '能量波'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '能量波'),
+        '能量波'
     )
 
     // 动画阶段1: 能量聚集
@@ -846,8 +846,8 @@ const animateEnergyWave = () => {
       duration: 2,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -863,30 +863,30 @@ const animateEnergyWave = () => {
       duration: 1,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const waveAmount = waveIntensity.value
+          () => {
+            const time = tl.time()
+            const waveAmount = waveIntensity.value
 
-          // 震动效果
-          const shakeX = Math.sin(time * 30) * 5 * waveAmount
-          const shakeZ = Math.cos(time * 30) * 5 * waveAmount
+            // 震动效果
+            const shakeX = Math.sin(time * 30) * 5 * waveAmount
+            const shakeZ = Math.cos(time * 30) * 5 * waveAmount
 
-          props.camera.position.x = shakeX
-          props.camera.position.z = shakeZ
+            props.camera.position.x = shakeX
+            props.camera.position.z = shakeZ
 
-          // 相机视角震动
-          cameraRotation.value.x = Math.sin(time * 20) * 0.05 * waveAmount
-          cameraRotation.value.z = Math.cos(time * 20) * 0.05 * waveAmount
+            // 相机视角震动
+            cameraRotation.value.x = Math.sin(time * 20) * 0.05 * waveAmount
+            cameraRotation.value.z = Math.cos(time * 20) * 0.05 * waveAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            0,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                0,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '能量爆发效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '能量爆发效果更新错误'
       )
     }, 1.8)
 
@@ -902,8 +902,8 @@ const animateEnergyWave = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV冲击波错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV冲击波错误'
       )
     }, 2.5)
 
@@ -912,31 +912,31 @@ const animateEnergyWave = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const waveAmount = waveIntensity.value * 0.5
-          const radius = shockRadius.value
+          () => {
+            const time = tl.time()
+            const waveAmount = waveIntensity.value * 0.5
+            const radius = shockRadius.value
 
-          // 环绕效果
-          const orbitX = Math.sin(time * 2) * 20 * waveAmount
-          const orbitZ = Math.cos(time * 2) * 20 * waveAmount
+            // 环绕效果
+            const orbitX = Math.sin(time * 2) * 20 * waveAmount
+            const orbitZ = Math.cos(time * 2) * 20 * waveAmount
 
-          props.camera.position.x = orbitX
-          props.camera.position.z = orbitZ
+            props.camera.position.x = orbitX
+            props.camera.position.z = orbitZ
 
-          // 相机轻微倾斜
-          cameraRotation.value.x = Math.sin(time * 3) * 0.02 * waveAmount
-          cameraRotation.value.z = Math.cos(time * 3) * 0.02 * waveAmount
+            // 相机轻微倾斜
+            cameraRotation.value.x = Math.sin(time * 3) * 0.02 * waveAmount
+            cameraRotation.value.z = Math.cos(time * 3) * 0.02 * waveAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            0,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                0,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '冲击波扩散效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '冲击波扩散效果更新错误'
       )
     }, 2.5)
 
@@ -954,30 +954,30 @@ const animateEnergyWave = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const waveAmount = waveIntensity.value
+          () => {
+            const time = tl.time()
+            const waveAmount = waveIntensity.value
 
-          // 微小震动
-          const shakeX = Math.sin(time * 10) * 2 * waveAmount
-          const shakeZ = Math.cos(time * 10) * 2 * waveAmount
+            // 微小震动
+            const shakeX = Math.sin(time * 10) * 2 * waveAmount
+            const shakeZ = Math.cos(time * 10) * 2 * waveAmount
 
-          props.camera.position.x = 30 + shakeX
-          props.camera.position.z = 30 + shakeZ
+            props.camera.position.x = 30 + shakeX
+            props.camera.position.z = 30 + shakeZ
 
-          // 相机轻微倾斜
-          cameraRotation.value.x = Math.sin(time * 5) * 0.01 * waveAmount
-          cameraRotation.value.z = Math.cos(time * 5) * 0.01 * waveAmount
+            // 相机轻微倾斜
+            cameraRotation.value.x = Math.sin(time * 5) * 0.01 * waveAmount
+            cameraRotation.value.z = Math.cos(time * 5) * 0.01 * waveAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            0,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                0,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '能量消散效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '能量消散效果更新错误'
       )
     }, 4)
 
@@ -986,8 +986,8 @@ const animateEnergyWave = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV能量消散错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV能量消散错误'
       )
     }, 5)
 
@@ -1005,8 +1005,8 @@ const animateEnergyWave = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终定位错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终定位错误'
       )
     }, 5.5)
 
@@ -1019,16 +1019,16 @@ const animateEnergyWave = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 6)
@@ -1083,9 +1083,9 @@ const animateDizzyCam = () => {
     const motionBlur = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '眩晕相机'),
-      '眩晕相机'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '眩晕相机'),
+        '眩晕相机'
     )
 
     // 动画阶段1: 开始加速
@@ -1096,8 +1096,8 @@ const animateDizzyCam = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -1115,31 +1115,31 @@ const animateDizzyCam = () => {
       duration: 2,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const spinAmount = spinIntensity.value
+          () => {
+            const time = tl.time()
+            const spinAmount = spinIntensity.value
 
-          // 螺旋旋转
-          const spiralRadius = props.camera.position.length()
-          const spinAngle = time * 10 * spinAmount
+            // 螺旋旋转
+            const spiralRadius = props.camera.position.length()
+            const spinAngle = time * 10 * spinAmount
 
-          props.camera.position.x = Math.cos(spinAngle) * spiralRadius
-          props.camera.position.z = Math.sin(spinAngle) * spiralRadius
+            props.camera.position.x = Math.cos(spinAngle) * spiralRadius
+            props.camera.position.z = Math.sin(spinAngle) * spiralRadius
 
-          // 相机随机倾斜
-          cameraRotation.value.x = Math.sin(time * 20) * 0.3 * spinAmount
-          cameraRotation.value.y = Math.cos(time * 15) * 0.3 * spinAmount
-          cameraRotation.value.z = Math.sin(time * 25) * 0.2 * spinAmount
+            // 相机随机倾斜
+            cameraRotation.value.x = Math.sin(time * 20) * 0.3 * spinAmount
+            cameraRotation.value.y = Math.cos(time * 15) * 0.3 * spinAmount
+            cameraRotation.value.z = Math.sin(time * 25) * 0.2 * spinAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '快速旋转效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '快速旋转效果更新错误'
       )
     }, 0.8)
 
@@ -1155,8 +1155,8 @@ const animateDizzyCam = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV颜色变换错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV颜色变换错误'
       )
     }, 1.5)
 
@@ -1187,33 +1187,33 @@ const animateDizzyCam = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const spinAmount = spinIntensity.value
-          const colorAmount = colorShift.value
-          const blurAmount = motionBlur.value
+          () => {
+            const time = tl.time()
+            const spinAmount = spinIntensity.value
+            const colorAmount = colorShift.value
+            const blurAmount = motionBlur.value
 
-          // 减缓的螺旋旋转
-          const spiralRadius = props.camera.position.length()
-          const spinAngle = time * 3 * spinAmount
+            // 减缓的螺旋旋转
+            const spiralRadius = props.camera.position.length()
+            const spinAngle = time * 3 * spinAmount
 
-          props.camera.position.x = Math.cos(spinAngle) * spiralRadius
-          props.camera.position.z = Math.sin(spinAngle) * spiralRadius
+            props.camera.position.x = Math.cos(spinAngle) * spiralRadius
+            props.camera.position.z = Math.sin(spinAngle) * spiralRadius
 
-          // 减少的相机倾斜
-          cameraRotation.value.x = Math.sin(time * 5) * 0.1 * spinAmount
-          cameraRotation.value.y = Math.cos(time * 4) * 0.1 * spinAmount
-          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * spinAmount
+            // 减少的相机倾斜
+            cameraRotation.value.x = Math.sin(time * 5) * 0.1 * spinAmount
+            cameraRotation.value.y = Math.cos(time * 4) * 0.1 * spinAmount
+            cameraRotation.value.z = Math.sin(time * 6) * 0.05 * spinAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '旋转减速效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '旋转减速效果更新错误'
       )
     }, 2.5)
 
@@ -1249,11 +1249,11 @@ const animateDizzyCam = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终稳定效果更新错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终稳定效果更新错误'
       )
     }, 3.5)
 
@@ -1262,8 +1262,8 @@ const animateDizzyCam = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终稳定错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终稳定错误'
       )
     }, 3.5)
 
@@ -1276,16 +1276,16 @@ const animateDizzyCam = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 4)
@@ -1315,9 +1315,9 @@ const animateHyperspace = () => {
     const lightBurst = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '超空间跳跃'),
-      '超空间跳跃'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '超空间跳跃'),
+        '超空间跳跃'
     )
 
     // 动画阶段1: 加速接近
@@ -1328,8 +1328,8 @@ const animateHyperspace = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -1347,35 +1347,35 @@ const animateHyperspace = () => {
       duration: 2,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const stretchAmount = stretchIntensity.value
+          () => {
+            const time = tl.time()
+            const stretchAmount = stretchIntensity.value
 
-          // 星星拉伸效果 - 快速接近
-          const stretchX = props.camera.position.x * (1 + stretchAmount)
-          const stretchY = props.camera.position.y * (1 + stretchAmount * 0.5)
-          const stretchZ = props.camera.position.z * (1 + stretchAmount)
+            // 星星拉伸效果 - 快速接近
+            const stretchX = props.camera.position.x * (1 + stretchAmount)
+            const stretchY = props.camera.position.y * (1 + stretchAmount * 0.5)
+            const stretchZ = props.camera.position.z * (1 + stretchAmount)
 
-          props.camera.position.x = stretchX
-          props.camera.position.y = stretchY
-          props.camera.position.z = stretchZ
+            props.camera.position.x = stretchX
+            props.camera.position.y = stretchY
+            props.camera.position.z = stretchZ
 
-          // 相机轻微抖动
-          const shakeX = Math.sin(time * 30) * 0.05 * stretchAmount
-          const shakeY = Math.cos(time * 25) * 0.05 * stretchAmount
+            // 相机轻微抖动
+            const shakeX = Math.sin(time * 30) * 0.05 * stretchAmount
+            const shakeY = Math.cos(time * 25) * 0.05 * stretchAmount
 
-          cameraRotation.value.x = shakeX
-          cameraRotation.value.y = shakeY
+            cameraRotation.value.x = shakeX
+            cameraRotation.value.y = shakeY
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            0
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                0
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '星星拉伸效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '星星拉伸效果更新错误'
       )
     }, 0.8)
 
@@ -1391,8 +1391,8 @@ const animateHyperspace = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV隧道视野错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV隧道视野错误'
       )
     }, 2)
 
@@ -1410,35 +1410,35 @@ const animateHyperspace = () => {
       duration: 0.5,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const stretchAmount = stretchIntensity.value
-          const tunnelAmount = tunnelVision.value
-          const lightAmount = lightBurst.value
+          () => {
+            const time = tl.time()
+            const stretchAmount = stretchIntensity.value
+            const tunnelAmount = tunnelVision.value
+            const lightAmount = lightBurst.value
 
-          // 减少的拉伸效果
-          const stretchX = props.camera.position.x * (1 + stretchAmount * tunnelAmount)
-          const stretchZ = props.camera.position.z * (1 + stretchAmount * tunnelAmount)
+            // 减少的拉伸效果
+            const stretchX = props.camera.position.x * (1 + stretchAmount * tunnelAmount)
+            const stretchZ = props.camera.position.z * (1 + stretchAmount * tunnelAmount)
 
-          props.camera.position.x = stretchX
-          props.camera.position.z = stretchZ
+            props.camera.position.x = stretchX
+            props.camera.position.z = stretchZ
 
-          // 相机抖动
-          const shakeX = Math.sin(time * 40) * 0.1 * lightAmount
-          const shakeY = Math.cos(time * 35) * 0.1 * lightAmount
+            // 相机抖动
+            const shakeX = Math.sin(time * 40) * 0.1 * lightAmount
+            const shakeY = Math.cos(time * 35) * 0.1 * lightAmount
 
-          cameraRotation.value.x = shakeX
-          cameraRotation.value.y = shakeY
+            cameraRotation.value.x = shakeX
+            cameraRotation.value.y = shakeY
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            0
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                0
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '光线爆发效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '光线爆发效果更新错误'
       )
     }, 2.5)
 
@@ -1468,33 +1468,33 @@ const animateHyperspace = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const stretchAmount = stretchIntensity.value
+          () => {
+            const time = tl.time()
+            const stretchAmount = stretchIntensity.value
 
-          // 微小的拉伸效果
-          const stretchX = props.camera.position.x * (1 + stretchAmount * 0.1)
-          const stretchZ = props.camera.position.z * (1 + stretchAmount * 0.1)
+            // 微小的拉伸效果
+            const stretchX = props.camera.position.x * (1 + stretchAmount * 0.1)
+            const stretchZ = props.camera.position.z * (1 + stretchAmount * 0.1)
 
-          props.camera.position.x = stretchX
-          props.camera.position.z = stretchZ
+            props.camera.position.x = stretchX
+            props.camera.position.z = stretchZ
 
-          // 微小的相机抖动
-          const shakeX = Math.sin(time * 10) * 0.02 * stretchAmount
-          const shakeY = Math.cos(time * 8) * 0.02 * stretchAmount
+            // 微小的相机抖动
+            const shakeX = Math.sin(time * 10) * 0.02 * stretchAmount
+            const shakeY = Math.cos(time * 8) * 0.02 * stretchAmount
 
-          cameraRotation.value.x = shakeX
-          cameraRotation.value.y = shakeY
+            cameraRotation.value.x = shakeX
+            cameraRotation.value.y = shakeY
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            0
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                0
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '穿越完成效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '穿越完成效果更新错误'
       )
     }, 3)
 
@@ -1503,8 +1503,8 @@ const animateHyperspace = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV穿越完成错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV穿越完成错误'
       )
     }, 4)
 
@@ -1522,11 +1522,11 @@ const animateHyperspace = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终定位错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终定位错误'
       )
     }, 4.5)
 
@@ -1539,16 +1539,16 @@ const animateHyperspace = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5)
@@ -1600,9 +1600,9 @@ const animateEpicDive = () => {
 
     // 创建timeline
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '史诗俯冲'),
-      '史诗俯冲'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '史诗俯冲'),
+        '史诗俯冲'
     )
 
     // 动画阶段1: 空中悬浮观察
@@ -1613,10 +1613,10 @@ const animateEpicDive = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.lookAt(props.controls.target)
-        },
-        '相机位置更新错误'
+          () => {
+            props.camera.lookAt(props.controls.target)
+          },
+          '相机位置更新错误'
       )
     })
 
@@ -1634,15 +1634,15 @@ const animateEpicDive = () => {
       duration: 2,
       ease: 'power2.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const spiralX = Math.sin(time * 2) * 30 * spiralIntensity.value
-          const spiralZ = Math.cos(time * 2) * 30 * spiralIntensity.value
-          props.camera.position.x += spiralX * 0.1
-          props.camera.position.z += spiralZ * 0.1
-          props.camera.lookAt(props.controls.target)
-        },
-        '螺旋效果更新错误'
+          () => {
+            const time = tl.time()
+            const spiralX = Math.sin(time * 2) * 30 * spiralIntensity.value
+            const spiralZ = Math.cos(time * 2) * 30 * spiralIntensity.value
+            props.camera.position.x += spiralX * 0.1
+            props.camera.position.z += spiralZ * 0.1
+            props.camera.lookAt(props.controls.target)
+          },
+          '螺旋效果更新错误'
       )
     }, 1)
 
@@ -1652,8 +1652,8 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        '相机FOV更新错误'
+          () => props.camera.updateProjectionMatrix(),
+          '相机FOV更新错误'
       )
     }, 1.5)
 
@@ -1671,15 +1671,15 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const spiralX = Math.sin(time * 3) * 50 * spiralIntensity.value
-          const spiralZ = Math.cos(time * 3) * 50 * spiralIntensity.value
-          props.camera.position.x += spiralX * 0.2
-          props.camera.position.z += spiralZ * 0.2
-          props.camera.lookAt(props.controls.target)
-        },
-        '螺旋效果增强错误'
+          () => {
+            const time = tl.time()
+            const spiralX = Math.sin(time * 3) * 50 * spiralIntensity.value
+            const spiralZ = Math.cos(time * 3) * 50 * spiralIntensity.value
+            props.camera.position.x += spiralX * 0.2
+            props.camera.position.z += spiralZ * 0.2
+            props.camera.lookAt(props.controls.target)
+          },
+          '螺旋效果增强错误'
       )
     }, 2.5)
 
@@ -1689,8 +1689,8 @@ const animateEpicDive = () => {
       duration: 1,
       ease: 'power2.in',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        '相机FOV快速更新错误'
+          () => props.camera.updateProjectionMatrix(),
+          '相机FOV快速更新错误'
       )
     }, 3)
 
@@ -1708,15 +1708,15 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const spiralX = Math.sin(time * 2) * 20 * spiralIntensity.value
-          const spiralZ = Math.cos(time * 2) * 20 * spiralIntensity.value
-          props.camera.position.x += spiralX * 0.15
-          props.camera.position.z += spiralZ * 0.15
-          props.camera.lookAt(props.controls.target)
-        },
-        '螺旋效果减弱错误'
+          () => {
+            const time = tl.time()
+            const spiralX = Math.sin(time * 2) * 20 * spiralIntensity.value
+            const spiralZ = Math.cos(time * 2) * 20 * spiralIntensity.value
+            props.camera.position.x += spiralX * 0.15
+            props.camera.position.z += spiralZ * 0.15
+            props.camera.lookAt(props.controls.target)
+          },
+          '螺旋效果减弱错误'
       )
     }, 3.8)
 
@@ -1726,8 +1726,8 @@ const animateEpicDive = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        '相机FOV持续更新错误'
+          () => props.camera.updateProjectionMatrix(),
+          '相机FOV持续更新错误'
       )
     }, 4)
 
@@ -1745,15 +1745,15 @@ const animateEpicDive = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const spiralX = Math.sin(time * 1.5) * 5 * spiralIntensity.value
-          const spiralZ = Math.cos(time * 1.5) * 5 * spiralIntensity.value
-          props.camera.position.x += spiralX * 0.1
-          props.camera.position.z += spiralZ * 0.1
-          props.camera.lookAt(props.controls.target)
-        },
-        '微弱螺旋效果错误'
+          () => {
+            const time = tl.time()
+            const spiralX = Math.sin(time * 1.5) * 5 * spiralIntensity.value
+            const spiralZ = Math.cos(time * 1.5) * 5 * spiralIntensity.value
+            props.camera.position.x += spiralX * 0.1
+            props.camera.position.z += spiralZ * 0.1
+            props.camera.lookAt(props.controls.target)
+          },
+          '微弱螺旋效果错误'
       )
     }, 5)
 
@@ -1763,8 +1763,8 @@ const animateEpicDive = () => {
       duration: 0.8,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        '相机FOV调整错误'
+          () => props.camera.updateProjectionMatrix(),
+          '相机FOV调整错误'
       )
     }, 6)
 
@@ -1782,8 +1782,8 @@ const animateEpicDive = () => {
       duration: 0.8,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终定位错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终定位错误'
       )
     }, 6.3)
 
@@ -1793,8 +1793,8 @@ const animateEpicDive = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        '相机FOV最终更新错误'
+          () => props.camera.updateProjectionMatrix(),
+          '相机FOV最终更新错误'
       )
     }, 6.5)
 
@@ -1807,16 +1807,16 @@ const animateEpicDive = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 6.8)
@@ -1857,9 +1857,9 @@ const animateSpaceWarp = () => {
     cameraRotation.value = { x: 0, y: 0, z: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '空间扭曲'),
-      '空间扭曲'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '空间扭曲'),
+        '空间扭曲'
     )
 
     // 动画阶段1: 剧烈扭曲，快速拉近
@@ -1870,16 +1870,16 @@ const animateSpaceWarp = () => {
       duration: 2,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const warpAmount = 1 - (props.camera.position.z / 1000)
+          () => {
+            const time = tl.time()
+            const warpAmount = 1 - (props.camera.position.z / 1000)
 
-          cameraRotation.value.z = Math.sin(time * 5) * warpAmount * 0.1
-          props.camera.rotation.z = cameraRotation.value.z
+            cameraRotation.value.z = Math.sin(time * 5) * warpAmount * 0.1
+            props.camera.rotation.z = cameraRotation.value.z
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '空间扭曲更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '空间扭曲更新错误'
       )
     })
 
@@ -1889,8 +1889,8 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV时空压缩错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV时空压缩错误'
       )
     }, 1.5)
 
@@ -1901,15 +1901,15 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const warpAmount = props.camera.position.z / 100
-          cameraRotation.value.z = Math.sin(time * 3) * warpAmount * 0.05
-          props.camera.rotation.z = cameraRotation.value.z
+          () => {
+            const time = tl.time()
+            const warpAmount = props.camera.position.z / 100
+            cameraRotation.value.z = Math.sin(time * 3) * warpAmount * 0.05
+            props.camera.rotation.z = cameraRotation.value.z
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '扭曲效果减弱错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '扭曲效果减弱错误'
       )
     }, 1.5)
 
@@ -1919,8 +1919,8 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV螺旋下降错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV螺旋下降错误'
       )
     }, 2.5)
 
@@ -1931,16 +1931,16 @@ const animateSpaceWarp = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const spiralRadius = props.camera.position.z * 0.5
-          const spiralX = Math.cos(time * 2) * spiralRadius
-          const spiralZ = Math.sin(time * 2) * spiralRadius
-          props.camera.position.x = spiralX
-          props.camera.position.z = spiralZ
-          props.camera.lookAt(props.controls.target)
-        },
-        '螺旋旋转更新错误'
+          () => {
+            const time = tl.time()
+            const spiralRadius = props.camera.position.z * 0.5
+            const spiralX = Math.cos(time * 2) * spiralRadius
+            const spiralZ = Math.sin(time * 2) * spiralRadius
+            props.camera.position.x = spiralX
+            props.camera.position.z = spiralZ
+            props.camera.lookAt(props.controls.target)
+          },
+          '螺旋旋转更新错误'
       )
     }, 2.5)
 
@@ -1950,8 +1950,8 @@ const animateSpaceWarp = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终定位错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终定位错误'
       )
     }, 3.5)
 
@@ -1962,8 +1962,8 @@ const animateSpaceWarp = () => {
       ease: 'power1.out',
       onUpdate: function() {
         safeCameraTransform(
-          () => props.camera.rotation.z = cameraRotation.value.z,
-          '扭曲旋转重置错误'
+            () => props.camera.rotation.z = cameraRotation.value.z,
+            '扭曲旋转重置错误'
         )
       }
     }, 3.5)
@@ -1975,8 +1975,8 @@ const animateSpaceWarp = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置最终定位错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置最终定位错误'
       )
     }, 3.5)
 
@@ -1989,16 +1989,16 @@ const animateSpaceWarp = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 4)
@@ -2023,9 +2023,9 @@ const animateMatrixHack = () => {
     }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '黑客帝国'),
-      '黑客帝国'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '黑客帝国'),
+        '黑客帝国'
     )
 
     // 动画阶段1: 下落效果
@@ -2034,15 +2034,15 @@ const animateMatrixHack = () => {
       duration: 2,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const wobbleX = Math.sin(time * 10) * 0.5
-          const wobbleZ = Math.cos(time * 10) * 0.5
-          props.camera.position.x = wobbleX
-          props.camera.position.z = wobbleZ
-          props.camera.lookAt(props.controls.target)
-        },
-        '下落效果更新错误'
+          () => {
+            const time = tl.time()
+            const wobbleX = Math.sin(time * 10) * 0.5
+            const wobbleZ = Math.cos(time * 10) * 0.5
+            props.camera.position.x = wobbleX
+            props.camera.position.z = wobbleZ
+            props.camera.lookAt(props.controls.target)
+          },
+          '下落效果更新错误'
       )
     })
 
@@ -2054,15 +2054,15 @@ const animateMatrixHack = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const wobbleX = Math.sin(time * 5) * 0.2
-          const wobbleZ = Math.cos(time * 5) * 0.2
-          props.camera.position.x = 5 + wobbleX
-          props.camera.position.z = 5 + wobbleZ
-          props.camera.lookAt(props.controls.target)
-        },
-        '视角调整错误'
+          () => {
+            const time = tl.time()
+            const wobbleX = Math.sin(time * 5) * 0.2
+            const wobbleZ = Math.cos(time * 5) * 0.2
+            props.camera.position.x = 5 + wobbleX
+            props.camera.position.z = 5 + wobbleZ
+            props.camera.lookAt(props.controls.target)
+          },
+          '视角调整错误'
       )
     }, 2)
 
@@ -2071,8 +2071,8 @@ const animateMatrixHack = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV视角调整错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV视角调整错误'
       )
     }, 2)
 
@@ -2084,15 +2084,15 @@ const animateMatrixHack = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const wobbleX = Math.sin(time * 3) * 0.05
-          const wobbleZ = Math.cos(time * 3) * 0.05
-          props.camera.position.x = wobbleX
-          props.camera.position.z = wobbleZ
-          props.camera.lookAt(props.controls.target)
-        },
-        '位置平移更新错误'
+          () => {
+            const time = tl.time()
+            const wobbleX = Math.sin(time * 3) * 0.05
+            const wobbleZ = Math.cos(time * 3) * 0.05
+            props.camera.position.x = wobbleX
+            props.camera.position.z = wobbleZ
+            props.camera.lookAt(props.controls.target)
+          },
+          '位置平移更新错误'
       )
     }, 3)
 
@@ -2101,8 +2101,8 @@ const animateMatrixHack = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终更新错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终更新错误'
       )
     }, 3.5)
 
@@ -2115,16 +2115,16 @@ const animateMatrixHack = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 4)
@@ -2154,18 +2154,18 @@ const animateQuantumShift = () => {
     }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '量子跃迁'),
-      '量子跃迁'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '量子跃迁'),
+        '量子跃迁'
     )
 
     // 动画阶段1: 多次跃迁
     let targetPosition = new THREE.Vector3()
     for (let i = 0; i < 3; i++) {
       targetPosition.set(
-        (Math.random() - 0.5) * 500,
-        (Math.random() - 0.5) * 500,
-        (Math.random() - 0.5) * 500
+          (Math.random() - 0.5) * 500,
+          (Math.random() - 0.5) * 500,
+          (Math.random() - 0.5) * 500
       )
 
       tl.to(props.camera.position, {
@@ -2175,8 +2175,8 @@ const animateQuantumShift = () => {
         duration: 0.3,
         ease: 'power1.inOut',
         onUpdate: () => safeCameraTransform(
-          () => props.camera.lookAt(props.controls.target),
-          '量子跃迁位置更新错误'
+            () => props.camera.lookAt(props.controls.target),
+            '量子跃迁位置更新错误'
         )
       }, i * 0.4)
 
@@ -2202,8 +2202,8 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power1.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终跃迁位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终跃迁位置更新错误'
       )
     }, 1.5)
 
@@ -2212,8 +2212,8 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终跃迁错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终跃迁错误'
       )
     }, 1.5)
 
@@ -2225,17 +2225,17 @@ const animateQuantumShift = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const wobbleX = (Math.random() - 0.5) * 0.1
-          const wobbleY = (Math.random() - 0.5) * 0.1
-          const wobbleZ = (Math.random() - 0.5) * 0.1
-          props.camera.position.x = 2 + wobbleX
-          props.camera.position.y = 3 + wobbleY
-          props.camera.position.z = 2 + wobbleZ
-          props.camera.lookAt(props.controls.target)
-        },
-        '量子抖动更新错误'
+          () => {
+            const time = tl.time()
+            const wobbleX = (Math.random() - 0.5) * 0.1
+            const wobbleY = (Math.random() - 0.5) * 0.1
+            const wobbleZ = (Math.random() - 0.5) * 0.1
+            props.camera.position.x = 2 + wobbleX
+            props.camera.position.y = 3 + wobbleY
+            props.camera.position.z = 2 + wobbleZ
+            props.camera.lookAt(props.controls.target)
+          },
+          '量子抖动更新错误'
       )
     }, 2)
 
@@ -2244,8 +2244,8 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV稳定接近错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV稳定接近错误'
       )
     }, 2.5)
 
@@ -2257,17 +2257,17 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const wobbleX = (Math.random() - 0.5) * 0.02
-          const wobbleY = (Math.random() - 0.5) * 0.02
-          const wobbleZ = (Math.random() - 0.5) * 0.02
-          props.camera.position.x = wobbleX
-          props.camera.position.y = wobbleY
-          props.camera.position.z = wobbleZ
-          props.camera.lookAt(props.controls.target)
-        },
-        '量子抖动减小错误'
+          () => {
+            const time = tl.time()
+            const wobbleX = (Math.random() - 0.5) * 0.02
+            const wobbleY = (Math.random() - 0.5) * 0.02
+            const wobbleZ = (Math.random() - 0.5) * 0.02
+            props.camera.position.x = wobbleX
+            props.camera.position.y = wobbleY
+            props.camera.position.z = wobbleZ
+            props.camera.lookAt(props.controls.target)
+          },
+          '量子抖动减小错误'
       )
     }, 3)
 
@@ -2276,8 +2276,8 @@ const animateQuantumShift = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终定位错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终定位错误'
       )
     }, 3.5)
 
@@ -2290,16 +2290,16 @@ const animateQuantumShift = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 4)
@@ -2332,9 +2332,9 @@ const animateTimeRift = () => {
     const realityStability = { value: 1 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '时空裂缝'),
-      '时空裂缝'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '时空裂缝'),
+        '时空裂缝'
     )
 
     // 动画阶段1: 平稳接近
@@ -2345,8 +2345,8 @@ const animateTimeRift = () => {
       duration: 1.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -2364,33 +2364,33 @@ const animateTimeRift = () => {
       duration: 1.5,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const riftAmount = riftIntensity.value
+          () => {
+            const time = tl.time()
+            const riftAmount = riftIntensity.value
 
-          // 时空扭曲效果 - 随机位移
-          const riftX = Math.sin(time * 15) * 20 * riftAmount
-          const riftY = Math.cos(time * 12) * 15 * riftAmount
-          const riftZ = Math.sin(time * 18) * 20 * riftAmount
+            // 时空扭曲效果 - 随机位移
+            const riftX = Math.sin(time * 15) * 20 * riftAmount
+            const riftY = Math.cos(time * 12) * 15 * riftAmount
+            const riftZ = Math.sin(time * 18) * 20 * riftAmount
 
-          props.camera.position.x += riftX
-          props.camera.position.y += riftY
-          props.camera.position.z += riftZ
+            props.camera.position.x += riftX
+            props.camera.position.y += riftY
+            props.camera.position.z += riftZ
 
-          // 相机随机倾斜
-          cameraRotation.value.x = Math.sin(time * 8) * 0.3 * riftAmount
-          cameraRotation.value.y = Math.cos(time * 6) * 0.3 * riftAmount
-          cameraRotation.value.z = Math.sin(time * 10) * 0.2 * riftAmount
+            // 相机随机倾斜
+            cameraRotation.value.x = Math.sin(time * 8) * 0.3 * riftAmount
+            cameraRotation.value.y = Math.cos(time * 6) * 0.3 * riftAmount
+            cameraRotation.value.z = Math.sin(time * 10) * 0.2 * riftAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '时空裂缝效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '时空裂缝效果更新错误'
       )
     }, 1.2)
 
@@ -2412,8 +2412,8 @@ const animateTimeRift = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV时间碎片化错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV时间碎片化错误'
       )
     }, 2.5)
 
@@ -2437,34 +2437,34 @@ const animateTimeRift = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const riftAmount = riftIntensity.value
-          const stability = realityStability.value
+          () => {
+            const time = tl.time()
+            const riftAmount = riftIntensity.value
+            const stability = realityStability.value
 
-          // 减少的时空扭曲效果
-          const riftX = Math.sin(time * 8) * 5 * riftAmount
-          const riftY = Math.cos(time * 6) * 4 * riftAmount
-          const riftZ = Math.sin(time * 10) * 5 * riftAmount
+            // 减少的时空扭曲效果
+            const riftX = Math.sin(time * 8) * 5 * riftAmount
+            const riftY = Math.cos(time * 6) * 4 * riftAmount
+            const riftZ = Math.sin(time * 10) * 5 * riftAmount
 
-          props.camera.position.x += riftX * stability
-          props.camera.position.y += riftY * stability
-          props.camera.position.z += riftZ * stability
+            props.camera.position.x += riftX * stability
+            props.camera.position.y += riftY * stability
+            props.camera.position.z += riftZ * stability
 
-          // 稳定的相机倾斜
-          cameraRotation.value.x = Math.sin(time * 4) * 0.1 * riftAmount
-          cameraRotation.value.y = Math.cos(time * 3) * 0.1 * riftAmount
-          cameraRotation.value.z = Math.sin(time * 5) * 0.05 * riftAmount
+            // 稳定的相机倾斜
+            cameraRotation.value.x = Math.sin(time * 4) * 0.1 * riftAmount
+            cameraRotation.value.y = Math.cos(time * 3) * 0.1 * riftAmount
+            cameraRotation.value.z = Math.sin(time * 5) * 0.05 * riftAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '现实重组效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '现实重组效果更新错误'
       )
     }, 3.5)
 
@@ -2474,8 +2474,8 @@ const animateTimeRift = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终稳定错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终稳定错误'
       )
     }, 5)
 
@@ -2504,11 +2504,11 @@ const animateTimeRift = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终稳定位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终稳定位置错误'
       )
     }, 5)
 
@@ -2521,16 +2521,16 @@ const animateTimeRift = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5.5)
@@ -2585,9 +2585,9 @@ const animatePlanetExplosion = () => {
     const shockwaveRadius = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '星球爆炸'),
-      '星球爆炸'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '星球爆炸'),
+        '星球爆炸'
     )
 
     // 动画阶段1: 靠近星球
@@ -2598,8 +2598,8 @@ const animatePlanetExplosion = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -2617,33 +2617,33 @@ const animatePlanetExplosion = () => {
       duration: 1,
       ease: 'power4.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const explosionAmount = explosionIntensity.value
+          () => {
+            const time = tl.time()
+            const explosionAmount = explosionIntensity.value
 
-          // 爆炸冲击效果
-          const shockX = Math.sin(time * 20) * 15 * explosionAmount
-          const shockY = Math.cos(time * 20) * 15 * explosionAmount
-          const shockZ = Math.sin(time * 20) * 15 * explosionAmount
+            // 爆炸冲击效果
+            const shockX = Math.sin(time * 20) * 15 * explosionAmount
+            const shockY = Math.cos(time * 20) * 15 * explosionAmount
+            const shockZ = Math.sin(time * 20) * 15 * explosionAmount
 
-          props.camera.position.x += shockX
-          props.camera.position.y += shockY
-          props.camera.position.z += shockZ
+            props.camera.position.x += shockX
+            props.camera.position.y += shockY
+            props.camera.position.z += shockZ
 
-          // 相机剧烈震动
-          cameraRotation.value.x = Math.sin(time * 25) * 0.2 * explosionAmount
-          cameraRotation.value.y = Math.cos(time * 25) * 0.2 * explosionAmount
-          cameraRotation.value.z = Math.sin(time * 25) * 0.15 * explosionAmount
+            // 相机剧烈震动
+            cameraRotation.value.x = Math.sin(time * 25) * 0.2 * explosionAmount
+            cameraRotation.value.y = Math.cos(time * 25) * 0.2 * explosionAmount
+            cameraRotation.value.z = Math.sin(time * 25) * 0.15 * explosionAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '爆炸冲击效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '爆炸冲击效果更新错误'
       )
     }, 0.8)
 
@@ -2659,8 +2659,8 @@ const animatePlanetExplosion = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV碎片场错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV碎片场错误'
       )
     }, 1.5)
 
@@ -2678,42 +2678,42 @@ const animatePlanetExplosion = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const explosionAmount = explosionIntensity.value * 0.7
-          const debrisAmount = debrisField.value
-          const radius = shockwaveRadius.value
+          () => {
+            const time = tl.time()
+            const explosionAmount = explosionIntensity.value * 0.7
+            const debrisAmount = debrisField.value
+            const radius = shockwaveRadius.value
 
-          // 减少的震动效果
-          const shockX = Math.sin(time * 15) * 8 * explosionAmount
-          const shockY = Math.cos(time * 15) * 8 * explosionAmount
-          const shockZ = Math.sin(time * 15) * 8 * explosionAmount
+            // 减少的震动效果
+            const shockX = Math.sin(time * 15) * 8 * explosionAmount
+            const shockY = Math.cos(time * 15) * 8 * explosionAmount
+            const shockZ = Math.sin(time * 15) * 8 * explosionAmount
 
-          props.camera.position.x += shockX
-          props.camera.position.y += shockY
-          props.camera.position.z += shockZ
+            props.camera.position.x += shockX
+            props.camera.position.y += shockY
+            props.camera.position.z += shockZ
 
-          // 碎片场效果
-          const debrisX = Math.sin(time * 5) * 10 * debrisAmount
-          const debrisZ = Math.cos(time * 5) * 10 * debrisAmount
+            // 碎片场效果
+            const debrisX = Math.sin(time * 5) * 10 * debrisAmount
+            const debrisZ = Math.cos(time * 5) * 10 * debrisAmount
 
-          props.camera.position.x += debrisX
-          props.camera.position.z += debrisZ
+            props.camera.position.x += debrisX
+            props.camera.position.z += debrisZ
 
-          // 相机轻微震动
-          cameraRotation.value.x = Math.sin(time * 10) * 0.1 * explosionAmount
-          cameraRotation.value.y = Math.cos(time * 10) * 0.1 * explosionAmount
-          cameraRotation.value.z = Math.sin(time * 10) * 0.08 * explosionAmount
+            // 相机轻微震动
+            cameraRotation.value.x = Math.sin(time * 10) * 0.1 * explosionAmount
+            cameraRotation.value.y = Math.cos(time * 10) * 0.1 * explosionAmount
+            cameraRotation.value.z = Math.sin(time * 10) * 0.08 * explosionAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '冲击波扩散效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '冲击波扩散效果更新错误'
       )
     }, 2)
 
@@ -2737,41 +2737,41 @@ const animatePlanetExplosion = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const explosionAmount = explosionIntensity.value
-          const debrisAmount = debrisField.value
+          () => {
+            const time = tl.time()
+            const explosionAmount = explosionIntensity.value
+            const debrisAmount = debrisField.value
 
-          // 微小震动
-          const shockX = Math.sin(time * 8) * 2 * explosionAmount
-          const shockY = Math.cos(time * 8) * 2 * explosionAmount
-          const shockZ = Math.sin(time * 8) * 2 * explosionAmount
+            // 微小震动
+            const shockX = Math.sin(time * 8) * 2 * explosionAmount
+            const shockY = Math.cos(time * 8) * 2 * explosionAmount
+            const shockZ = Math.sin(time * 8) * 2 * explosionAmount
 
-          props.camera.position.x += shockX
-          props.camera.position.y += shockY
-          props.camera.position.z += shockZ
+            props.camera.position.x += shockX
+            props.camera.position.y += shockY
+            props.camera.position.z += shockZ
 
-          // 碎片场效果
-          const debrisX = Math.sin(time * 3) * 5 * debrisAmount
-          const debrisZ = Math.cos(time * 3) * 5 * debrisAmount
+            // 碎片场效果
+            const debrisX = Math.sin(time * 3) * 5 * debrisAmount
+            const debrisZ = Math.cos(time * 3) * 5 * debrisAmount
 
-          props.camera.position.x += debrisX
-          props.camera.position.z += debrisZ
+            props.camera.position.x += debrisX
+            props.camera.position.z += debrisZ
 
-          // 相机轻微震动
-          cameraRotation.value.x = Math.sin(time * 5) * 0.05 * explosionAmount
-          cameraRotation.value.y = Math.cos(time * 5) * 0.05 * explosionAmount
-          cameraRotation.value.z = Math.sin(time * 5) * 0.03 * explosionAmount
+            // 相机轻微震动
+            cameraRotation.value.x = Math.sin(time * 5) * 0.05 * explosionAmount
+            cameraRotation.value.y = Math.cos(time * 5) * 0.05 * explosionAmount
+            cameraRotation.value.z = Math.sin(time * 5) * 0.03 * explosionAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '能量消散效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '能量消散效果更新错误'
       )
     }, 3.5)
 
@@ -2780,8 +2780,8 @@ const animatePlanetExplosion = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV能量消散错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV能量消散错误'
       )
     }, 4.5)
 
@@ -2805,11 +2805,11 @@ const animatePlanetExplosion = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终稳定位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终稳定位置错误'
       )
     }, 5)
 
@@ -2822,16 +2822,16 @@ const animatePlanetExplosion = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5.5)
@@ -2892,9 +2892,9 @@ const animateQuantumEntanglement = () => {
     ]
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '量子纠缠'),
-      '量子纠缠'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '量子纠缠'),
+        '量子纠缠'
     )
 
     // 动画阶段1: 平稳接近
@@ -2905,8 +2905,8 @@ const animateQuantumEntanglement = () => {
       duration: 1.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -2926,33 +2926,33 @@ const animateQuantumEntanglement = () => {
         duration: 0.3,
         ease: 'power1.inOut',
         onUpdate: () => safeCameraTransform(
-          () => {
-            const time = tl.time()
-            const entangleAmount = entanglementStrength.value
+            () => {
+              const time = tl.time()
+              const entangleAmount = entanglementStrength.value
 
-            // 量子抖动效果
-            const quantumX = Math.sin(time * 30) * 5 * entangleAmount
-            const quantumY = Math.cos(time * 25) * 5 * entangleAmount
-            const quantumZ = Math.sin(time * 35) * 5 * entangleAmount
+              // 量子抖动效果
+              const quantumX = Math.sin(time * 30) * 5 * entangleAmount
+              const quantumY = Math.cos(time * 25) * 5 * entangleAmount
+              const quantumZ = Math.sin(time * 35) * 5 * entangleAmount
 
-            props.camera.position.x += quantumX
-            props.camera.position.y += quantumY
-            props.camera.position.z += quantumZ
+              props.camera.position.x += quantumX
+              props.camera.position.y += quantumY
+              props.camera.position.z += quantumZ
 
-            // 相机量子旋转
-            cameraRotation.value.x = Math.sin(time * 10) * 0.1 * entangleAmount
-            cameraRotation.value.y = Math.cos(time * 8) * 0.1 * entangleAmount
-            cameraRotation.value.z = Math.sin(time * 12) * 0.1 * entangleAmount
+              // 相机量子旋转
+              cameraRotation.value.x = Math.sin(time * 10) * 0.1 * entangleAmount
+              cameraRotation.value.y = Math.cos(time * 8) * 0.1 * entangleAmount
+              cameraRotation.value.z = Math.sin(time * 12) * 0.1 * entangleAmount
 
-            props.camera.rotation.set(
-              cameraRotation.value.x,
-              cameraRotation.value.y,
-              cameraRotation.value.z
-            )
+              props.camera.rotation.set(
+                  cameraRotation.value.x,
+                  cameraRotation.value.y,
+                  cameraRotation.value.z
+              )
 
-            props.camera.lookAt(props.controls.target)
-          },
-          '量子纠缠效果更新错误'
+              props.camera.lookAt(props.controls.target)
+            },
+            '量子纠缠效果更新错误'
         )
       }, 1.2 + i * 0.4)
     }
@@ -2969,8 +2969,8 @@ const animateQuantumEntanglement = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV现实融合错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV现实融合错误'
       )
     }, 3)
 
@@ -2981,34 +2981,34 @@ const animateQuantumEntanglement = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const entangleAmount = entanglementStrength.value
-          const mergeAmount = realityMerge.value
+          () => {
+            const time = tl.time()
+            const entangleAmount = entanglementStrength.value
+            const mergeAmount = realityMerge.value
 
-          // 减少的量子抖动效果
-          const quantumX = Math.sin(time * 20) * 3 * entangleAmount * (1 - mergeAmount)
-          const quantumY = Math.cos(time * 15) * 3 * entangleAmount * (1 - mergeAmount)
-          const quantumZ = Math.sin(time * 25) * 3 * entangleAmount * (1 - mergeAmount)
+            // 减少的量子抖动效果
+            const quantumX = Math.sin(time * 20) * 3 * entangleAmount * (1 - mergeAmount)
+            const quantumY = Math.cos(time * 15) * 3 * entangleAmount * (1 - mergeAmount)
+            const quantumZ = Math.sin(time * 25) * 3 * entangleAmount * (1 - mergeAmount)
 
-          props.camera.position.x += quantumX
-          props.camera.position.y += quantumY
-          props.camera.position.z += quantumZ
+            props.camera.position.x += quantumX
+            props.camera.position.y += quantumY
+            props.camera.position.z += quantumZ
 
-          // 相机量子旋转
-          cameraRotation.value.x = Math.sin(time * 5) * 0.05 * entangleAmount * (1 - mergeAmount)
-          cameraRotation.value.y = Math.cos(time * 4) * 0.05 * entangleAmount * (1 - mergeAmount)
-          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * entangleAmount * (1 - mergeAmount)
+            // 相机量子旋转
+            cameraRotation.value.x = Math.sin(time * 5) * 0.05 * entangleAmount * (1 - mergeAmount)
+            cameraRotation.value.y = Math.cos(time * 4) * 0.05 * entangleAmount * (1 - mergeAmount)
+            cameraRotation.value.z = Math.sin(time * 6) * 0.05 * entangleAmount * (1 - mergeAmount)
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '现实融合效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '现实融合效果更新错误'
       )
     }, 3)
 
@@ -3024,8 +3024,8 @@ const animateQuantumEntanglement = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终稳定错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终稳定错误'
       )
     }, 5)
 
@@ -3036,11 +3036,11 @@ const animateQuantumEntanglement = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终稳定位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终稳定位置错误'
       )
     }, 5)
 
@@ -3053,16 +3053,16 @@ const animateQuantumEntanglement = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5.5)
@@ -3107,9 +3107,9 @@ const animateVirtualReality = () => {
     const realityLevel = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '虚拟现实'),
-      '虚拟现实'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '虚拟现实'),
+        '虚拟现实'
     )
 
     // 动画阶段1: 像素化开始
@@ -3120,8 +3120,8 @@ const animateVirtualReality = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -3145,44 +3145,44 @@ const animateVirtualReality = () => {
       duration: 1.5,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const pixelAmount = pixelation.value / 10
-          const noiseAmount = digitalNoise.value
+          () => {
+            const time = tl.time()
+            const pixelAmount = pixelation.value / 10
+            const noiseAmount = digitalNoise.value
 
-          // 像素化效果 - 块状移动
-          const pixelSize = Math.floor(pixelAmount)
-          const pixelX = Math.floor(props.camera.position.x / pixelSize) * pixelSize
-          const pixelY = Math.floor(props.camera.position.y / pixelSize) * pixelSize
-          const pixelZ = Math.floor(props.camera.position.z / pixelSize) * pixelSize
+            // 像素化效果 - 块状移动
+            const pixelSize = Math.floor(pixelAmount)
+            const pixelX = Math.floor(props.camera.position.x / pixelSize) * pixelSize
+            const pixelY = Math.floor(props.camera.position.y / pixelSize) * pixelSize
+            const pixelZ = Math.floor(props.camera.position.z / pixelSize) * pixelSize
 
-          props.camera.position.x = pixelX + (pixelSize / 2)
-          props.camera.position.y = pixelY + (pixelSize / 2)
-          props.camera.position.z = pixelZ + (pixelSize / 2)
+            props.camera.position.x = pixelX + (pixelSize / 2)
+            props.camera.position.y = pixelY + (pixelSize / 2)
+            props.camera.position.z = pixelZ + (pixelSize / 2)
 
-          // 数字噪音效果
-          const noiseX = (Math.random() - 0.5) * 10 * noiseAmount
-          const noiseY = (Math.random() - 0.5) * 10 * noiseAmount
-          const noiseZ = (Math.random() - 0.5) * 10 * noiseAmount
+            // 数字噪音效果
+            const noiseX = (Math.random() - 0.5) * 10 * noiseAmount
+            const noiseY = (Math.random() - 0.5) * 10 * noiseAmount
+            const noiseZ = (Math.random() - 0.5) * 10 * noiseAmount
 
-          props.camera.position.x += noiseX
-          props.camera.position.y += noiseY
-          props.camera.position.z += noiseZ
+            props.camera.position.x += noiseX
+            props.camera.position.y += noiseY
+            props.camera.position.z += noiseZ
 
-          // 相机数字抖动
-          cameraRotation.value.x = (Math.random() - 0.5) * 0.1 * noiseAmount
-          cameraRotation.value.y = (Math.random() - 0.5) * 0.1 * noiseAmount
-          cameraRotation.value.z = (Math.random() - 0.5) * 0.05 * noiseAmount
+            // 相机数字抖动
+            cameraRotation.value.x = (Math.random() - 0.5) * 0.1 * noiseAmount
+            cameraRotation.value.y = (Math.random() - 0.5) * 0.1 * noiseAmount
+            cameraRotation.value.z = (Math.random() - 0.5) * 0.05 * noiseAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '像素化效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '像素化效果更新错误'
       )
     }, 1.5)
 
@@ -3212,45 +3212,45 @@ const animateVirtualReality = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const pixelAmount = pixelation.value / 10
-          const noiseAmount = digitalNoise.value
-          const reality = realityLevel.value
+          () => {
+            const time = tl.time()
+            const pixelAmount = pixelation.value / 10
+            const noiseAmount = digitalNoise.value
+            const reality = realityLevel.value
 
-          // 减少的像素化效果
-          const pixelSize = Math.max(1, Math.floor(pixelAmount * reality))
-          const pixelX = Math.floor(props.camera.position.x / pixelSize) * pixelSize
-          const pixelY = Math.floor(props.camera.position.y / pixelSize) * pixelSize
-          const pixelZ = Math.floor(props.camera.position.z / pixelSize) * pixelSize
+            // 减少的像素化效果
+            const pixelSize = Math.max(1, Math.floor(pixelAmount * reality))
+            const pixelX = Math.floor(props.camera.position.x / pixelSize) * pixelSize
+            const pixelY = Math.floor(props.camera.position.y / pixelSize) * pixelSize
+            const pixelZ = Math.floor(props.camera.position.z / pixelSize) * pixelSize
 
-          props.camera.position.x = pixelX + (pixelSize / 2)
-          props.camera.position.y = pixelY + (pixelSize / 2)
-          props.camera.position.z = pixelZ + (pixelSize / 2)
+            props.camera.position.x = pixelX + (pixelSize / 2)
+            props.camera.position.y = pixelY + (pixelSize / 2)
+            props.camera.position.z = pixelZ + (pixelSize / 2)
 
-          // 减少的数字噪音效果
-          const noiseX = (Math.random() - 0.5) * 5 * noiseAmount
-          const noiseY = (Math.random() - 0.5) * 5 * noiseAmount
-          const noiseZ = (Math.random() - 0.5) * 5 * noiseAmount
+            // 减少的数字噪音效果
+            const noiseX = (Math.random() - 0.5) * 5 * noiseAmount
+            const noiseY = (Math.random() - 0.5) * 5 * noiseAmount
+            const noiseZ = (Math.random() - 0.5) * 5 * noiseAmount
 
-          props.camera.position.x += noiseX
-          props.camera.position.y += noiseY
-          props.camera.position.z += noiseZ
+            props.camera.position.x += noiseX
+            props.camera.position.y += noiseY
+            props.camera.position.z += noiseZ
 
-          // 减少的相机数字抖动
-          cameraRotation.value.x = (Math.random() - 0.5) * 0.05 * noiseAmount
-          cameraRotation.value.y = (Math.random() - 0.5) * 0.05 * noiseAmount
-          cameraRotation.value.z = (Math.random() - 0.5) * 0.02 * noiseAmount
+            // 减少的相机数字抖动
+            cameraRotation.value.x = (Math.random() - 0.5) * 0.05 * noiseAmount
+            cameraRotation.value.y = (Math.random() - 0.5) * 0.05 * noiseAmount
+            cameraRotation.value.z = (Math.random() - 0.5) * 0.02 * noiseAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '现实化效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '现实化效果更新错误'
       )
     }, 2.5)
 
@@ -3260,8 +3260,8 @@ const animateVirtualReality = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV完全现实化错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV完全现实化错误'
       )
     }, 4.5)
 
@@ -3284,11 +3284,11 @@ const animateVirtualReality = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '完全现实化位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '完全现实化位置错误'
       )
     }, 4.5)
 
@@ -3301,16 +3301,16 @@ const animateVirtualReality = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5)
@@ -3378,9 +3378,9 @@ const animateSceneRoaming = () => {
     const viewTransition = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '场景漫游'),
-      '场景漫游'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '场景漫游'),
+        '场景漫游'
     )
 
     // 动画阶段1: 开始漫游
@@ -3404,8 +3404,8 @@ const animateSceneRoaming = () => {
 
           // 平滑看向目标点
           const lookAtPoint = currentSegment < totalPoints - 1
-            ? roamingPath[currentSegment + 2]
-            : props.controls.target
+              ? roamingPath[currentSegment + 2]
+              : props.controls.target
 
           props.camera.lookAt(lookAtPoint)
 
@@ -3421,8 +3421,8 @@ const animateSceneRoaming = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV场景切换错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV场景切换错误'
       )
     }, 2)
 
@@ -3431,8 +3431,8 @@ const animateSceneRoaming = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV场景切换错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV场景切换错误'
       )
     }, 4)
 
@@ -3442,8 +3442,8 @@ const animateSceneRoaming = () => {
       duration: 1,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终接近错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终接近错误'
       )
     }, 5.5)
 
@@ -3454,8 +3454,8 @@ const animateSceneRoaming = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终接近位置错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终接近位置错误'
       )
     }, 6)
 
@@ -3468,16 +3468,16 @@ const animateSceneRoaming = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 6.5)
@@ -3534,9 +3534,9 @@ const animateOrbitalRotation = () => {
     const gravityWell = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '轨道环绕'),
-      '轨道环绕'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '轨道环绕'),
+        '轨道环绕'
     )
 
     // 动画阶段1: 开始环绕
@@ -3654,8 +3654,8 @@ const animateOrbitalRotation = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终定位错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终定位错误'
       )
     }, 5.5)
 
@@ -3666,8 +3666,8 @@ const animateOrbitalRotation = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终定位位置错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终定位位置错误'
       )
     }, 6)
 
@@ -3680,16 +3680,16 @@ const animateOrbitalRotation = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 6.5)
@@ -3753,9 +3753,9 @@ const animateDimensionalPortal = () => {
     ]
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '维度传送门'),
-      '维度传送门'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '维度传送门'),
+        '维度传送门'
     )
 
     // 动画阶段1: 接近第一个传送门
@@ -3766,8 +3766,8 @@ const animateDimensionalPortal = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(portals[0].position),
-        '相机位置更新错误'
+          () => props.camera.lookAt(portals[0].position),
+          '相机位置更新错误'
       )
     })
 
@@ -3799,9 +3799,9 @@ const animateDimensionalPortal = () => {
 
         // 更新相机位置
         props.camera.position.set(
-          entranceX + rotationX,
-          entranceY,
-          entranceZ + rotationZ
+            entranceX + rotationX,
+            entranceY,
+            entranceZ + rotationZ
         )
 
         // 相机旋转
@@ -3854,9 +3854,9 @@ const animateDimensionalPortal = () => {
 
         // 更新相机位置
         props.camera.position.set(
-          exitX + rotationX,
-          exitY,
-          exitZ + rotationZ
+            exitX + rotationX,
+            exitY,
+            exitZ + rotationZ
         )
 
         // 相机旋转
@@ -3881,8 +3881,8 @@ const animateDimensionalPortal = () => {
         duration: 0.5,
         ease: 'power2.inOut',
         onUpdate: () => safeCameraTransform(
-          () => props.camera.lookAt(currentPortal.position),
-          '相机位置更新错误'
+            () => props.camera.lookAt(currentPortal.position),
+            '相机位置更新错误'
         )
       }, 3 + i * 1.5)
 
@@ -3943,8 +3943,8 @@ const animateDimensionalPortal = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终接近错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终接近错误'
       )
     }, 7)
 
@@ -3953,8 +3953,8 @@ const animateDimensionalPortal = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终接近错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终接近错误'
       )
     }, 7.5)
 
@@ -3965,8 +3965,8 @@ const animateDimensionalPortal = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '最终接近位置错误'
+          () => props.camera.lookAt(props.controls.target),
+          '最终接近位置错误'
       )
     }, 8)
 
@@ -3979,16 +3979,16 @@ const animateDimensionalPortal = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 8.5)
@@ -4028,9 +4028,9 @@ const animateTimeTravel = () => {
     ]
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '时空穿梭'),
-      '时空穿梭'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '时空穿梭'),
+        '时空穿梭'
     )
 
     // 动画阶段1: 开始时间旅行
@@ -4075,8 +4075,8 @@ const animateTimeTravel = () => {
       duration: 0.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV时空扭曲错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV时空扭曲错误'
       )
     }, 0.8)
 
@@ -4115,9 +4115,9 @@ const animateTimeTravel = () => {
           cameraRotation.value.z = Math.cos(time * 7) * 0.1 * distortion * pastFutureShift.value
 
           props.camera.rotation.set(
-            cameraRotation.value.x,
-            0,
-            cameraRotation.value.z
+              cameraRotation.value.x,
+              0,
+              cameraRotation.value.z
           )
 
           // 看向中心点
@@ -4141,8 +4141,8 @@ const animateTimeTravel = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV时间稳定错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV时间稳定错误'
       )
     }, 3)
 
@@ -4180,9 +4180,9 @@ const animateTimeTravel = () => {
           cameraRotation.value.z = Math.cos(time * 4) * 0.02 * distortion * pastFutureShift.value
 
           props.camera.rotation.set(
-            cameraRotation.value.x,
-            0,
-            cameraRotation.value.z
+              cameraRotation.value.x,
+              0,
+              cameraRotation.value.z
           )
 
           // 看向中心点
@@ -4201,11 +4201,11 @@ const animateTimeTravel = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终接近位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终接近位置错误'
       )
     }, 5)
 
@@ -4218,16 +4218,16 @@ const animateTimeTravel = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5.5)
@@ -4277,9 +4277,9 @@ const animateBlackHole = () => {
     const spaghettification = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '黑洞吞噬'),
-      '黑洞吞噬'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '黑洞吞噬'),
+        '黑洞吞噬'
     )
 
     // 动画阶段1: 接近黑洞
@@ -4290,8 +4290,8 @@ const animateBlackHole = () => {
       duration: 1.5,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -4315,46 +4315,46 @@ const animateBlackHole = () => {
       duration: 2,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const pullAmount = gravityPull.value
-          const rotation = accretionDiskRotation.value
+          () => {
+            const time = tl.time()
+            const pullAmount = gravityPull.value
+            const rotation = accretionDiskRotation.value
 
-          // 引力拖拽效果
-          const pullDistance = props.camera.position.length()
-          const targetDistance = 200 * pullAmount
-          const currentDistance = pullDistance * (1 - pullAmount * 0.8)
+            // 引力拖拽效果
+            const pullDistance = props.camera.position.length()
+            const targetDistance = 200 * pullAmount
+            const currentDistance = pullDistance * (1 - pullAmount * 0.8)
 
-          // 计算引力方向
-          const gravityDirection = new THREE.Vector3(0, 0, 0).sub(props.camera.position).normalize()
+            // 计算引力方向
+            const gravityDirection = new THREE.Vector3(0, 0, 0).sub(props.camera.position).normalize()
 
-          // 应用引力
-          const gravityEffect = gravityDirection.multiplyScalar((pullDistance - currentDistance) * 0.1)
-          props.camera.position.add(gravityEffect)
+            // 应用引力
+            const gravityEffect = gravityDirection.multiplyScalar((pullDistance - currentDistance) * 0.1)
+            props.camera.position.add(gravityEffect)
 
-          // 吸积盘旋转效果
-          const rotationRadius = currentDistance * 0.5
-          const rotationAngle = rotation + time
-          const orbitX = Math.cos(rotationAngle) * rotationRadius * pullAmount
-          const orbitZ = Math.sin(rotationAngle) * rotationRadius * pullAmount
+            // 吸积盘旋转效果
+            const rotationRadius = currentDistance * 0.5
+            const rotationAngle = rotation + time
+            const orbitX = Math.cos(rotationAngle) * rotationRadius * pullAmount
+            const orbitZ = Math.sin(rotationAngle) * rotationRadius * pullAmount
 
-          props.camera.position.x += orbitX
-          props.camera.position.z += orbitZ
+            props.camera.position.x += orbitX
+            props.camera.position.z += orbitZ
 
-          // 相机倾斜
-          cameraRotation.value.x = Math.sin(time * 3) * 0.3 * pullAmount
-          cameraRotation.value.y = Math.cos(time * 2) * 0.3 * pullAmount
-          cameraRotation.value.z = Math.sin(time * 4) * 0.2 * pullAmount
+            // 相机倾斜
+            cameraRotation.value.x = Math.sin(time * 3) * 0.3 * pullAmount
+            cameraRotation.value.y = Math.cos(time * 2) * 0.3 * pullAmount
+            cameraRotation.value.z = Math.sin(time * 4) * 0.2 * pullAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '引力效果更新错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '引力效果更新错误'
       )
     }, 1.2)
 
@@ -4370,8 +4370,8 @@ const animateBlackHole = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV事件视界错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV事件视界错误'
       )
     }, 3)
 
@@ -4382,42 +4382,42 @@ const animateBlackHole = () => {
       duration: 1.5,
       ease: 'power4.in',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const pullAmount = gravityPull.value
-          const horizonRadius = eventHorizonRadius.value
+          () => {
+            const time = tl.time()
+            const pullAmount = gravityPull.value
+            const horizonRadius = eventHorizonRadius.value
 
-          // 事件视界扭曲效果
-          const distanceFromHorizon = Math.max(0.1, props.camera.position.length() - horizonRadius)
-          const distortionFactor = 1 - (distanceFromHorizon / 1000)
+            // 事件视界扭曲效果
+            const distanceFromHorizon = Math.max(0.1, props.camera.position.length() - horizonRadius)
+            const distortionFactor = 1 - (distanceFromHorizon / 1000)
 
-          // 引力透镜效果
-          const gravitationalLensing = Math.sin(time * 10) * 20 * distortionFactor
-          props.camera.position.x += gravitationalLensing
-          props.camera.position.z += gravitationalLensing
+            // 引力透镜效果
+            const gravitationalLensing = Math.sin(time * 10) * 20 * distortionFactor
+            props.camera.position.x += gravitationalLensing
+            props.camera.position.z += gravitationalLensing
 
-          // 意大利面条化效果
-          spaghettification.value = distortionFactor
-          const stretchX = 1 + distortionFactor * 0.5
-          const stretchZ = 1 - distortionFactor * 0.3
+            // 意大利面条化效果
+            spaghettification.value = distortionFactor
+            const stretchX = 1 + distortionFactor * 0.5
+            const stretchZ = 1 - distortionFactor * 0.3
 
-          props.camera.position.x *= stretchX
-          props.camera.position.z *= stretchZ
+            props.camera.position.x *= stretchX
+            props.camera.position.z *= stretchZ
 
-          // 相机剧烈旋转
-          cameraRotation.value.x = Math.sin(time * 15) * 0.5 * distortionFactor
-          cameraRotation.value.y = Math.cos(time * 10) * 0.5 * distortionFactor
-          cameraRotation.value.z = Math.sin(time * 20) * 0.3 * distortionFactor
+            // 相机剧烈旋转
+            cameraRotation.value.x = Math.sin(time * 15) * 0.5 * distortionFactor
+            cameraRotation.value.y = Math.cos(time * 10) * 0.5 * distortionFactor
+            cameraRotation.value.z = Math.sin(time * 20) * 0.3 * distortionFactor
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '事件视界扭曲错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '事件视界扭曲错误'
       )
     }, 3)
 
@@ -4453,31 +4453,31 @@ const animateBlackHole = () => {
       duration: 1,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const pullAmount = gravityPull.value
+          () => {
+            const time = tl.time()
+            const pullAmount = gravityPull.value
 
-          // 减少的引力效果
-          const distance = props.camera.position.length()
-          const direction = new THREE.Vector3(0, 0, 0).sub(props.camera.position).normalize()
-          const gravityEffect = direction.multiplyScalar(distance * 0.05 * pullAmount)
+            // 减少的引力效果
+            const distance = props.camera.position.length()
+            const direction = new THREE.Vector3(0, 0, 0).sub(props.camera.position).normalize()
+            const gravityEffect = direction.multiplyScalar(distance * 0.05 * pullAmount)
 
-          props.camera.position.add(gravityEffect)
+            props.camera.position.add(gravityEffect)
 
-          // 减少的相机旋转
-          cameraRotation.value.x = Math.sin(time * 5) * 0.1 * pullAmount
-          cameraRotation.value.y = Math.cos(time * 4) * 0.1 * pullAmount
-          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * pullAmount
+            // 减少的相机旋转
+            cameraRotation.value.x = Math.sin(time * 5) * 0.1 * pullAmount
+            cameraRotation.value.y = Math.cos(time * 4) * 0.1 * pullAmount
+            cameraRotation.value.z = Math.sin(time * 6) * 0.05 * pullAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '穿越事件视界错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '穿越事件视界错误'
       )
     }, 5)
 
@@ -4487,8 +4487,8 @@ const animateBlackHole = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终稳定错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终稳定错误'
       )
     }, 6)
 
@@ -4505,11 +4505,11 @@ const animateBlackHole = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终稳定位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终稳定位置错误'
       )
     }, 6)
 
@@ -4522,16 +4522,16 @@ const animateBlackHole = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 6.5)
@@ -4584,9 +4584,9 @@ const animateCosmicBigBang = () => {
     const structure = { value: 0 }
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '宇宙大爆炸'),
-      '宇宙大爆炸'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '宇宙大爆炸'),
+        '宇宙大爆炸'
     )
 
     // 动画阶段1: 奇点状态
@@ -4608,8 +4608,8 @@ const animateCosmicBigBang = () => {
       duration: 0.5,
       ease: 'power4.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV暴胀期错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV暴胀期错误'
       )
     }, 0.5)
 
@@ -4620,33 +4620,33 @@ const animateCosmicBigBang = () => {
       duration: 0.5,
       ease: 'power4.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const inflationAmount = inflation.value
-          const time = tl.time()
+          () => {
+            const inflationAmount = inflation.value
+            const time = tl.time()
 
-          // 暴胀期的随机波动
-          const randomX = (Math.random() - 0.5) * 0.01 * inflationAmount
-          const randomY = (Math.random() - 0.5) * 0.01 * inflationAmount
-          const randomZ = (Math.random() - 0.5) * 0.01 * inflationAmount
+            // 暴胀期的随机波动
+            const randomX = (Math.random() - 0.5) * 0.01 * inflationAmount
+            const randomY = (Math.random() - 0.5) * 0.01 * inflationAmount
+            const randomZ = (Math.random() - 0.5) * 0.01 * inflationAmount
 
-          props.camera.position.x = 0.01 + randomX
-          props.camera.position.y = 0.01 + randomY
-          props.camera.position.z = 0.01 + randomZ
+            props.camera.position.x = 0.01 + randomX
+            props.camera.position.y = 0.01 + randomY
+            props.camera.position.z = 0.01 + randomZ
 
-          // 相机剧烈震动
-          cameraRotation.value.x = (Math.random() - 0.5) * 0.5 * inflationAmount
-          cameraRotation.value.y = (Math.random() - 0.5) * 0.5 * inflationAmount
-          cameraRotation.value.z = (Math.random() - 0.5) * 0.5 * inflationAmount
+            // 相机剧烈震动
+            cameraRotation.value.x = (Math.random() - 0.5) * 0.5 * inflationAmount
+            cameraRotation.value.y = (Math.random() - 0.5) * 0.5 * inflationAmount
+            cameraRotation.value.z = (Math.random() - 0.5) * 0.5 * inflationAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '暴胀期相机震动错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '暴胀期相机震动错误'
       )
     }, 0.5)
 
@@ -4670,34 +4670,34 @@ const animateCosmicBigBang = () => {
       duration: 2,
       ease: 'power4.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const expansionAmount = expansion.value
-          const coolingAmount = cooling.value
-          const time = tl.time()
+          () => {
+            const expansionAmount = expansion.value
+            const coolingAmount = cooling.value
+            const time = tl.time()
 
-          // 膨胀效果的随机波动
-          const fluctuationX = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
-          const fluctuationY = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
-          const fluctuationZ = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
+            // 膨胀效果的随机波动
+            const fluctuationX = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
+            const fluctuationY = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
+            const fluctuationZ = (Math.random() - 0.5) * 100 * expansionAmount * (1 - coolingAmount * 0.8)
 
-          props.camera.position.x = 1000 * expansionAmount + fluctuationX
-          props.camera.position.y = 1000 * expansionAmount + fluctuationY
-          props.camera.position.z = 1000 * expansionAmount + fluctuationZ
+            props.camera.position.x = 1000 * expansionAmount + fluctuationX
+            props.camera.position.y = 1000 * expansionAmount + fluctuationY
+            props.camera.position.z = 1000 * expansionAmount + fluctuationZ
 
-          // 相机震动随冷却减小
-          cameraRotation.value.x = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
-          cameraRotation.value.y = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
-          cameraRotation.value.z = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
+            // 相机震动随冷却减小
+            cameraRotation.value.x = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
+            cameraRotation.value.y = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
+            cameraRotation.value.z = (Math.random() - 0.5) * 0.3 * expansionAmount * (1 - coolingAmount * 0.9)
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '快速膨胀错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '快速膨胀错误'
       )
     }, 1)
 
@@ -4719,8 +4719,8 @@ const animateCosmicBigBang = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV结构形成错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV结构形成错误'
       )
     }, 3)
 
@@ -4731,34 +4731,34 @@ const animateCosmicBigBang = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const formationAmount = formation.value
-          const structureAmount = structure.value
-          const time = tl.time()
+          () => {
+            const formationAmount = formation.value
+            const structureAmount = structure.value
+            const time = tl.time()
 
-          // 结构形成的聚集效果
-          const clusterX = Math.sin(time * 2) * 50 * structureAmount
-          const clusterY = Math.cos(time * 3) * 30 * structureAmount
-          const clusterZ = Math.sin(time * 4) * 40 * structureAmount
+            // 结构形成的聚集效果
+            const clusterX = Math.sin(time * 2) * 50 * structureAmount
+            const clusterY = Math.cos(time * 3) * 30 * structureAmount
+            const clusterZ = Math.sin(time * 4) * 40 * structureAmount
 
-          props.camera.position.x = 500 - 200 * formationAmount + clusterX
-          props.camera.position.y = 300 - 100 * formationAmount + clusterY
-          props.camera.position.z = 500 - 200 * formationAmount + clusterZ
+            props.camera.position.x = 500 - 200 * formationAmount + clusterX
+            props.camera.position.y = 300 - 100 * formationAmount + clusterY
+            props.camera.position.z = 500 - 200 * formationAmount + clusterZ
 
-          // 相机轻微旋转
-          cameraRotation.value.x = Math.sin(time * 1.5) * 0.1 * formationAmount
-          cameraRotation.value.y = Math.cos(time * 2) * 0.1 * formationAmount
-          cameraRotation.value.z = Math.sin(time * 1) * 0.05 * formationAmount
+            // 相机轻微旋转
+            cameraRotation.value.x = Math.sin(time * 1.5) * 0.1 * formationAmount
+            cameraRotation.value.y = Math.cos(time * 2) * 0.1 * formationAmount
+            cameraRotation.value.z = Math.sin(time * 1) * 0.05 * formationAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '结构形成错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '结构形成错误'
       )
     }, 3)
 
@@ -4768,8 +4768,8 @@ const animateCosmicBigBang = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV宇宙稳定错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV宇宙稳定错误'
       )
     }, 4.5)
 
@@ -4780,11 +4780,11 @@ const animateCosmicBigBang = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '宇宙稳定位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '宇宙稳定位置错误'
       )
     }, 4.5)
 
@@ -4797,16 +4797,16 @@ const animateCosmicBigBang = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5)
@@ -4869,9 +4869,9 @@ const animateDimensionCollapse = () => {
     ]
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '维度崩溃'),
-      '维度崩溃'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '维度崩溃'),
+        '维度崩溃'
     )
 
     // 动画阶段1: 平稳接近
@@ -4882,8 +4882,8 @@ const animateDimensionCollapse = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -4901,33 +4901,33 @@ const animateDimensionCollapse = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const stabilityAmount = stability.value
+          () => {
+            const time = tl.time()
+            const stabilityAmount = stability.value
 
-          // 维度不稳定效果
-          const instabilityX = Math.sin(time * 10) * 20 * (1 - stabilityAmount)
-          const instabilityY = Math.cos(time * 8) * 15 * (1 - stabilityAmount)
-          const instabilityZ = Math.sin(time * 12) * 20 * (1 - stabilityAmount)
+            // 维度不稳定效果
+            const instabilityX = Math.sin(time * 10) * 20 * (1 - stabilityAmount)
+            const instabilityY = Math.cos(time * 8) * 15 * (1 - stabilityAmount)
+            const instabilityZ = Math.sin(time * 12) * 20 * (1 - stabilityAmount)
 
-          props.camera.position.x += instabilityX
-          props.camera.position.y += instabilityY
-          props.camera.position.z += instabilityZ
+            props.camera.position.x += instabilityX
+            props.camera.position.y += instabilityY
+            props.camera.position.z += instabilityZ
 
-          // 相机轻微旋转
-          cameraRotation.value.x = Math.sin(time * 5) * 0.1 * (1 - stabilityAmount)
-          cameraRotation.value.y = Math.cos(time * 4) * 0.1 * (1 - stabilityAmount)
-          cameraRotation.value.z = Math.sin(time * 6) * 0.05 * (1 - stabilityAmount)
+            // 相机轻微旋转
+            cameraRotation.value.x = Math.sin(time * 5) * 0.1 * (1 - stabilityAmount)
+            cameraRotation.value.y = Math.cos(time * 4) * 0.1 * (1 - stabilityAmount)
+            cameraRotation.value.z = Math.sin(time * 6) * 0.05 * (1 - stabilityAmount)
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '维度不稳定错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '维度不稳定错误'
       )
     }, 0.8)
 
@@ -4956,35 +4956,35 @@ const animateDimensionCollapse = () => {
         duration: 0.3,
         ease: 'power1.inOut',
         onUpdate: () => safeCameraTransform(
-          () => {
-            const time = tl.time()
-            const collapseAmount = collapse.value
-            const chaosAmount = chaos.value
-            const stabilityAmount = layerStability * (1 - collapseAmount)
+            () => {
+              const time = tl.time()
+              const collapseAmount = collapse.value
+              const chaosAmount = chaos.value
+              const stabilityAmount = layerStability * (1 - collapseAmount)
 
-            // 维度混乱效果
-            const chaosX = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
-            const chaosY = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
-            const chaosZ = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
+              // 维度混乱效果
+              const chaosX = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
+              const chaosY = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
+              const chaosZ = (Math.random() - 0.5) * 100 * chaosAmount * (1 - stabilityAmount)
 
-            props.camera.position.x += chaosX
-            props.camera.position.y += chaosY
-            props.camera.position.z += chaosZ
+              props.camera.position.x += chaosX
+              props.camera.position.y += chaosY
+              props.camera.position.z += chaosZ
 
-            // 相机混乱旋转
-            cameraRotation.value.x = (Math.random() - 0.5) * 0.5 * chaosAmount * (1 - stabilityAmount)
-            cameraRotation.value.y = (Math.random() - 0.5) * 0.5 * chaosAmount * (1 - stabilityAmount)
-            cameraRotation.value.z = (Math.random() - 0.5) * 0.3 * chaosAmount * (1 - stabilityAmount)
+              // 相机混乱旋转
+              cameraRotation.value.x = (Math.random() - 0.5) * 0.5 * chaosAmount * (1 - stabilityAmount)
+              cameraRotation.value.y = (Math.random() - 0.5) * 0.5 * chaosAmount * (1 - stabilityAmount)
+              cameraRotation.value.z = (Math.random() - 0.5) * 0.3 * chaosAmount * (1 - stabilityAmount)
 
-            props.camera.rotation.set(
-              cameraRotation.value.x,
-              cameraRotation.value.y,
-              cameraRotation.value.z
-            )
+              props.camera.rotation.set(
+                  cameraRotation.value.x,
+                  cameraRotation.value.y,
+                  cameraRotation.value.z
+              )
 
-            props.camera.lookAt(props.controls.target)
-          },
-          '维度混乱错误'
+              props.camera.lookAt(props.controls.target)
+            },
+            '维度混乱错误'
         )
       }, 1.5 + i * 0.3)
 
@@ -5030,35 +5030,35 @@ const animateDimensionCollapse = () => {
       duration: 2,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const collapseAmount = collapse.value
-          const chaosAmount = chaos.value
-          const restorationAmount = restoration.value
+          () => {
+            const time = tl.time()
+            const collapseAmount = collapse.value
+            const chaosAmount = chaos.value
+            const restorationAmount = restoration.value
 
-          // 减少的维度混乱效果
-          const chaosX = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
-          const chaosY = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
-          const chaosZ = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
+            // 减少的维度混乱效果
+            const chaosX = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
+            const chaosY = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
+            const chaosZ = (Math.random() - 0.5) * 20 * chaosAmount * (1 - restorationAmount * 0.9)
 
-          props.camera.position.x = 100 - 80 * restorationAmount + chaosX
-          props.camera.position.y = 50 - 40 * restorationAmount + chaosY
-          props.camera.position.z = 100 - 80 * restorationAmount + chaosZ
+            props.camera.position.x = 100 - 80 * restorationAmount + chaosX
+            props.camera.position.y = 50 - 40 * restorationAmount + chaosY
+            props.camera.position.z = 100 - 80 * restorationAmount + chaosZ
 
-          // 减少的相机混乱旋转
-          cameraRotation.value.x = (Math.random() - 0.5) * 0.2 * chaosAmount * (1 - restorationAmount * 0.9)
-          cameraRotation.value.y = (Math.random() - 0.5) * 0.2 * chaosAmount * (1 - restorationAmount * 0.9)
-          cameraRotation.value.z = (Math.random() - 0.5) * 0.1 * chaosAmount * (1 - restorationAmount * 0.9)
+            // 减少的相机混乱旋转
+            cameraRotation.value.x = (Math.random() - 0.5) * 0.2 * chaosAmount * (1 - restorationAmount * 0.9)
+            cameraRotation.value.y = (Math.random() - 0.5) * 0.2 * chaosAmount * (1 - restorationAmount * 0.9)
+            cameraRotation.value.z = (Math.random() - 0.5) * 0.1 * chaosAmount * (1 - restorationAmount * 0.9)
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '维度重组错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '维度重组错误'
       )
     }, 3)
 
@@ -5068,8 +5068,8 @@ const animateDimensionCollapse = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV最终稳定错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV最终稳定错误'
       )
     }, 5)
 
@@ -5092,11 +5092,11 @@ const animateDimensionCollapse = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '最终稳定位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '最终稳定位置错误'
       )
     }, 5)
 
@@ -5109,16 +5109,16 @@ const animateDimensionCollapse = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 5.5)
@@ -5159,9 +5159,9 @@ const animateTimeRewind = () => {
     ]
 
     const tl = createTimeline(
-      () => onAnimationComplete(),
-      (error) => onAnimationError(error, '时空逆流'),
-      '时空逆流'
+        () => onAnimationComplete(),
+        (error) => onAnimationError(error, '时空逆流'),
+        '时空逆流'
     )
 
     // 动画阶段1: 接近现在
@@ -5172,8 +5172,8 @@ const animateTimeRewind = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.lookAt(props.controls.target),
-        '相机位置更新错误'
+          () => props.camera.lookAt(props.controls.target),
+          '相机位置更新错误'
       )
     })
 
@@ -5197,34 +5197,34 @@ const animateTimeRewind = () => {
       duration: 1,
       ease: 'power2.inOut',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const rewindAmount = rewind.value
-          const speedAmount = temporalSpeed.value
+          () => {
+            const time = tl.time()
+            const rewindAmount = rewind.value
+            const speedAmount = temporalSpeed.value
 
-          // 时间逆流效果
-          const reverseX = Math.sin(time * 5 * Math.abs(speedAmount)) * 10 * rewindAmount
-          const reverseY = Math.cos(time * 4 * Math.abs(speedAmount)) * 8 * rewindAmount
-          const reverseZ = Math.sin(time * 6 * Math.abs(speedAmount)) * 10 * rewindAmount
+            // 时间逆流效果
+            const reverseX = Math.sin(time * 5 * Math.abs(speedAmount)) * 10 * rewindAmount
+            const reverseY = Math.cos(time * 4 * Math.abs(speedAmount)) * 8 * rewindAmount
+            const reverseZ = Math.sin(time * 6 * Math.abs(speedAmount)) * 10 * rewindAmount
 
-          props.camera.position.x += reverseX
-          props.camera.position.y += reverseY
-          props.camera.position.z += reverseZ
+            props.camera.position.x += reverseX
+            props.camera.position.y += reverseY
+            props.camera.position.z += reverseZ
 
-          // 相机轻微旋转
-          cameraRotation.value.x = Math.sin(time * 3 * Math.abs(speedAmount)) * 0.1 * rewindAmount
-          cameraRotation.value.y = Math.cos(time * 2 * Math.abs(speedAmount)) * 0.1 * rewindAmount
-          cameraRotation.value.z = Math.sin(time * 4 * Math.abs(speedAmount)) * 0.05 * rewindAmount
+            // 相机轻微旋转
+            cameraRotation.value.x = Math.sin(time * 3 * Math.abs(speedAmount)) * 0.1 * rewindAmount
+            cameraRotation.value.y = Math.cos(time * 2 * Math.abs(speedAmount)) * 0.1 * rewindAmount
+            cameraRotation.value.z = Math.sin(time * 4 * Math.abs(speedAmount)) * 0.05 * rewindAmount
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '时间逆流错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '时间逆流错误'
       )
     }, 0.8)
 
@@ -5253,44 +5253,44 @@ const animateTimeRewind = () => {
         duration: 0.5,
         ease: 'power1.inOut',
         onUpdate: () => safeCameraTransform(
-          () => {
-            const time = tl.time()
-            const reverseAmount = reverse.value
-            const speedAmount = temporalSpeed.value
-            const causalityAmount = causality.value
+            () => {
+              const time = tl.time()
+              const reverseAmount = reverse.value
+              const speedAmount = temporalSpeed.value
+              const causalityAmount = causality.value
 
-            // 时间逆流增强效果
-            const reverseX = Math.sin(time * 10 * Math.abs(speedAmount)) * 15 * reverseAmount
-            const reverseY = Math.cos(time * 8 * Math.abs(speedAmount)) * 12 * reverseAmount
-            const reverseZ = Math.sin(time * 12 * Math.abs(speedAmount)) * 15 * reverseAmount
+              // 时间逆流增强效果
+              const reverseX = Math.sin(time * 10 * Math.abs(speedAmount)) * 15 * reverseAmount
+              const reverseY = Math.cos(time * 8 * Math.abs(speedAmount)) * 12 * reverseAmount
+              const reverseZ = Math.sin(time * 12 * Math.abs(speedAmount)) * 15 * reverseAmount
 
-            props.camera.position.x += reverseX * causalityAmount
-            props.camera.position.y += reverseY * causalityAmount
-            props.camera.position.z += reverseZ * causalityAmount
+              props.camera.position.x += reverseX * causalityAmount
+              props.camera.position.y += reverseY * causalityAmount
+              props.camera.position.z += reverseZ * causalityAmount
 
-            // 因果律混乱效果
-            const causalityX = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
-            const causalityY = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
-            const causalityZ = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
+              // 因果律混乱效果
+              const causalityX = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
+              const causalityY = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
+              const causalityZ = (Math.random() - 0.5) * 20 * reverseAmount * (1 - causalityAmount)
 
-            props.camera.position.x += causalityX
-            props.camera.position.y += causalityY
-            props.camera.position.z += causalityZ
+              props.camera.position.x += causalityX
+              props.camera.position.y += causalityY
+              props.camera.position.z += causalityZ
 
-            // 相机旋转混乱
-            cameraRotation.value.x = Math.sin(time * 5 * Math.abs(speedAmount)) * 0.2 * reverseAmount
-            cameraRotation.value.y = Math.cos(time * 4 * Math.abs(speedAmount)) * 0.2 * reverseAmount
-            cameraRotation.value.z = Math.sin(time * 6 * Math.abs(speedAmount)) * 0.1 * reverseAmount
+              // 相机旋转混乱
+              cameraRotation.value.x = Math.sin(time * 5 * Math.abs(speedAmount)) * 0.2 * reverseAmount
+              cameraRotation.value.y = Math.cos(time * 4 * Math.abs(speedAmount)) * 0.2 * reverseAmount
+              cameraRotation.value.z = Math.sin(time * 6 * Math.abs(speedAmount)) * 0.1 * reverseAmount
 
-            props.camera.rotation.set(
-              cameraRotation.value.x,
-              cameraRotation.value.y,
-              cameraRotation.value.z
-            )
+              props.camera.rotation.set(
+                  cameraRotation.value.x,
+                  cameraRotation.value.y,
+                  cameraRotation.value.z
+              )
 
-            props.camera.lookAt(props.controls.target)
-          },
-          '时间逆流增强错误'
+              props.camera.lookAt(props.controls.target)
+            },
+            '时间逆流增强错误'
         )
       }, 1.8 + i * 0.5)
 
@@ -5334,36 +5334,36 @@ const animateTimeRewind = () => {
       duration: 1.5,
       ease: 'power2.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          const time = tl.time()
-          const reverseAmount = reverse.value
-          const speedAmount = temporalSpeed.value
-          const causalityAmount = causality.value
-          const restoreAmount = restore.value
+          () => {
+            const time = tl.time()
+            const reverseAmount = reverse.value
+            const speedAmount = temporalSpeed.value
+            const causalityAmount = causality.value
+            const restoreAmount = restore.value
 
-          // 减少的时间逆流效果
-          const reverseX = Math.sin(time * 5 * Math.abs(speedAmount)) * 5 * reverseAmount * (1 - restoreAmount * 0.9)
-          const reverseY = Math.cos(time * 4 * Math.abs(speedAmount)) * 4 * reverseAmount * (1 - restoreAmount * 0.9)
-          const reverseZ = Math.sin(time * 6 * Math.abs(speedAmount)) * 5 * reverseAmount * (1 - restoreAmount * 0.9)
+            // 减少的时间逆流效果
+            const reverseX = Math.sin(time * 5 * Math.abs(speedAmount)) * 5 * reverseAmount * (1 - restoreAmount * 0.9)
+            const reverseY = Math.cos(time * 4 * Math.abs(speedAmount)) * 4 * reverseAmount * (1 - restoreAmount * 0.9)
+            const reverseZ = Math.sin(time * 6 * Math.abs(speedAmount)) * 5 * reverseAmount * (1 - restoreAmount * 0.9)
 
-          props.camera.position.x += reverseX * causalityAmount
-          props.camera.position.y += reverseY * causalityAmount
-          props.camera.position.z += reverseZ * causalityAmount
+            props.camera.position.x += reverseX * causalityAmount
+            props.camera.position.y += reverseY * causalityAmount
+            props.camera.position.z += reverseZ * causalityAmount
 
-          // 减少的相机旋转
-          cameraRotation.value.x = Math.sin(time * 3 * Math.abs(speedAmount)) * 0.05 * reverseAmount * (1 - restoreAmount * 0.9)
-          cameraRotation.value.y = Math.cos(time * 2 * Math.abs(speedAmount)) * 0.05 * reverseAmount * (1 - restoreAmount * 0.9)
-          cameraRotation.value.z = Math.sin(time * 4 * Math.abs(speedAmount)) * 0.02 * reverseAmount * (1 - restoreAmount * 0.9)
+            // 减少的相机旋转
+            cameraRotation.value.x = Math.sin(time * 3 * Math.abs(speedAmount)) * 0.05 * reverseAmount * (1 - restoreAmount * 0.9)
+            cameraRotation.value.y = Math.cos(time * 2 * Math.abs(speedAmount)) * 0.05 * reverseAmount * (1 - restoreAmount * 0.9)
+            cameraRotation.value.z = Math.sin(time * 4 * Math.abs(speedAmount)) * 0.02 * reverseAmount * (1 - restoreAmount * 0.9)
 
-          props.camera.rotation.set(
-            cameraRotation.value.x,
-            cameraRotation.value.y,
-            cameraRotation.value.z
-          )
+            props.camera.rotation.set(
+                cameraRotation.value.x,
+                cameraRotation.value.y,
+                cameraRotation.value.z
+            )
 
-          props.camera.lookAt(props.controls.target)
-        },
-        '因果律恢复错误'
+            props.camera.lookAt(props.controls.target)
+          },
+          '因果律恢复错误'
       )
     }, 4)
 
@@ -5379,8 +5379,8 @@ const animateTimeRewind = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => props.camera.updateProjectionMatrix(),
-        'FOV时间恢复正流错误'
+          () => props.camera.updateProjectionMatrix(),
+          'FOV时间恢复正流错误'
       )
     }, 5.5)
 
@@ -5403,11 +5403,11 @@ const animateTimeRewind = () => {
       duration: 0.5,
       ease: 'power1.out',
       onUpdate: () => safeCameraTransform(
-        () => {
-          props.camera.rotation.set(0, 0, 0)
-          props.camera.lookAt(props.controls.target)
-        },
-        '时间恢复正流位置错误'
+          () => {
+            props.camera.rotation.set(0, 0, 0)
+            props.camera.lookAt(props.controls.target)
+          },
+          '时间恢复正流位置错误'
       )
     }, 5.5)
 
@@ -5420,16 +5420,16 @@ const animateTimeRewind = () => {
       ease: 'power2.inOut',
       onUpdate: function() {
         safeCameraTransform(
-          () => {
-            const spherical = new THREE.Spherical()
-            spherical.radius = 0.01
-            spherical.theta = cameraRotation.value.y
-            spherical.phi = ANIMATION_CONFIG.FINAL_PHI
+            () => {
+              const spherical = new THREE.Spherical()
+              spherical.radius = 0.01
+              spherical.theta = cameraRotation.value.y
+              spherical.phi = ANIMATION_CONFIG.FINAL_PHI
 
-            props.camera.position.setFromSpherical(spherical)
-            props.camera.lookAt(props.controls.target)
-          },
-          '最终视角旋转错误'
+              props.camera.position.setFromSpherical(spherical)
+              props.camera.lookAt(props.controls.target)
+            },
+            '最终视角旋转错误'
         )
       }
     }, 6)
