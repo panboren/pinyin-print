@@ -49,12 +49,12 @@
  *
  * @component HomeView
  * @author ZOOOW Team
- * @version 2.1.0 - Performance Optimized
+ * @version 2.2.0 - Performance Optimized
  * @license MIT
  * @since 1.0.0
  * @description 该组件负责初始化和管理Three.js场景，包括场景、相机、渲染器
  *              以及用户交互控制。采用组合式API和模块化设计，提高代码可维护性。
- *              性能优化：减少几何体顶点数、限制像素比、优化纹理参数
+ *              性能优化：减少几何体顶点数、限制像素比、优化纹理参数、智能帧率控制
  */
 
 import { onMounted, onUnmounted, watch, ref, computed, shallowRef } from 'vue'
@@ -89,32 +89,55 @@ import { debounce } from '@/utils/performance'
 // 创建日志实例
 const logger = createLogger('HomeView')
 
-// ===== 响应式引用 =====
+// ==================== 响应式引用 ====================
 const containerRef = ref(null)
 const canvasRef = ref(null)
 const cinematicAnimationsRef = ref(null)
 
-// ===== Three.js 相关变量 =====
-// 使用shallowRef避免对Three.js对象进行深度响应式处理
+// Three.js 相关变量（使用 shallowRef 避免深度响应式）
 const scene = shallowRef(null)
 const camera = shallowRef(null)
 const renderer = shallowRef(null)
 const mesh = shallowRef(null)
 const controls = shallowRef(null)
 const animationId = ref(null)
+const lastRenderTime = ref(performance.now())
 
-// ===== 状态管理 =====
+// ==================== 状态管理 ====================
 const isLoading = ref(true)
 const autoRotateEnabled = ref(false)
 const animationComplete = ref(false)
 const animationType = ref('epic-dive')
 const isInitialized = ref(false)
 
-// ===== 计算属性 =====
+// ==================== 计算属性 ====================
 const loadingText = computed(() => '正在加载ZOOOW智慧工具...')
 const loadingProgress = computed(() => '准备进入沉浸式体验')
 
-// ===== 工具函数 =====
+// ==================== 性能监控工具 ====================
+const performanceMonitor = {
+  frameCount: 0,
+  lastCheckTime: performance.now(),
+  fps: 0,
+
+  update() {
+    this.frameCount++
+    const now = performance.now()
+
+    if (now - this.lastCheckTime >= 1000) {
+      this.fps = Math.round((this.frameCount * 1000) / (now - this.lastCheckTime))
+      this.frameCount = 0
+      this.lastCheckTime = now
+
+      // 每5秒输出一次 FPS
+      if (Math.floor(now / 5000) > Math.floor((now - 1000) / 5000)) {
+        logger.debug(`当前 FPS: ${this.fps}`)
+      }
+    }
+  }
+}
+
+// ==================== Three.js 初始化函数 ====================
 
 /**
  * 创建场景
@@ -165,6 +188,7 @@ const createCamera = () => {
 
 /**
  * 创建渲染器 - 保守性能优化版本
+ * @returns {THREE.WebGLRenderer} 创建的渲染器对象
  */
 const createRenderer = () => {
   if (!canvasRef.value) {
@@ -175,34 +199,24 @@ const createRenderer = () => {
 
   const newRenderer = new THREE.WebGLRenderer({
     canvas: canvasRef.value,
-
     // 🔧 性能优化：关闭抗锯齿
     antialias: false,
-
     // 保留 alpha 通道配置
     alpha: RENDER_CONFIG.ALPHA,
-
     // 🔧 性能优化：优先性能
     powerPreference: 'high-performance',
-
     preserveDrawingBuffer: RENDER_CONFIG.PRESERVE_DRAWING_BUFFER,
-
-    // 🔧 性能优化：使用中等精度（保守）
-    // lowp 可能导致渲染问题，保持 mediump
+    // 🔧 性能优化：使用中等精度
     precision: 'mediump',
-
     // 🔧 性能优化：关闭模板缓冲
     stencil: false,
-
-    // 🔧 保留深度缓冲（关闭会导致看不到内容）
+    // 保留深度缓冲
     depth: RENDER_CONFIG.DEPTH,
-
     // 🔧 性能优化：禁用对数深度
     logarithmicDepthBuffer: false
   })
 
   // 🔧 性能优化：适度限制像素比
-  // 从 1.0 改回 1.5，平衡质量和性能
   const pixelRatio = Math.min(window.devicePixelRatio, 1.5)
   newRenderer.setSize(
     containerRef.value.clientWidth,
@@ -218,17 +232,14 @@ const createRenderer = () => {
   return newRenderer
 }
 
-
-
-
-
 /**
- * 应用渲染器高级设置 - 保守性能优化版本
+ * 应用渲染器高级设置
+ * @param {THREE.WebGLRenderer} renderer - 渲染器对象
  */
 const applyRendererSettings = (renderer) => {
   logger.debug('应用渲染器高级设置')
 
-  // 色调映射 - 保持 ACESFilmicToneMapping 获得更好的视觉效果
+  // 色调映射
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.3
 
@@ -244,23 +255,21 @@ const applyRendererSettings = (renderer) => {
   // 🔧 性能优化：禁用对数深度缓冲区
   renderer.logarithmicDepthBuffer = false
 
-  // 🔧 保留自动清除（关闭会导致渲染问题）
+  // 保留自动清除
   renderer.autoClear = true
 
   logger.debug('渲染器设置应用完成')
 }
 
-
-
 /**
  * 创建球体几何体 - 保守性能优化版本
+ * @returns {THREE.Mesh} 创建的球体网格对象
  */
 const createSphereGeometry = () => {
   logger.debug('创建球体几何体')
 
   try {
     // 🔧 性能优化：适度减少球体几何体顶点数
-    // 从 80,40 降到 70,35，平衡质量和性能
     // 顶点数：13,200 -> 10,140 (减少 23%)
     const geometry = new THREE.SphereGeometry(500, 70, 35)
 
@@ -270,7 +279,7 @@ const createSphereGeometry = () => {
     // 计算法线（保持兼容性）
     geometry.computeVertexNormals()
 
-    // 🔧 保留 DoubleSide（BackSide 可能导致某些情况下的显示问题）
+    // 创建材质（保留 DoubleSide 确保正常显示）
     const material = new THREE.MeshBasicMaterial({
       side: THREE.DoubleSide,
       transparent: false,
@@ -289,10 +298,9 @@ const createSphereGeometry = () => {
   }
 }
 
-
 /**
  * 加载纹理 - 内存优化版本
- * 添加纹理释放和内存管理
+ * @returns {Promise<THREE.Texture>} 加载的纹理对象
  */
 const loadTexture = () => {
   return new Promise((resolve, reject) => {
@@ -305,14 +313,6 @@ const loadTexture = () => {
         logger.info('纹理加载成功')
         isLoading.value = false
 
-        // 🔧 性能优化：添加纹理压缩提示
-        if (renderer.value.capabilities.isWebGL2) {
-          // WebGL2 支持纹理压缩
-          loadedTexture.internalFormat = renderer.value.capabilities.isWebGL2
-            ? THREE.RGBA8_S3TC_DXT5_Format
-            : THREE.RGBAFormat
-        }
-
         // 优化纹理参数
         loadedTexture.wrapS = THREE.ClampToEdgeWrapping
         loadedTexture.wrapT = THREE.ClampToEdgeWrapping
@@ -323,7 +323,6 @@ const loadTexture = () => {
         loadedTexture.generateMipmaps = true
 
         // 🔧 性能优化：动态调整各向异性
-        // 根据设备性能自动调整
         const isLowEndDevice = window.devicePixelRatio < 2 ||
             navigator.hardwareConcurrency < 4
         const maxAnisotropy = isLowEndDevice ? 2 : Math.min(4, renderer.value.capabilities.getMaxAnisotropy())
@@ -376,15 +375,14 @@ const loadTexture = () => {
   })
 }
 
-
-
 /**
- * 创建备用纹理 - 极致性能优化版本
+ * 创建备用纹理
+ * @returns {THREE.CanvasTexture} 备用纹理对象
  */
 const createFallbackTexture = () => {
   logger.warn('创建备用纹理')
 
-  // 🔧 进一步优化：使用 64x64 画布
+  // 使用 64x64 画布
   const canvas = document.createElement('canvas')
   canvas.width = 64
   canvas.height = 64
@@ -400,9 +398,9 @@ const createFallbackTexture = () => {
   const fallbackTexture = new THREE.CanvasTexture(canvas)
 
   // 优化纹理参数
-  fallbackTexture.minFilter = THREE.NearestFilter  // 改为 NearestFilter
+  fallbackTexture.minFilter = THREE.NearestFilter
   fallbackTexture.magFilter = THREE.NearestFilter
-  fallbackTexture.generateMipmaps = false  // 关闭 mipmap
+  fallbackTexture.generateMipmaps = false
 
   if (mesh.value && mesh.value.material) {
     mesh.value.material.map = fallbackTexture
@@ -411,6 +409,8 @@ const createFallbackTexture = () => {
 
   return fallbackTexture
 }
+
+// ==================== 控制器设置 ====================
 
 /**
  * 设置轨道控制器
@@ -491,8 +491,7 @@ const applyControlsConfig = () => {
 }
 
 /**
- * 设置交互优化 - 增强版本
- * 减少不必要的状态更新和事件处理
+ * 设置交互优化 - 使用 passive 事件监听器提升性能
  */
 const setupInteractionOptimizations = () => {
   const domElement = renderer.value.domElement
@@ -503,12 +502,10 @@ const setupInteractionOptimizations = () => {
   domElement.style.cursor = 'grab'
 
   // 🔧 性能优化：使用 passive 事件监听器
-  // 对于滚轮事件，使用 passive 提升滚动性能
   const passiveOptions = { passive: true }
 
   // 鼠标交互优化
   const handleMouseEvent = (event) => {
-    // 🔧 性能优化：只在真正需要时更新样式
     if (event.type === 'mousedown') {
       domElement.style.cursor = 'grabbing'
     } else if (event.type === 'mouseup' || event.type === 'mouseleave') {
@@ -516,7 +513,7 @@ const setupInteractionOptimizations = () => {
     }
   }
 
-  // 使用 passive 选项监听鼠标事件（提升性能）
+  // 使用 passive 选项监听鼠标事件
   domElement.addEventListener('mousedown', handleMouseEvent, passiveOptions)
   domElement.addEventListener('mouseup', handleMouseEvent, passiveOptions)
   domElement.addEventListener('mouseleave', handleMouseEvent, passiveOptions)
@@ -524,15 +521,6 @@ const setupInteractionOptimizations = () => {
   // 设置初始焦点
   domElement.focus()
 }
-
-
-
-
-
-
-
-
-
 
 /**
  * 设置自定义滚轮缩放
@@ -572,12 +560,14 @@ const setupCustomZoom = () => {
  * 设置触摸设备优化
  */
 const setupTouchOptimizations = () => {
-  controls.value.enablePan = true // 在触摸设备上启用平移以支持双指操作
+  controls.value.enablePan = true
   controls.value.touches = {
     ONE: THREE.TOUCH.ROTATE,
     TWO: THREE.TOUCH.DOLLY_PAN
   }
 }
+
+// ==================== 事件处理 ====================
 
 /**
  * 设置事件监听器
@@ -592,103 +582,8 @@ const setupEventListeners = () => {
   document.addEventListener('visibilitychange', handleVisibilityChange)
 }
 
-
-
 /**
- * 性能监控工具
- * 用于追踪渲染性能
- */
-const performanceMonitor = {
-  frameCount: 0,
-  lastCheckTime: performance.now(),
-  fps: 0,
-
-  update() {
-    this.frameCount++
-    const now = performance.now()
-
-    if (now - this.lastCheckTime >= 1000) {
-      this.fps = Math.round((this.frameCount * 1000) / (now - this.lastCheckTime))
-      this.frameCount = 0
-      this.lastCheckTime = now
-
-      // 每5秒输出一次 FPS
-      if (Math.floor(now / 5000) > Math.floor((now - 1000) / 5000)) {
-        logger.debug(`当前 FPS: ${this.fps}`)
-      }
-    }
-  }
-}
-
-/**
- * 渲染动画循环 - 带性能监控版本
- */
-const animate = () => {
-  try {
-    animationId.value = requestAnimationFrame(animate)
-
-    // 更新控制器
-    if (controls.value) {
-      controls.value.update()
-    }
-
-    // 智能帧率控制
-    const now = performance.now()
-    const lastTime = lastRenderTime.value || now
-    const deltaTime = now - lastTime
-
-    const needsHighFPS = controls.value?.autoRotate ||
-        controls.value?.isUserInteracting ||
-        deltaTime < 2000
-
-    const targetFPS = needsHighFPS ? 60 : 30
-    const frameTime = 1000 / targetFPS
-
-    if (deltaTime >= frameTime || needsHighFPS) {
-      lastRenderTime.value = now
-
-      if (scene.value && camera.value && renderer.value) {
-        renderer.value.render(scene.value, camera.value)
-
-        // 🔧 性能优化：更新性能监控
-        performanceMonitor.update()
-      }
-    }
-  } catch (error) {
-    logger.error('渲染循环错误:', error)
-  }
-}
-
-
-/**
- * 渲染优化检查 - 性能优化版本
- * 智能判断是否需要渲染，避免不必要的渲染
- */
-
-// 初始化 lastRenderTime
-const lastRenderTime = ref(performance.now())
-
-
-const needsRender = () => {
-  try {
-    const now = performance.now()
-
-    // 限制帧率到60fps，避免不必要的渲染
-    if (now - lastRenderTime.value > PERFORMANCE_CONFIG.MIN_FRAME_TIME) {
-      lastRenderTime.value = now
-      return true
-    }
-
-    return controls.value && (controls.value.autoRotate || controls.value.isUserInteracting)
-  } catch (error) {
-    logger.error('渲染优化检查错误:', error)
-    return true
-  }
-}
-
-
-/**
- * 处理窗口大小变化 - 保守性能优化版本
+ * 处理窗口大小变化
  */
 const handleResize = debounce(() => {
   if (!camera.value || !renderer.value || !containerRef.value) {
@@ -705,20 +600,14 @@ const handleResize = debounce(() => {
     containerRef.value.clientHeight
   )
 
-  // 🔧 保留 1.5 像素比限制
+  // 保留 1.5 像素比限制
   renderer.value.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
 
   logger.debug('窗口大小变化已处理')
 }, PERFORMANCE_CONFIG.RESIZE_DELAY)
 
-
-
-
-
-
 /**
- * 页面可见性变化处理 - 进一步优化版本
- * 简化逻辑
+ * 页面可见性变化处理
  */
 const handleVisibilityChange = () => {
   if (document.hidden) {
@@ -736,6 +625,51 @@ const handleVisibilityChange = () => {
     }
   }
 }
+
+// ==================== 渲染循环 ====================
+
+/**
+ * 渲染动画循环 - 带智能帧率控制和性能监控
+ */
+const animate = () => {
+  try {
+    animationId.value = requestAnimationFrame(animate)
+
+    // 更新控制器
+    if (controls.value) {
+      controls.value.update()
+    }
+
+    // 智能帧率控制
+    const now = performance.now()
+    const lastTime = lastRenderTime.value || now
+    const deltaTime = now - lastTime
+
+    // 判断是否需要高帧率渲染
+    const needsHighFPS = controls.value?.autoRotate ||
+        controls.value?.isUserInteracting ||
+        deltaTime < 2000
+
+    // 🔧 性能优化：非交互时降低到 30fps
+    const targetFPS = needsHighFPS ? 60 : 30
+    const frameTime = 1000 / targetFPS
+
+    if (deltaTime >= frameTime || needsHighFPS) {
+      lastRenderTime.value = now
+
+      if (scene.value && camera.value && renderer.value) {
+        renderer.value.render(scene.value, camera.value)
+
+        // 更新性能监控
+        performanceMonitor.update()
+      }
+    }
+  } catch (error) {
+    logger.error('渲染循环错误:', error)
+  }
+}
+
+// ==================== 用户交互函数 ====================
 
 /**
  * 双击切换自动旋转
@@ -839,10 +773,10 @@ const setCameraView = (preset) => {
   }
 }
 
+// ==================== 资源清理 ====================
 
 /**
- * 清理资源 - 增强版本
- * 确保所有资源被正确释放
+ * 清理资源 - 确保所有资源被正确释放
  */
 const cleanup = () => {
   try {
@@ -858,7 +792,7 @@ const cleanup = () => {
     window.removeEventListener('resize', handleResize)
     document.removeEventListener('visibilitychange', handleVisibilityChange)
 
-    // 🔧 性能优化：移除 canvas 事件监听器
+    // 移除 canvas 事件监听器
     const domElement = renderer.value?.domElement
     if (domElement) {
       const clone = domElement.cloneNode(true)
@@ -884,7 +818,7 @@ const cleanup = () => {
         mesh.value.geometry = null
       }
       if (mesh.value.material) {
-        // 🔧 性能优化：深度清理材质属性
+        // 深度清理材质属性
         if (mesh.value.material.map) {
           mesh.value.material.map.dispose()
           mesh.value.material.map = null
@@ -902,7 +836,7 @@ const cleanup = () => {
       scene.value = null
     }
 
-    // 🔧 性能优化：强制垃圾回收提示（仅开发环境）
+    // 强制垃圾回收提示（仅开发环境）
     if (process.env.NODE_ENV === 'development' && window.gc) {
       window.gc()
     }
@@ -913,6 +847,7 @@ const cleanup = () => {
   }
 }
 
+// ==================== 初始化函数 ====================
 
 /**
  * 初始化Three.js
@@ -954,7 +889,7 @@ const initThreeJS = async () => {
   }
 }
 
-// ===== 生命周期钩子 =====
+// ==================== 生命周期钩子 ====================
 
 onMounted(async () => {
   try {
@@ -976,8 +911,6 @@ onMounted(async () => {
 
 // 监听动画类型变化
 watch(animationType, () => {
-  // Prop 绑定会自动触发 CinematicAnimations 组件的 watch
-  // 如果需要手动重新播放动画，可以调用 resetAnimation
   if (cinematicAnimationsRef.value?.resetAnimation) {
     cinematicAnimationsRef.value.resetAnimation()
   }
@@ -1000,7 +933,7 @@ onUnmounted(() => {
   box-sizing: border-box;
   overflow: hidden;
   position: relative;
-  background: var(--background-color, #000000); // 使用CSS变量，提供默认值
+  background: var(--background-color, #000000);
 
   canvas {
     display: block;
