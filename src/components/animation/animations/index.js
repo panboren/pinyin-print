@@ -23,7 +23,20 @@ import animateTimeRewind from './time-rewind'
 import animateSpaceWarp from './space-warp'
 import animateMatrixHack from './matrix-hack'
 import animateQuantumShift from './quantum-shift'
+// 新增特效动画
+import animateParticleExplosion from './particle-explosion'
+import animateGlitchEffect from './glitch-effect'
+import animateFireStorm from './fire-storm'
+import animateTunnelEffect from './tunnel-effect'
+import animateCrystalShards from './crystal-shards'
+import animateLightningChain from './lightning-chain'
+
 import { ANIMATION_CONFIG } from './utils'
+import animateCherryBlossom from '@components/animation/animations/cherry-blossom'
+import animateButterflySwarm from '@components/animation/animations/butterfly-swarm'
+import animateOceanAurora from '@components/animation/animations/ocean-aurora'
+import animateGalaxyVortex from '@components/animation/animations/galaxy-vortex'
+import animateAuroraFluid from '@components/animation/animations/aurora-fluid'
 
 /**
  * 动画函数映射表
@@ -49,7 +62,19 @@ export const animations = {
   [ANIMATION_CONFIG.BLACK_HOLE]: animateBlackHole,
   [ANIMATION_CONFIG.COSMIC_BIG_BANG]: animateCosmicBigBang,
   [ANIMATION_CONFIG.DIMENSION_COLLAPSE]: animateDimensionCollapse,
-  [ANIMATION_CONFIG.TIME_REWIND]: animateTimeRewind
+  [ANIMATION_CONFIG.TIME_REWIND]: animateTimeRewind,
+  // 新增特效动画
+  'particle-explosion': animateParticleExplosion,
+  'glitch-effect': animateGlitchEffect,
+  'fire-storm': animateFireStorm,
+  'tunnel-effect': animateTunnelEffect,
+  'crystal-shards': animateCrystalShards,
+  'lightning-chain': animateLightningChain,
+  'cherry-blossom': animateCherryBlossom,
+  'butterfly-swarm': animateButterflySwarm,
+  'ocean-aurora': animateOceanAurora,
+  'galaxy-vortex': animateGalaxyVortex,
+  'aurora-fluid': animateAuroraFluid
 }
 
 /**

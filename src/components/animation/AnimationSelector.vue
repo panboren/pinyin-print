@@ -43,32 +43,42 @@ const emit = defineEmits(['update:modelValue', 'reset', 'change'])
 
 // 动画选项数组 - 使用 v-for 渲染
 // 修改animationOptions数组，添加新的动画类型
+// 动画选项数组 - 使用 v-for 渲染
 const animationOptions = ref([
   { value: 'epic-dive', label: '史诗俯冲' },
   { value: 'space-warp', label: '空间扭曲' },
   { value: 'matrix-hack', label: '黑客帝国' },
   { value: 'quantum-shift', label: '量子跃迁' },
-  // 之前新增的动画类型
   { value: 'dimension-fold', label: '维度折叠' },
-  { value: 'energy-wave', label: '能量波' },
+  { value: 'energy-wave', label: '能量波动' },
   { value: 'dizzy-cam', label: '眩晕相机' },
   { value: 'hyperspace', label: '超空间跳跃' },
-  // 最新新增的动画类型
   { value: 'time-rift', label: '时空裂缝' },
   { value: 'planet-explosion', label: '星球爆炸' },
   { value: 'quantum-entanglement', label: '量子纠缠' },
   { value: 'virtual-reality', label: '虚拟现实' },
-  // 游走和环游类型
   { value: 'scene-roaming', label: '场景漫游' },
   { value: 'orbital-rotation', label: '轨道环绕' },
   { value: 'dimensional-portal', label: '维度传送门' },
   { value: 'time-travel', label: '时空穿梭' },
-  // 新增的炸裂动画类型
   { value: 'black-hole', label: '黑洞吞噬' },
   { value: 'cosmic-big-bang', label: '宇宙大爆炸' },
   { value: 'dimension-collapse', label: '维度崩溃' },
-  { value: 'time-rewind', label: '时空逆流' }
+  { value: 'time-rewind', label: '时空逆流' },
+  // 新增高级特效
+  { value: 'particle-explosion', label: '🧨 粒子爆炸' },
+  { value: 'glitch-effect', label: '📺 故障效果' },
+  { value: 'fire-storm', label: '🔥 火焰风暴' },
+  { value: 'tunnel-effect', label: '🌀 时空隧道' },
+  { value: 'crystal-shards', label: '💎 水晶碎片' },
+  { value: 'lightning-chain', label: '⚡ 闪电连锁' },
+  { value: 'cherry-blossom', label: '🌸 樱花飘落' },
+  { value: 'butterfly-swarm', label: '🦋 蝴蝶飞舞' },
+  { value: 'ocean-aurora', label: '🌊 海洋极光' },
+  { value: 'galaxy-vortex', label: '🌌 银河漩涡' },
+  { value: 'aurora-fluid', label: '🎭 极光流体' }
 ])
+
 
 
 
