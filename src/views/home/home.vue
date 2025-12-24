@@ -23,6 +23,7 @@
       :camera="camera"
       :renderer="renderer"
       :controls="controls"
+      :animation-type="animationType"
       @animation-complete="onAnimationComplete"
     />
 
@@ -831,15 +832,6 @@ onUnmounted(() => {
     cleanup()
   } catch (error) {
     logger.error('组件卸载清理失败:', error)
-  }
-})
-
-// ===== 监听器 =====
-
-// 监听动画类型变化
-watch(animationType, (newType) => {
-  if (cinematicAnimationsRef.value) {
-    cinematicAnimationsRef.value.animationType = newType
   }
 })
 </script>
