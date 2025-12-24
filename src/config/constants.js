@@ -11,7 +11,7 @@ export const CAMERA_CONFIG = {
   DEFAULT_POSITION: {
     x: 0,
     y: 0,
-    z: 0.01
+    z: 1
   },
   DEFAULT_ROTATION: {
     x: 0,
