@@ -827,6 +827,14 @@ onMounted(async () => {
   }
 })
 
+// 监听动画类型变化
+watch(animationType, () => {
+  // Prop 绑定会自动触发 CinematicAnimations 组件的 watch
+  // 如果需要手动重新播放动画，可以调用 resetAnimation
+  if (cinematicAnimationsRef.value?.resetAnimation) {
+    cinematicAnimationsRef.value.resetAnimation()
+  }
+})
 onUnmounted(() => {
   try {
     cleanup()
