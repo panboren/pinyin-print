@@ -67,6 +67,7 @@ const animationOptions = ref([
   { value: 'time-rewind', label: '时空逆流' },
   // 新增高级特效
   { value: 'particle-explosion', label: '🧨 粒子爆炸' },
+  { value: 'particle-explosion1', label: '🧨 粒子爆炸1' },
   { value: 'glitch-effect', label: '📺 故障效果' },
   { value: 'fire-storm', label: '🔥 火焰风暴' },
   { value: 'tunnel-effect', label: '🌀 时空隧道' },

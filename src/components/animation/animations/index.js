@@ -25,6 +25,7 @@ import animateMatrixHack from './matrix-hack'
 import animateQuantumShift from './quantum-shift'
 // 新增特效动画
 import animateParticleExplosion from './particle-explosion'
+import animateParticleExplosion1 from './particle-explosion1'
 import animateGlitchEffect from './glitch-effect'
 import animateFireStorm from './fire-storm'
 import animateTunnelEffect from './tunnel-effect'
@@ -65,6 +66,7 @@ export const animations = {
   [ANIMATION_CONFIG.TIME_REWIND]: animateTimeRewind,
   // 新增特效动画
   'particle-explosion': animateParticleExplosion,
+  'particle-explosion1': animateParticleExplosion1,
   'glitch-effect': animateGlitchEffect,
   'fire-storm': animateFireStorm,
   'tunnel-effect': animateTunnelEffect,
