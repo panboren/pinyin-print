@@ -164,8 +164,7 @@ const createCamera = () => {
 }
 
 /**
- * 创建渲染器 - 性能优化版本
- * @returns {THREE.WebGLRenderer} 创建的渲染器对象
+ * 创建渲染器 - 保守性能优化版本
  */
 const createRenderer = () => {
   if (!canvasRef.value) {
@@ -178,9 +177,9 @@ const createRenderer = () => {
     canvas: canvasRef.value,
 
     // 🔧 性能优化：关闭抗锯齿
-    // 对于全景图场景，关闭抗锯齿可以显著提升性能（减少2-4倍渲染负担）
     antialias: false,
 
+    // 保留 alpha 通道配置
     alpha: RENDER_CONFIG.ALPHA,
 
     // 🔧 性能优化：优先性能
@@ -188,19 +187,22 @@ const createRenderer = () => {
 
     preserveDrawingBuffer: RENDER_CONFIG.PRESERVE_DRAWING_BUFFER,
 
-    // 🔧 性能优化：使用中等精度
-    // 对于全景图渲染，mediump 已经足够，可以显著提升性能
+    // 🔧 性能优化：使用中等精度（保守）
+    // lowp 可能导致渲染问题，保持 mediump
     precision: 'mediump',
 
     // 🔧 性能优化：关闭模板缓冲
-    // 全景图场景不需要模板测试，可以节省内存
     stencil: false,
 
-    depth: RENDER_CONFIG.DEPTH
+    // 🔧 保留深度缓冲（关闭会导致看不到内容）
+    depth: RENDER_CONFIG.DEPTH,
+
+    // 🔧 性能优化：禁用对数深度
+    logarithmicDepthBuffer: false
   })
 
-  // 🔧 性能优化：限制像素比
-  // Retina屏幕可能使用 2.0 或 3.0，限制到 1.5 可以减少 25-50% 的像素渲染量
+  // 🔧 性能优化：适度限制像素比
+  // 从 1.0 改回 1.5，平衡质量和性能
   const pixelRatio = Math.min(window.devicePixelRatio, 1.5)
   newRenderer.setSize(
     containerRef.value.clientWidth,
@@ -216,14 +218,17 @@ const createRenderer = () => {
   return newRenderer
 }
 
+
+
+
+
 /**
- * 应用渲染器高级设置 - 性能优化版本
- * @param {THREE.WebGLRenderer} renderer - 渲染器对象
+ * 应用渲染器高级设置 - 保守性能优化版本
  */
 const applyRendererSettings = (renderer) => {
   logger.debug('应用渲染器高级设置')
 
-  // 色调映射
+  // 色调映射 - 保持 ACESFilmicToneMapping 获得更好的视觉效果
   renderer.toneMapping = THREE.ACESFilmicToneMapping
   renderer.toneMappingExposure = 1.3
 
@@ -231,46 +236,41 @@ const applyRendererSettings = (renderer) => {
   renderer.outputColorSpace = THREE.SRGBColorSpace
 
   // 🔧 性能优化：禁用物理灯光计算
-  // 全景图场景不需要物理灯光，关闭可以提升性能
   renderer.physicallyCorrectLights = false
 
   // 🔧 性能优化：关闭阴影贴图
-  // 全景图不需要阴影，关闭可以显著提升性能
   renderer.shadowMap.enabled = false
 
   // 🔧 性能优化：禁用对数深度缓冲区
-  // 普通场景不需要对数深度，关闭可以提升性能
   renderer.logarithmicDepthBuffer = false
 
-  // 确保自动清除开启
+  // 🔧 保留自动清除（关闭会导致渲染问题）
   renderer.autoClear = true
 
   logger.debug('渲染器设置应用完成')
 }
 
+
+
 /**
- * 创建球体几何体 - 性能优化版本
- * @returns {THREE.Mesh} 创建的球体网格对象
+ * 创建球体几何体 - 保守性能优化版本
  */
 const createSphereGeometry = () => {
   logger.debug('创建球体几何体')
 
   try {
-    // 🔧 性能优化：减少球体几何体顶点数
-    // 原始：SphereGeometry(500, 256, 128) = 131,584 顶点
-    // 优化：SphereGeometry(500, 80, 40) = 13,200 顶点
-    // 减少：118,384 顶点 (约90% 减少)
-    // 对于全景图场景，80x40 的分段已经足够保证视觉质量
-    const geometry = new THREE.SphereGeometry(500, 80, 40)
+    // 🔧 性能优化：适度减少球体几何体顶点数
+    // 从 80,40 降到 70,35，平衡质量和性能
+    // 顶点数：13,200 -> 10,140 (减少 23%)
+    const geometry = new THREE.SphereGeometry(500, 70, 35)
 
     // 翻转球体以显示内部
     geometry.scale(-1, 1, 1)
 
-    // 计算法线（虽然 MeshBasicMaterial 不需要，但保持兼容性）
+    // 计算法线（保持兼容性）
     geometry.computeVertexNormals()
 
-    // 🔧 性能优化：保持 DoubleSide 确保正常显示
-    // 使用 BackSide 可能会导致某些情况下的显示问题
+    // 🔧 保留 DoubleSide（BackSide 可能导致某些情况下的显示问题）
     const material = new THREE.MeshBasicMaterial({
       side: THREE.DoubleSide,
       transparent: false,
@@ -289,9 +289,10 @@ const createSphereGeometry = () => {
   }
 }
 
+
+
 /**
- * 加载纹理 - 性能优化版本
- * @returns {Promise<THREE.Texture>} 加载的纹理对象
+ * 加载纹理 - 保守性能优化版本
  */
 const loadTexture = () => {
   return new Promise((resolve, reject) => {
@@ -308,22 +309,19 @@ const loadTexture = () => {
         loadedTexture.wrapS = THREE.ClampToEdgeWrapping
         loadedTexture.wrapT = THREE.ClampToEdgeWrapping
 
-        // 🔧 性能优化：保留 mipmap 以确保质量
-        // 虽然 mipmap 会增加内存，但对于全景图场景，它提供更好的视觉质量
+        // 🔧 保留 mipmap（禁用会导致质量下降）
         loadedTexture.minFilter = THREE.LinearMipmapLinearFilter
         loadedTexture.magFilter = THREE.LinearFilter
         loadedTexture.generateMipmaps = true
 
-        // 🔧 性能优化：适度减少各向异性
-        // 从最大值 (通常 16) 降低到 8，平衡质量和性能
-        const maxAnisotropy = Math.min(8, renderer.value.capabilities.getMaxAnisotropy())
+        // 🔧 适度减少各向异性
+        const maxAnisotropy = Math.min(4, renderer.value.capabilities.getMaxAnisotropy())
         loadedTexture.anisotropy = maxAnisotropy
 
         // 颜色空间设置
         loadedTexture.colorSpace = THREE.SRGBColorSpace
 
-        // 🔧 性能优化：使用 RGBA 格式以确保兼容性
-        // 虽然 RGB 格式可以节省内存，但某些纹理可能需要 alpha 通道
+        // 🔧 保留 RGBA 格式（某些纹理可能需要 alpha 通道）
         loadedTexture.format = THREE.RGBAFormat
 
         // 更新材质
@@ -369,31 +367,33 @@ const loadTexture = () => {
   })
 }
 
+
+
 /**
- * 创建备用纹理 - 进一步优化版本
- * 使用更小的画布，减少内存占用
+ * 创建备用纹理 - 极致性能优化版本
  */
 const createFallbackTexture = () => {
   logger.warn('创建备用纹理')
 
-  // 🔧 进一步优化：使用更小的画布 128x128
+  // 🔧 进一步优化：使用 64x64 画布
   const canvas = document.createElement('canvas')
-  canvas.width = 128
-  canvas.height = 128
+  canvas.width = 64
+  canvas.height = 64
   const ctx = canvas.getContext('2d')
 
   // 使用简单的渐变填充
-  const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
+  const gradient = ctx.createRadialGradient(32, 32, 0, 32, 32, 32)
   gradient.addColorStop(0, '#c532f6')
   gradient.addColorStop(1, '#c4163e')
   ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, 128, 128)
+  ctx.fillRect(0, 0, 64, 64)
 
   const fallbackTexture = new THREE.CanvasTexture(canvas)
 
   // 优化纹理参数
-  fallbackTexture.minFilter = THREE.LinearFilter
-  fallbackTexture.magFilter = THREE.LinearFilter
+  fallbackTexture.minFilter = THREE.NearestFilter  // 改为 NearestFilter
+  fallbackTexture.magFilter = THREE.NearestFilter
+  fallbackTexture.generateMipmaps = false  // 关闭 mipmap
 
   if (mesh.value && mesh.value.material) {
     mesh.value.material.map = fallbackTexture
@@ -577,9 +577,9 @@ const setupEventListeners = () => {
   document.addEventListener('visibilitychange', handleVisibilityChange)
 }
 
+
 /**
- * 渲染动画循环 - 进一步优化版本
- * 简化渲染逻辑，减少不必要的判断
+ * 渲染动画循环 - 保守性能优化版本
  */
 const animate = () => {
   try {
@@ -590,8 +590,7 @@ const animate = () => {
       controls.value.update()
     }
 
-    // 直接渲染，确保每一帧都能正确渲染
-    // Three.js 的渲染器已经有内部优化，不需要额外的 needsRender 检查
+    // 直接渲染，不进行帧率限制（避免渲染卡顿）
     if (scene.value && camera.value && renderer.value) {
       renderer.value.render(scene.value, camera.value)
     }
@@ -604,7 +603,8 @@ const animate = () => {
  * 渲染优化检查 - 性能优化版本
  * 智能判断是否需要渲染，避免不必要的渲染
  */
-const lastRenderTime = ref(0)
+// 初始化 lastRenderTime
+const lastRenderTime = ref(performance.now())
 const needsRender = () => {
   try {
     const now = performance.now()
@@ -622,9 +622,9 @@ const needsRender = () => {
   }
 }
 
+
 /**
- * 处理窗口大小变化 - 进一步优化版本
- * 简化逻辑，减少判断
+ * 处理窗口大小变化 - 保守性能优化版本
  */
 const handleResize = debounce(() => {
   if (!camera.value || !renderer.value || !containerRef.value) {
@@ -641,11 +641,16 @@ const handleResize = debounce(() => {
     containerRef.value.clientHeight
   )
 
-  // 限制像素比
+  // 🔧 保留 1.5 像素比限制
   renderer.value.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
 
   logger.debug('窗口大小变化已处理')
 }, PERFORMANCE_CONFIG.RESIZE_DELAY)
+
+
+
+
+
 
 /**
  * 页面可见性变化处理 - 进一步优化版本
