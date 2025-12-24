@@ -43,11 +43,13 @@ export function createGalaxyVortex(scene, options = {}) {
       uniforms: {
         uTime: { value: 0 },
         uColor: { value: color },
-        uBandIndex: { value: i }
+        uBandIndex: { value: i },
+        uGalaxyRadius: { value: galaxyRadius }  // 🔧 修复：添加 galaxyRadius uniform
       },
       vertexShader: `
         uniform float uTime;
         uniform float uBandIndex;
+        uniform float uGalaxyRadius;  // 🔧 修复：声明 uniform
         varying vec2 vUv;
         varying float vAlpha;
         varying vec3 vPos;
@@ -76,7 +78,7 @@ export function createGalaxyVortex(scene, options = {}) {
           pos.y += (wave1 + wave2 + wave3) * 6.0;
           
           // 距离衰减 - 中心更亮
-          float fade = 1.0 - smoothstep(0.0, galaxyRadius, dist);
+          float fade = 1.0 - smoothstep(0.0, uGalaxyRadius, dist);  // 🔧 修复：使用 uniform
           pos.y += fade * 15.0;
           
           vAlpha = fade;
@@ -224,6 +226,8 @@ export function createGalaxyVortex(scene, options = {}) {
     bands,
     centerLayers,
     stars,
+    starGeometry,  // 🔧 修复：添加到返回对象中
+    starMaterial,  // 🔧 修复：添加到返回对象中
     energy,
     update(deltaTime, time) {
       // 更新银河带
@@ -238,13 +242,13 @@ export function createGalaxyVortex(scene, options = {}) {
       })
 
       // 更新星星
-      const starPositions = starGeometry.attributes.position.array
-      for (let i = 0; i < starCount; i++) {
+      const starPositions = this.starGeometry.attributes.position.array
+      for (let i = 0; i < 500; i++) {
         if (Math.random() < 0.01) {
           starPositions[i * 3 + 1] += (Math.random() - 0.5) * 0.5
         }
       }
-      starGeometry.attributes.position.needsUpdate = true
+      this.starGeometry.attributes.position.needsUpdate = true
       stars.rotation.y += deltaTime * 0.01
 
       // 更新能量爆发
@@ -333,8 +337,8 @@ export function createGalaxyVortex(scene, options = {}) {
       })
       scene.remove(stars)
       scene.remove(energy)
-      starGeometry.dispose()
-      starMaterial.dispose()
+      this.starGeometry.dispose()
+      this.starMaterial.dispose()
       energyGeometry.dispose()
       energyMaterial.dispose()
     }

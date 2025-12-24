@@ -370,23 +370,24 @@ const loadTexture = () => {
 }
 
 /**
- * 创建备用纹理 - 性能优化版本
- * @returns {THREE.CanvasTexture} 创建的备用纹理
+ * 创建备用纹理 - 进一步优化版本
+ * 使用更小的画布，减少内存占用
  */
 const createFallbackTexture = () => {
   logger.warn('创建备用纹理')
 
-  // 🔧 性能优化：使用较小的画布
+  // 🔧 进一步优化：使用更小的画布 128x128
   const canvas = document.createElement('canvas')
-  canvas.width = 256
-  canvas.height = 256
+  canvas.width = 128
+  canvas.height = 128
   const ctx = canvas.getContext('2d')
 
-  const gradient = ctx.createRadialGradient(128, 128, 0, 128, 128, 128)
+  // 使用简单的渐变填充
+  const gradient = ctx.createRadialGradient(64, 64, 0, 64, 64, 64)
   gradient.addColorStop(0, '#c532f6')
   gradient.addColorStop(1, '#c4163e')
   ctx.fillStyle = gradient
-  ctx.fillRect(0, 0, 256, 256)
+  ctx.fillRect(0, 0, 128, 128)
 
   const fallbackTexture = new THREE.CanvasTexture(canvas)
 
@@ -481,41 +482,42 @@ const applyControlsConfig = () => {
 }
 
 /**
- * 设置交互优化
+ * 设置交互优化 - 进一步优化版本
+ * 移除重复的 tabindex 设置和事件监听器
  */
 const setupInteractionOptimizations = () => {
+  const domElement = renderer.value.domElement
+
   // 确保 canvas 元素可以接收焦点并优化交互
-  renderer.value.domElement.setAttribute('tabindex', '-1')
-  renderer.value.domElement.style.outline = 'none'
-  renderer.value.domElement.style.cursor = 'grab'
+  domElement.setAttribute('tabindex', '0')
+  domElement.style.outline = 'none'
+  domElement.style.cursor = 'grab'
 
-  // 鼠标交互优化
-  const handleMouseDown = () => {
-    renderer.value.domElement.focus()
-    renderer.value.domElement.style.cursor = 'grabbing'
+  // 鼠标交互优化 - 使用单一事件处理函数
+  const handleMouseEvent = (event) => {
+    if (event.type === 'mousedown') {
+      domElement.style.cursor = 'grabbing'
+    } else {
+      domElement.style.cursor = 'grab'
+    }
   }
 
-  const handleMouseUp = () => {
-    renderer.value.domElement.style.cursor = 'grab'
-  }
+  // 一次性绑定所有鼠标事件
+  domElement.addEventListener('mousedown', handleMouseEvent)
+  domElement.addEventListener('mouseup', handleMouseEvent)
+  domElement.addEventListener('mouseleave', handleMouseEvent)
 
-  const handleMouseLeave = () => {
-    renderer.value.domElement.style.cursor = 'grab'
-  }
-
-  renderer.value.domElement.addEventListener('mousedown', handleMouseDown)
-  renderer.value.domElement.addEventListener('mouseup', handleMouseUp)
-  renderer.value.domElement.addEventListener('mouseleave', handleMouseLeave)
-
-  // 确保 canvas 能接收输入事件
-  renderer.value.domElement.setAttribute('tabindex', '0')
-  renderer.value.domElement.focus()
-
-  // 添加点击时获取焦点
-  renderer.value.domElement.addEventListener('mousedown', () => {
-    renderer.value.domElement.focus()
-  })
+  // 设置初始焦点
+  domElement.focus()
 }
+
+
+
+
+
+
+
+
 
 /**
  * 设置自定义滚轮缩放
@@ -576,7 +578,8 @@ const setupEventListeners = () => {
 }
 
 /**
- * 渲染动画循环 - 性能优化版本
+ * 渲染动画循环 - 进一步优化版本
+ * 简化渲染逻辑，减少不必要的判断
  */
 const animate = () => {
   try {
@@ -587,12 +590,10 @@ const animate = () => {
       controls.value.update()
     }
 
-    // 只在需要时渲染
-    if (needsRender()) {
-      // 确保场景、相机和渲染器都存在
-      if (scene.value && camera.value && renderer.value) {
-        renderer.value.render(scene.value, camera.value)
-      }
+    // 直接渲染，确保每一帧都能正确渲染
+    // Three.js 的渲染器已经有内部优化，不需要额外的 needsRender 检查
+    if (scene.value && camera.value && renderer.value) {
+      renderer.value.render(scene.value, camera.value)
     }
   } catch (error) {
     logger.error('渲染循环错误:', error)
@@ -622,47 +623,48 @@ const needsRender = () => {
 }
 
 /**
- * 处理窗口大小变化
+ * 处理窗口大小变化 - 进一步优化版本
+ * 简化逻辑，减少判断
  */
 const handleResize = debounce(() => {
-  try {
-    if (camera.value && renderer.value && containerRef.value) {
-      camera.value.aspect = containerRef.value.clientWidth / containerRef.value.clientHeight
-      camera.value.updateProjectionMatrix()
-      renderer.value.setSize(
-        containerRef.value.clientWidth,
-        containerRef.value.clientHeight
-      )
-      renderer.value.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
-
-      logger.debug('窗口大小变化已处理')
-    }
-  } catch (error) {
-    logger.error('处理窗口大小变化失败:', error)
+  if (!camera.value || !renderer.value || !containerRef.value) {
+    return
   }
+
+  // 更新相机宽高比
+  camera.value.aspect = containerRef.value.clientWidth / containerRef.value.clientHeight
+  camera.value.updateProjectionMatrix()
+
+  // 更新渲染器尺寸
+  renderer.value.setSize(
+    containerRef.value.clientWidth,
+    containerRef.value.clientHeight
+  )
+
+  // 限制像素比
+  renderer.value.setPixelRatio(Math.min(window.devicePixelRatio, 1.5))
+
+  logger.debug('窗口大小变化已处理')
 }, PERFORMANCE_CONFIG.RESIZE_DELAY)
 
 /**
- * 页面可见性变化处理
+ * 页面可见性变化处理 - 进一步优化版本
+ * 简化逻辑
  */
 const handleVisibilityChange = () => {
-  try {
-    if (document.hidden) {
-      // 页面隐藏时暂停渲染
-      if (animationId.value) {
-        cancelAnimationFrame(animationId.value)
-        animationId.value = null
-      }
-      logger.debug('页面隐藏，暂停渲染')
-    } else {
-      // 页面显示时恢复渲染
-      if (scene.value && camera.value && renderer.value && !animationId.value) {
-        animate()
-        logger.debug('页面显示，恢复渲染')
-      }
+  if (document.hidden) {
+    // 页面隐藏时暂停渲染
+    if (animationId.value) {
+      cancelAnimationFrame(animationId.value)
+      animationId.value = null
     }
-  } catch (error) {
-    logger.error('页面可见性变化处理失败:', error)
+    logger.debug('页面隐藏，暂停渲染')
+  } else {
+    // 页面显示时恢复渲染
+    if (!animationId.value) {
+      animate()
+      logger.debug('页面显示，恢复渲染')
+    }
   }
 }
 
