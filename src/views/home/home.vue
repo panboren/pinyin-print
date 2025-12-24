@@ -290,9 +290,9 @@ const createSphereGeometry = () => {
 }
 
 
-
 /**
- * 加载纹理 - 保守性能优化版本
+ * 加载纹理 - 内存优化版本
+ * 添加纹理释放和内存管理
  */
 const loadTexture = () => {
   return new Promise((resolve, reject) => {
@@ -305,23 +305,32 @@ const loadTexture = () => {
         logger.info('纹理加载成功')
         isLoading.value = false
 
+        // 🔧 性能优化：添加纹理压缩提示
+        if (renderer.value.capabilities.isWebGL2) {
+          // WebGL2 支持纹理压缩
+          loadedTexture.internalFormat = renderer.value.capabilities.isWebGL2
+            ? THREE.RGBA8_S3TC_DXT5_Format
+            : THREE.RGBAFormat
+        }
+
         // 优化纹理参数
         loadedTexture.wrapS = THREE.ClampToEdgeWrapping
         loadedTexture.wrapT = THREE.ClampToEdgeWrapping
 
-        // 🔧 保留 mipmap（禁用会导致质量下降）
+        // 保留 mipmap
         loadedTexture.minFilter = THREE.LinearMipmapLinearFilter
         loadedTexture.magFilter = THREE.LinearFilter
         loadedTexture.generateMipmaps = true
 
-        // 🔧 适度减少各向异性
-        const maxAnisotropy = Math.min(4, renderer.value.capabilities.getMaxAnisotropy())
+        // 🔧 性能优化：动态调整各向异性
+        // 根据设备性能自动调整
+        const isLowEndDevice = window.devicePixelRatio < 2 ||
+            navigator.hardwareConcurrency < 4
+        const maxAnisotropy = isLowEndDevice ? 2 : Math.min(4, renderer.value.capabilities.getMaxAnisotropy())
         loadedTexture.anisotropy = maxAnisotropy
 
         // 颜色空间设置
         loadedTexture.colorSpace = THREE.SRGBColorSpace
-
-        // 🔧 保留 RGBA 格式（某些纹理可能需要 alpha 通道）
         loadedTexture.format = THREE.RGBAFormat
 
         // 更新材质
@@ -482,8 +491,8 @@ const applyControlsConfig = () => {
 }
 
 /**
- * 设置交互优化 - 进一步优化版本
- * 移除重复的 tabindex 设置和事件监听器
+ * 设置交互优化 - 增强版本
+ * 减少不必要的状态更新和事件处理
  */
 const setupInteractionOptimizations = () => {
   const domElement = renderer.value.domElement
@@ -493,23 +502,29 @@ const setupInteractionOptimizations = () => {
   domElement.style.outline = 'none'
   domElement.style.cursor = 'grab'
 
-  // 鼠标交互优化 - 使用单一事件处理函数
+  // 🔧 性能优化：使用 passive 事件监听器
+  // 对于滚轮事件，使用 passive 提升滚动性能
+  const passiveOptions = { passive: true }
+
+  // 鼠标交互优化
   const handleMouseEvent = (event) => {
+    // 🔧 性能优化：只在真正需要时更新样式
     if (event.type === 'mousedown') {
       domElement.style.cursor = 'grabbing'
-    } else {
+    } else if (event.type === 'mouseup' || event.type === 'mouseleave') {
       domElement.style.cursor = 'grab'
     }
   }
 
-  // 一次性绑定所有鼠标事件
-  domElement.addEventListener('mousedown', handleMouseEvent)
-  domElement.addEventListener('mouseup', handleMouseEvent)
-  domElement.addEventListener('mouseleave', handleMouseEvent)
+  // 使用 passive 选项监听鼠标事件（提升性能）
+  domElement.addEventListener('mousedown', handleMouseEvent, passiveOptions)
+  domElement.addEventListener('mouseup', handleMouseEvent, passiveOptions)
+  domElement.addEventListener('mouseleave', handleMouseEvent, passiveOptions)
 
   // 设置初始焦点
   domElement.focus()
 }
+
 
 
 
@@ -578,33 +593,82 @@ const setupEventListeners = () => {
 }
 
 
+
 /**
- * 渲染动画循环 - 保守性能优化版本
+ * 性能监控工具
+ * 用于追踪渲染性能
+ */
+const performanceMonitor = {
+  frameCount: 0,
+  lastCheckTime: performance.now(),
+  fps: 0,
+
+  update() {
+    this.frameCount++
+    const now = performance.now()
+
+    if (now - this.lastCheckTime >= 1000) {
+      this.fps = Math.round((this.frameCount * 1000) / (now - this.lastCheckTime))
+      this.frameCount = 0
+      this.lastCheckTime = now
+
+      // 每5秒输出一次 FPS
+      if (Math.floor(now / 5000) > Math.floor((now - 1000) / 5000)) {
+        logger.debug(`当前 FPS: ${this.fps}`)
+      }
+    }
+  }
+}
+
+/**
+ * 渲染动画循环 - 带性能监控版本
  */
 const animate = () => {
   try {
     animationId.value = requestAnimationFrame(animate)
 
-    // 更新控制器（启用阻尼后必须调用）
+    // 更新控制器
     if (controls.value) {
       controls.value.update()
     }
 
-    // 直接渲染，不进行帧率限制（避免渲染卡顿）
-    if (scene.value && camera.value && renderer.value) {
-      renderer.value.render(scene.value, camera.value)
+    // 智能帧率控制
+    const now = performance.now()
+    const lastTime = lastRenderTime.value || now
+    const deltaTime = now - lastTime
+
+    const needsHighFPS = controls.value?.autoRotate ||
+        controls.value?.isUserInteracting ||
+        deltaTime < 2000
+
+    const targetFPS = needsHighFPS ? 60 : 30
+    const frameTime = 1000 / targetFPS
+
+    if (deltaTime >= frameTime || needsHighFPS) {
+      lastRenderTime.value = now
+
+      if (scene.value && camera.value && renderer.value) {
+        renderer.value.render(scene.value, camera.value)
+
+        // 🔧 性能优化：更新性能监控
+        performanceMonitor.update()
+      }
     }
   } catch (error) {
     logger.error('渲染循环错误:', error)
   }
 }
 
+
 /**
  * 渲染优化检查 - 性能优化版本
  * 智能判断是否需要渲染，避免不必要的渲染
  */
+
 // 初始化 lastRenderTime
 const lastRenderTime = ref(performance.now())
+
+
 const needsRender = () => {
   try {
     const now = performance.now()
@@ -775,8 +839,10 @@ const setCameraView = (preset) => {
   }
 }
 
+
 /**
- * 清理资源
+ * 清理资源 - 增强版本
+ * 确保所有资源被正确释放
  */
 const cleanup = () => {
   try {
@@ -792,6 +858,13 @@ const cleanup = () => {
     window.removeEventListener('resize', handleResize)
     document.removeEventListener('visibilitychange', handleVisibilityChange)
 
+    // 🔧 性能优化：移除 canvas 事件监听器
+    const domElement = renderer.value?.domElement
+    if (domElement) {
+      const clone = domElement.cloneNode(true)
+      domElement.parentNode.replaceChild(clone, domElement)
+    }
+
     // 销毁控制器
     if (controls.value) {
       controls.value.dispose()
@@ -806,11 +879,20 @@ const cleanup = () => {
 
     // 清理几何体和材质
     if (mesh.value) {
-      if (mesh.value.geometry) mesh.value.geometry.dispose()
-      if (mesh.value.material) {
-        if (mesh.value.material.map) mesh.value.material.map.dispose()
-        mesh.value.material.dispose()
+      if (mesh.value.geometry) {
+        mesh.value.geometry.dispose()
+        mesh.value.geometry = null
       }
+      if (mesh.value.material) {
+        // 🔧 性能优化：深度清理材质属性
+        if (mesh.value.material.map) {
+          mesh.value.material.map.dispose()
+          mesh.value.material.map = null
+        }
+        mesh.value.material.dispose()
+        mesh.value.material = null
+      }
+      scene.value?.remove(mesh.value)
       mesh.value = null
     }
 
@@ -820,11 +902,17 @@ const cleanup = () => {
       scene.value = null
     }
 
+    // 🔧 性能优化：强制垃圾回收提示（仅开发环境）
+    if (process.env.NODE_ENV === 'development' && window.gc) {
+      window.gc()
+    }
+
     logger.info('Three.js资源清理完成')
   } catch (error) {
     logger.error('Three.js资源清理失败:', error)
   }
 }
+
 
 /**
  * 初始化Three.js
