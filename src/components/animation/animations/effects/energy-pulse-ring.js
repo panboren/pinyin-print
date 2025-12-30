@@ -116,7 +116,8 @@ export function createEnergyPulseRing(scene, options = {}) {
       uniforms: {
         uTime: { value: 0 },
         uColor: { value: baseColor.clone() },
-        uWaveIndex: { value: i }
+        uWaveIndex: { value: i },
+        uMaxRadius: { value: maxRadius }
       },
       vertexShader: `
         uniform float uTime;
@@ -143,6 +144,7 @@ export function createEnergyPulseRing(scene, options = {}) {
         uniform float uTime;
         uniform vec3 uColor;
         uniform float uWaveIndex;
+        uniform float uMaxRadius;
 
         varying vec3 vPosition;
         varying vec3 vNormal;
@@ -161,7 +163,7 @@ export function createEnergyPulseRing(scene, options = {}) {
           vec3 color = uColor * (1.0 + intensity * 4.0);
 
           // 透明度渐变
-          float alpha = intensity * 0.6 * (1.0 - smoothstep(0.0, maxRadius, length(vPosition)));
+          float alpha = intensity * 0.6 * (1.0 - smoothstep(0.0, uMaxRadius, length(vPosition)));
 
           gl_FragColor = vec4(color, alpha);
         }
