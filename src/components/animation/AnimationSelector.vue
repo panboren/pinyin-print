@@ -76,7 +76,11 @@ const animationOptions = ref([
   { value: 'butterfly-swarm', label: '🦋 蝴蝶飞舞' },
   { value: 'ocean-aurora', label: '🌊 海洋极光' },
   { value: 'galaxy-vortex', label: '🌌 银河漩涡' },
-  { value: 'aurora-fluid', label: '🎭 极光流体' }
+  { value: 'aurora-fluid', label: '🎭 极光流体' },
+  { value: 'nebula-vortex', label: '🌌 星云漩涡' },
+  { value: 'quantum-rainbow-tunnel', label: '🌈 量子彩虹隧道' },
+  { value: 'energy-pulse-ring', label: '💥 能量脉冲环' },
+  { value: 'light-wings', label: '🪽 光之羽翼' }
 ])
 
 

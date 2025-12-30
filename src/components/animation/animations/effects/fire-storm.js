@@ -97,31 +97,31 @@ export function createFireStorm(scene, options = {}) {
       uColor2: { value: color2 }
     },
     vertexShader: `
-      varying vec3 vNormal;
-      void main() {
-        vNormal = normalize(normalMatrix * normal);
-        gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
-      }
-    `,
+        varying vec3 vNormal;
+        void main() {
+          vNormal = normalize(vec3(normalMatrix * vec4(normal, 0.0)));
+          gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
+        }
+      `,
     fragmentShader: `
       uniform float uTime;
       uniform vec3 uColor1;
       uniform vec3 uColor2;
       varying vec3 vNormal;
-      
+
       // 简单噪声
       float random(vec2 st) {
         return fract(sin(dot(st.xy, vec2(12.9898,78.233))) * 43758.5453123);
       }
-      
+
       void main() {
         float intensity = dot(vNormal, vec3(0.0, 1.0, 0.0));
         vec3 color = mix(uColor1, uColor2, intensity * 0.5 + 0.5);
-        
+
         // 添加动态效果
         float noise = random(vNormal.xy + uTime);
         color *= (0.8 + noise * 0.4);
-        
+
         gl_FragColor = vec4(color, 0.6);
       }
     `,

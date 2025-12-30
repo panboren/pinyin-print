@@ -106,15 +106,15 @@ export function createCherryBlossom(scene, options = {}) {
       varying vec2 vUv;
       varying vec3 vColor;
       varying float vPhase;
-      
+
       void main() {
         vUv = uv;
         vColor = color;
         vPhase = phase;
-        
+
         vec3 pos = position;
         pos *= scale;
-        
+
         vec4 mvPosition = modelViewMatrix * vec4(pos, 1.0);
         gl_PointSize = 30.0 * scale * (300.0 / -mvPosition.z);
         gl_Position = projectionMatrix * mvPosition;
@@ -126,7 +126,7 @@ export function createCherryBlossom(scene, options = {}) {
       varying vec2 vUv;
       varying vec3 vColor;
       varying float vPhase;
-      
+
       void main() {
         vec4 texColor = texture(uTexture, vUv);
         float shimmer = sin(uTime * 2.0 + vPhase) * 0.1 + 0.9;
@@ -158,7 +158,7 @@ export function createCherryBlossom(scene, options = {}) {
     vertexShader: `
       varying vec3 vNormal;
       void main() {
-        vNormal = normalize(normalMatrix * normal);
+        vNormal = normalize(vec3(normalMatrix * vec4(normal, 0.0)));
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,

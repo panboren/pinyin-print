@@ -30,6 +30,11 @@ import animateFireStorm from './fire-storm'
 import animateTunnelEffect from './tunnel-effect'
 import animateCrystalShards from './crystal-shards'
 import animateLightningChain from './lightning-chain'
+import animateNebulaVortex from './nebula-vortex'
+import animateQuantumRainbowTunnel from './quantum-rainbow-tunnel'
+import animateEnergyPulseRing from './energy-pulse-ring'
+import animateLightWings from './light-wings'
+
 
 import { ANIMATION_CONFIG } from './utils'
 import animateCherryBlossom from '@components/animation/animations/cherry-blossom'
@@ -74,7 +79,12 @@ export const animations = {
   'butterfly-swarm': animateButterflySwarm,
   'ocean-aurora': animateOceanAurora,
   'galaxy-vortex': animateGalaxyVortex,
-  'aurora-fluid': animateAuroraFluid
+  'aurora-fluid': animateAuroraFluid,
+
+  'nebula-vortex': animateNebulaVortex,
+  'quantum-rainbow-tunnel': animateQuantumRainbowTunnel,
+  'energy-pulse-ring': animateEnergyPulseRing,
+  'light-wings': animateLightWings
 }
 
 /**

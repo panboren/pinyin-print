@@ -53,37 +53,37 @@ export function createGalaxyVortex(scene, options = {}) {
         varying vec2 vUv;
         varying float vAlpha;
         varying vec3 vPos;
-        
+
         void main() {
           vUv = uv;
           vec3 pos = position;
-          
+
           // 漩涡形状 - 使用径向坐标
           float dist = length(pos.xz);
           float angle = atan(pos.z, pos.x);
-          
+
           // 螺旋扭曲
           float spiral = dist * 0.05;
           angle += spiral + uTime * 0.3 + uBandIndex * 0.2;
-          
+
           // 更新的位置
           pos.x = cos(angle) * dist;
           pos.z = sin(angle) * dist;
-          
+
           // 垂直波动 - 多层波浪
           float wave1 = sin(dist * 0.2 + uTime * 0.5);
           float wave2 = sin(dist * 0.3 + uTime * 0.7 + uBandIndex * 0.1);
           float wave3 = cos(uv.y * 4.0 + uTime * 0.6);
-          
+
           pos.y += (wave1 + wave2 + wave3) * 6.0;
-          
+
           // 距离衰减 - 中心更亮
           float fade = 1.0 - smoothstep(0.0, uGalaxyRadius, dist);  // 🔧 修复：使用 uniform
           pos.y += fade * 15.0;
-          
+
           vAlpha = fade;
           vPos = pos;
-          
+
           gl_Position = projectionMatrix * modelViewMatrix * vec4(pos, 1.0);
         }
       `,
@@ -94,26 +94,26 @@ export function createGalaxyVortex(scene, options = {}) {
         varying vec2 vUv;
         varying float vAlpha;
         varying vec3 vPos;
-        
+
         void main() {
           // 透明度渐变 - 中心亮，边缘淡
           float alpha = vAlpha * 0.45 * (1.0 - abs(vUv.x - 0.5) * 1.6);
-          
+
           // 流动效果 - 更强的对比
           float flow = sin(uTime * 3.0 + vUv.y * 5.0 + vPos.x * 0.05) * 0.25 + 0.85;
-          
+
           // 边缘柔化
           float edge = 1.0 - smoothstep(0.2, 0.4, abs(vUv.x - 0.5));
-          
+
           // 高光效果
           float highlight = pow(flow, 2.5) * 0.4;
-          
+
           // 径向渐变 - 更清晰的颜色
           float radialFade = 1.0 - smoothstep(0.0, 0.8, vUv.y);
-          
+
           vec3 finalColor = uColor * flow + vec3(highlight);
           finalColor *= radialFade;
-          
+
           gl_FragColor = vec4(finalColor, alpha * edge);
         }
       `,
@@ -196,9 +196,9 @@ export function createGalaxyVortex(scene, options = {}) {
     vertexShader: `
       uniform float uTime;
       varying vec3 vNormal;
-      
+
       void main() {
-        vNormal = normalize(normalMatrix * normal);
+        vNormal = normalize(vec3(normalMatrix * vec4(normal, 0.0)));
         gl_Position = projectionMatrix * modelViewMatrix * vec4(position, 1.0);
       }
     `,
@@ -206,7 +206,7 @@ export function createGalaxyVortex(scene, options = {}) {
       uniform float uTime;
       uniform vec3 uColor;
       varying vec3 vNormal;
-      
+
       void main() {
         float intensity = pow(0.7 - dot(vNormal, vec3(0.0, 0.0, 1.0)), 2.0);
         float pulse = sin(uTime * 8.0) * 0.3 + 0.7;
