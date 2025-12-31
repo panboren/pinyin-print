@@ -66,7 +66,7 @@ import CinematicAnimations from '@/components/animation/CinematicAnimations.vue'
 import AnimationSelector from '@/components/animation/AnimationSelector.vue'
 import CameraControls from '@/components/animation/CameraControls.vue'
 import ControlsHint from '@/components/ui/ControlsHint.vue'
-import PanoramaSwitcher from '@components/panorama-switcher.vue'
+import PanoramaSwitcher from '@components/animation/panorama-switcher.vue'
 
 
 // 导入常量和配置
@@ -711,7 +711,6 @@ const handleVisibilityChange = () => {
 const animate = () => {
   try {
     animationId.value = requestAnimationFrame(animate)
-
     // 更新控制器
     if (controls.value) {
       controls.value.update()
@@ -794,7 +793,7 @@ const onAnimationComplete = () => {
     x: targetPosition.x,
     y: targetPosition.y,
     z: targetPosition.z,
-    duration: 2,
+    duration: 0.1,
     ease: 'power2.inOut',
     onUpdate: () => {
       if (camera.value) {
@@ -812,7 +811,7 @@ const onAnimationComplete = () => {
   // 恢复默认 FOV
   gsap.to(camera.value, {
     fov: 75,
-    duration: 1.5,
+    duration: 0.2,
     ease: 'power2.out',
     onUpdate: () => {
       if (camera.value) {
