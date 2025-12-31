@@ -12,19 +12,22 @@
     >
       <span class="arrow">‹</span>
     </button>
-
     <div class="panorama-info">
+      <div class="panorama-description">
+        <!--        {{ currentPanorama.description }}-->
+        <img
+          class="panorama-description-img"
+          :src="currentPanorama.image"
+          :alt="currentPanorama.title"
+        >
+      </div>
       <div class="panorama-title">
         {{ currentPanorama.title }}
-      </div>
-      <div class="panorama-description">
-        {{ currentPanorama.description }}
       </div>
       <div class="panorama-index">
         {{ currentPanoramaIndex + 1 }} / {{ homeOptions.length }}
       </div>
     </div>
-
     <button
       class="switch-button next-button"
       :disabled="isChangingPanorama || homeOptions.length <= 1"
@@ -185,7 +188,7 @@ onMounted(() => {
   gap: 20px;
   background: rgba(0, 0, 0, 0.6);
   backdrop-filter: blur(10px);
-  padding: 12px 24px;
+  padding: 8px 15px;
   border-radius: 50px;
   border: 1px solid rgba(255, 255, 255, 0.1);
   z-index: 100;
@@ -247,14 +250,10 @@ onMounted(() => {
   gap: 4px;
   min-width: 200px;
 
-  .panorama-title {
-    color: white;
-    font-size: 16px;
-    font-weight: 600;
-    text-align: center;
-  }
+
 
   .panorama-description {
+    position: relative;
     color: rgba(255, 255, 255, 0.7);
     font-size: 12px;
     text-align: center;
@@ -262,12 +261,26 @@ onMounted(() => {
     overflow: hidden;
     text-overflow: ellipsis;
     white-space: nowrap;
+    .panorama-description-img{
+      display: inline-block;
+      width: 150px;
+      height: 80px;
+      border-radius: 5px;
+    }
   }
-
+  .panorama-title {
+    position: absolute;
+    top: 30%;
+    color: white;
+    font-size: 16px;
+    font-weight: 600;
+    text-align: center;
+  }
   .panorama-index {
-    color: rgba(255, 255, 255, 0.5);
-    font-size: 11px;
-    margin-top: 4px;
+    position: absolute;
+    bottom: 20px;
+    color: rgb(63, 194, 217);
+    font-size: 16px;
   }
 }
 // 移动端优化
