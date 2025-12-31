@@ -27,21 +27,21 @@ export default function animateHyperspaceWarpDrive(props, callbacks) {
       controls
     )
 
-    // 创建曲速引擎特效
+    // 创建曲速引擎特效 - 青春色彩
     const warpEngine = createWarpEngine(scene, {
       engineCount: 4,
       maxPower: 100,
       trailLength: 200
     })
 
-    // 创建星云走廊
+    // 创建星云走廊 - 青春色彩
     const nebulaCorridor = createNebulaCorridor(scene, {
       length: 400,
       sectionCount: 50,
-      particleCount: 20000
+      particleCount: 8000
     })
 
-    // 创建时空扭曲场
+    // 创建时空扭曲场 - 青春色彩
     const spacetimeWarp = createSpacetimeWarp(scene, {
       warpRadius: 80,
       distortionStrength: 5
@@ -219,7 +219,7 @@ export default function animateHyperspaceWarpDrive(props, callbacks) {
 }
 
 /**
- * 创建曲速引擎特效
+ * 创建曲速引擎特效 - 青春色彩
  */
 function createWarpEngine(scene, options) {
   const {
@@ -235,12 +235,12 @@ function createWarpEngine(scene, options) {
   const engineMaterials = []
   const trails = []
 
-  // 引擎核心颜色
+  // 引擎核心颜色 - 青春色彩
   const engineColors = [
+    new THREE.Color(0xFF1493), // 深粉色
     new THREE.Color(0x00FFFF), // 青色
-    new THREE.Color(0xFF00FF), // 品红
-    new THREE.Color(0xFFFF00), // 黄色
-    new THREE.Color(0x00FF00)  // 绿色
+    new THREE.Color(0x00FF00), // 绿色
+    new THREE.Color(0xFFFF00)  // 黄色
   ]
 
   for (let i = 0; i < engineCount; i++) {
@@ -249,7 +249,7 @@ function createWarpEngine(scene, options) {
     const coreMaterial = new THREE.MeshBasicMaterial({
       color: engineColors[i],
       emissive: engineColors[i],
-      emissiveIntensity: 2,
+      emissiveIntensity: 2.5, // 增强发光效果
       transparent: true
     })
     const core = new THREE.Mesh(coreGeometry, coreMaterial)
@@ -268,7 +268,7 @@ function createWarpEngine(scene, options) {
     engines.push(core)
     engineMaterials.push(coreMaterial)
 
-    // 引擎尾迹
+    // 引擎尾迹 - 青春色彩
     const trailGeometry = new THREE.BufferGeometry()
     const trailPositions = new Float32Array(trailLength * 3)
     const trailColors = new Float32Array(trailLength * 3)
@@ -293,7 +293,7 @@ function createWarpEngine(scene, options) {
     trailGeometry.setAttribute('size', new THREE.BufferAttribute(trailSizes, 1))
 
     const trailMaterial = new THREE.PointsMaterial({
-      size: 2,
+      size: 2.5, // 增大粒子尺寸
       vertexColors: true,
       transparent: true,
       blending: THREE.AdditiveBlending,
@@ -339,7 +339,7 @@ function createWarpEngine(scene, options) {
         })
 
         gsap.to(engineMaterials[i], {
-          emissiveIntensity: 5,
+          emissiveIntensity: 6, // 增强发光效果
           duration: 0.3,
           ease: 'power2.in'
         })
@@ -421,7 +421,7 @@ function createWarpEngine(scene, options) {
 }
 
 /**
- * 创建星云走廊
+ * 创建星云走廊 - 青春色彩
  */
 function createNebulaCorridor(scene, options) {
   const {
@@ -433,19 +433,21 @@ function createNebulaCorridor(scene, options) {
   const group = new THREE.Group()
   scene.add(group)
 
-  // 星云粒子系统
+  // 星云粒子系统 - 青春色彩
   const geometry = new THREE.BufferGeometry()
   const positions = new Float32Array(particleCount * 3)
   const colors = new Float32Array(particleCount * 3)
   const velocities = new Float32Array(particleCount * 3)
 
-  // 星云颜色（深空色调）
+  // 星云颜色（青春明亮色调）
   const nebulaColors = [
-    new THREE.Color(0x4A0080), // 深紫
-    new THREE.Color(0x0000FF), // 深蓝
-    new THREE.Color(0x0080FF), // 天蓝
+    new THREE.Color(0xFF1493), // 深粉色
+    new THREE.Color(0xFF69B4), // 热粉色
     new THREE.Color(0x00FFFF), // 青色
-    new THREE.Color(0xFF00FF)  // 品红
+    new THREE.Color(0x00FF00), // 绿色
+    new THREE.Color(0xFFFF00), // 黄色
+    new THREE.Color(0xFF00FF), // 品红
+    new THREE.Color(0x9370DB)  // 中紫色
   ]
 
   for (let i = 0; i < particleCount; i++) {
@@ -471,7 +473,7 @@ function createNebulaCorridor(scene, options) {
   geometry.setAttribute('color', new THREE.BufferAttribute(colors, 3))
 
   const material = new THREE.PointsMaterial({
-    size: 1.5,
+    size: 2, // 增大粒子尺寸
     vertexColors: true,
     transparent: true,
     blending: THREE.AdditiveBlending,
@@ -533,7 +535,7 @@ function createNebulaCorridor(scene, options) {
 }
 
 /**
- * 创建时空扭曲场
+ * 创建时空扭曲场 - 青春色彩
  */
 function createSpacetimeWarp(scene, options) {
   const {
@@ -544,19 +546,19 @@ function createSpacetimeWarp(scene, options) {
   const group = new THREE.Group()
   scene.add(group)
 
-  // 扭曲网格
+  // 扭曲网格 - 青春色彩
   const gridGeometry = new THREE.SphereGeometry(warpRadius, 32, 32)
   const gridMaterial = new THREE.MeshBasicMaterial({
-    color: 0xFFFFFF,
+    color: 0xFF1493, // 深粉色
     transparent: true,
-    opacity: 0.1,
+    opacity: 0.2, // 提高透明度
     wireframe: true,
     side: THREE.DoubleSide
   })
   const grid = new THREE.Mesh(gridGeometry, gridMaterial)
   group.add(grid)
 
-  // 扭曲力场线
+  // 扭曲力场线 - 青春色彩
   const fieldLines = []
   const lineCount = 24
 
@@ -575,9 +577,9 @@ function createSpacetimeWarp(scene, options) {
 
     const lineGeometry = new THREE.BufferGeometry().setFromPoints(points)
     const lineMaterial = new THREE.LineBasicMaterial({
-      color: 0x00FFFF,
+      color: 0x00FFFF, // 青色
       transparent: true,
-      opacity: 0.3
+      opacity: 0.4 // 提高透明度
     })
     const line = new THREE.Line(lineGeometry, lineMaterial)
     group.add(line)
@@ -593,7 +595,7 @@ function createSpacetimeWarp(scene, options) {
 
       // 扭曲场激活
       gsap.to(gridMaterial, {
-        opacity: 0.3,
+        opacity: 0.4, // 提高透明度
         duration: 0.5,
         ease: 'power2.in'
       })
@@ -610,7 +612,7 @@ function createSpacetimeWarp(scene, options) {
 
       fieldLines.forEach((line, i) => {
         gsap.to(line.material, {
-          opacity: 0.8,
+          opacity: 0.9, // 提高透明度
           duration: 0.3,
           delay: i * 0.02,
           ease: 'power2.in'
