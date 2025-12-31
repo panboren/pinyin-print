@@ -793,7 +793,7 @@ const onAnimationComplete = () => {
     x: targetPosition.x,
     y: targetPosition.y,
     z: targetPosition.z,
-    duration: 0.1,
+    duration: 1,
     ease: 'power2.inOut',
     onUpdate: () => {
       if (camera.value) {
@@ -811,7 +811,7 @@ const onAnimationComplete = () => {
   // 恢复默认 FOV
   gsap.to(camera.value, {
     fov: 75,
-    duration: 0.1,
+    duration: 1,
     ease: 'power2.out',
     onUpdate: () => {
       if (camera.value) {
