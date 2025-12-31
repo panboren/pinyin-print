@@ -27,11 +27,6 @@ const router = createRouter({
       path: '/page2',
       name: 'page2',
       component: () => import('../views/page2/page2.vue')
-    },
-    {
-      path: '/explosive-demo',
-      name: 'explosive-demo',
-      component: () => import('../views/explosive-demo.vue')
     }
   ],
   scrollBehavior(to, from, savedPosition) {
