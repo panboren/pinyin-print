@@ -12,6 +12,7 @@ declare module 'vue' {
     CinematicAnimations: typeof import('./src/components/animation/CinematicAnimations.vue')['default']
     ControlsHint: typeof import('./src/components/ui/ControlsHint.vue')['default']
     LoadingIndicator: typeof import('./src/components/ui/LoadingIndicator.vue')['default']
+    PanoramaSwitcher: typeof import('./src/components/panorama-switcher.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
     VanButton: typeof import('vant/es')['Button']

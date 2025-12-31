@@ -39,6 +39,25 @@ import animateButterflySwarm from '@components/animation/animations/butterfly-sw
 import animateOceanAurora from '@components/animation/animations/ocean-aurora'
 import animateGalaxyVortex from '@components/animation/animations/galaxy-vortex'
 import animateAuroraFluid from '@components/animation/animations/aurora-fluid'
+import animateNebulaEnergyBurst from '@components/animation/animations/nebula-vortex-open'
+
+import animateQuantumRainbowFoam from '@components/animation/animations/quantum-rainbow-foam'
+
+import animateTimeShards from '@components/animation/animations/time-shards'
+
+
+import animateCosmicParticleSymphony from '@components/animation/animations/cosmic-particle-symphony'
+
+
+
+
+
+
+
+
+
+
+
 
 /**
  * 动画函数映射表
@@ -78,7 +97,11 @@ export const animations = {
   // 新增炸裂特效动画
   'cosmic-supernova': animateCosmicSupernova,
   'quantum-dimension-break': animateQuantumDimensionBreak,
-  'hyperspace-warp-drive': animateHyperspaceWarpDrive
+  'hyperspace-warp-drive': animateHyperspaceWarpDrive,
+  'animate-nebula-energy-burst': animateNebulaEnergyBurst,
+  'quantum-rainbow-foam': animateQuantumRainbowFoam,
+  'time-shards': animateTimeShards,
+  'cosmic-particle-symphony': animateCosmicParticleSymphony
 }
 
 /**

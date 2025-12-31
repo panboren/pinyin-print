@@ -38,23 +38,21 @@
     <!-- 视角控制组件 -->
     <CameraControls @set-camera-view="setCameraView" />
 
+    <!-- 全景图切换器 -->
+    <PanoramaSwitcher
+      v-model="currentPanorama"
+      :is-changing-panorama="isChangingPanorama"
+      @change="switchPanorama"
+    />
+
+    <!-- 控制提示 -->
     <ControlsHint />
   </div>
 </template>
-
 <script setup>
 /**
- * Home View Component - 性能优化版本
- * 主页视图组件，包含3D全景展示和交互控制
- *
- * @component HomeView
- * @author ZOOOW Team
- * @version 2.2.0 - Performance Optimized
- * @license MIT
- * @since 1.0.0
- * @description 该组件负责初始化和管理Three.js场景，包括场景、相机、渲染器
- *              以及用户交互控制。采用组合式API和模块化设计，提高代码可维护性。
- *              性能优化：减少几何体顶点数、限制像素比、优化纹理参数、智能帧率控制
+ * Home View Component - 带全景图切换功能
+ * 主页视图组件，包含3D全景展示、交互控制和全景图切换
  */
 
 import { onMounted, onUnmounted, watch, ref, computed, shallowRef } from 'vue'
@@ -68,9 +66,8 @@ import CinematicAnimations from '@/components/animation/CinematicAnimations.vue'
 import AnimationSelector from '@/components/animation/AnimationSelector.vue'
 import CameraControls from '@/components/animation/CameraControls.vue'
 import ControlsHint from '@/components/ui/ControlsHint.vue'
+import PanoramaSwitcher from '@components/panorama-switcher.vue'
 
-// 导入资源
-import homeImage from '@/assets/image/home1.png'
 
 // 导入常量和配置
 import {
@@ -89,6 +86,19 @@ import { debounce } from '@/utils/performance'
 // 创建日志实例
 const logger = createLogger('HomeView')
 
+// ==================== 全景图配置 ====================
+
+
+
+
+
+
+
+
+
+
+
+
 // ==================== 响应式引用 ====================
 const containerRef = ref(null)
 const canvasRef = ref(null)
@@ -100,6 +110,7 @@ const camera = shallowRef(null)
 const renderer = shallowRef(null)
 const mesh = shallowRef(null)
 const controls = shallowRef(null)
+const texture = shallowRef(null) // 保存当前纹理
 const animationId = ref(null)
 const lastRenderTime = ref(performance.now())
 
@@ -113,6 +124,11 @@ const isInitialized = ref(false)
 // ==================== 计算属性 ====================
 const loadingText = computed(() => '正在加载ZOOOW智慧工具...')
 const loadingProgress = computed(() => '准备进入沉浸式体验')
+
+// 当前全景图索引
+const currentPanorama = ref({})
+const isChangingPanorama = ref(false)
+
 
 // ==================== 性能监控工具 ====================
 const performanceMonitor = {
@@ -270,7 +286,6 @@ const createSphereGeometry = () => {
 
   try {
     // 🔧 性能优化：适度减少球体几何体顶点数
-    // 顶点数：13,200 -> 10,140 (减少 23%)
     const geometry = new THREE.SphereGeometry(500, 70, 35)
 
     // 翻转球体以显示内部
@@ -299,12 +314,13 @@ const createSphereGeometry = () => {
 }
 
 /**
- * 加载纹理 - 内存优化版本
+ * 加载纹理 - 支持切换全景图
+ * @param {string} imageUrl - 全景图URL
  * @returns {Promise<THREE.Texture>} 加载的纹理对象
  */
-const loadTexture = () => {
+const loadTexture = (imageUrl) => {
   return new Promise((resolve, reject) => {
-    logger.info('开始加载纹理')
+    logger.info(`开始加载纹理: ${imageUrl}`)
 
     const textureLoader = new THREE.TextureLoader()
 
@@ -337,6 +353,9 @@ const loadTexture = () => {
           mesh.value.material.map = loadedTexture
           mesh.value.material.needsUpdate = true
         }
+
+        // 保存纹理引用
+        texture.value = loadedTexture
 
         // 动画进入默认视角
         setTimeout(() => {
@@ -371,9 +390,65 @@ const loadTexture = () => {
       }
     }
 
-    textureLoader.load(homeImage, onLoad, onProgress, onError)
+    textureLoader.load(imageUrl, onLoad, onProgress, onError)
   })
 }
+
+/**
+ * 切换全景图
+ * @param {number} index - 全景图索引
+ */
+const switchPanorama = async () => {
+  if (isChangingPanorama.value) {
+    return
+  }
+
+  try {
+    logger.info(`切换全景图: ${currentPanorama.value.title}`)
+    isChangingPanorama.value = true
+    isLoading.value = true
+
+    // 释放旧纹理
+    if (texture.value) {
+      texture.value.dispose()
+      texture.value = null
+    }
+
+    // 加载新纹理
+    const newImageUrl = currentPanorama.value.image
+    await loadTexture(newImageUrl)
+
+    // 获取新全景图的目标位置
+    const targetPosition = currentPanorama.value.target || { x: 0, y: 0, z: 0 }
+
+    // 平滑移动到目标位置
+    gsap.to(camera.value.position, {
+      x: targetPosition.x,
+      y: targetPosition.y,
+      z: targetPosition.z,
+      duration: 2,
+      ease: 'power2.inOut',
+      onUpdate: () => {
+        if (camera.value) {
+          camera.value.lookAt(0, 0, 0)
+          if (controls.value) {
+            controls.value.update()
+          }
+        }
+      }
+    })
+
+    isChangingPanorama.value = false
+    logger.info(`全景图切换完成: ${currentPanorama.value.title}`)
+  } catch (error) {
+    logger.error('切换全景图失败:', error)
+    isChangingPanorama.value = false
+    isLoading.value = false
+  }
+}
+
+
+
 
 /**
  * 创建备用纹理
@@ -580,6 +655,8 @@ const setupEventListeners = () => {
 
   // 页面可见性变化监听
   document.addEventListener('visibilitychange', handleVisibilityChange)
+
+
 }
 
 /**
@@ -703,12 +780,48 @@ const resetAnimation = () => {
 }
 
 /**
- * 动画完成回调
+ * 动画完成回调 - 移动到目标位置
  */
 const onAnimationComplete = () => {
   animationComplete.value = true
-  logger.debug('动画完成')
+  logger.debug('动画完成，移动到目标位置')
+
+  // 获取当前全景图的目标位置
+  const targetPosition = currentPanorama.value.target || { x: 0, y: 0, z: 0 }
+
+  // 使用 GSAP 平滑移动到目标位置
+  gsap.to(camera.value.position, {
+    x: targetPosition.x,
+    y: targetPosition.y,
+    z: targetPosition.z,
+    duration: 2,
+    ease: 'power2.inOut',
+    onUpdate: () => {
+      if (camera.value) {
+        camera.value.lookAt(0, 0, 0)
+        if (controls.value) {
+          controls.value.update()
+        }
+      }
+    },
+    onComplete: () => {
+      logger.info(`已移动到目标位置: (${targetPosition.x}, ${targetPosition.y}, ${targetPosition.z})`)
+    }
+  })
+
+  // 恢复默认 FOV
+  gsap.to(camera.value, {
+    fov: 75,
+    duration: 1.5,
+    ease: 'power2.out',
+    onUpdate: () => {
+      if (camera.value) {
+        camera.value.updateProjectionMatrix()
+      }
+    }
+  })
 }
+
 
 /**
  * 预设视角函数
@@ -830,6 +943,12 @@ const cleanup = () => {
       mesh.value = null
     }
 
+    // 清理纹理
+    if (texture.value) {
+      texture.value.dispose()
+      texture.value = null
+    }
+
     // 清理场景
     if (scene.value) {
       scene.value.clear()
@@ -874,8 +993,8 @@ const initThreeJS = async () => {
     // 设置事件监听器
     setupEventListeners()
 
-    // 加载纹理
-    await loadTexture()
+    // 加载初始纹理
+    await loadTexture(currentPanorama.value.image)
 
     // 启动渲染循环
     animate()
@@ -900,10 +1019,6 @@ onMounted(async () => {
     root.style.setProperty('--primary-color', STYLE_CONFIG.PRIMARY_COLOR)
 
     await initThreeJS()
-
-    // 预加载纹理
-    const textureLoader = new THREE.TextureLoader()
-    textureLoader.load(homeImage)
   } catch (error) {
     logger.error('组件挂载失败:', error)
   }
@@ -924,7 +1039,6 @@ onUnmounted(() => {
   }
 })
 </script>
-
 <style scoped lang="scss">
 .home-content {
   width: 100vw;
@@ -953,5 +1067,7 @@ onUnmounted(() => {
       touch-action: pan-y pinch-zoom;
     }
   }
+
 }
+
 </style>
