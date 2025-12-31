@@ -10,30 +10,27 @@ import animateDizzyCam from './dizzy-cam'
 import animateHyperspace from './hyperspace'
 import animateTimeRift from './time-rift'
 import animatePlanetExplosion from './planet-explosion'
-import animateQuantumEntanglement from './quantum-entanglement'
 import animateVirtualReality from './virtual-reality'
 import animateSceneRoaming from './scene-roaming'
 import animateOrbitalRotation from './orbital-rotation'
 import animateDimensionalPortal from './dimensional-portal'
 import animateTimeTravel from './time-travel'
-import animateBlackHole from './black-hole'
-import animateCosmicBigBang from './cosmic-big-bang'
-import animateDimensionCollapse from './dimension-collapse'
 import animateTimeRewind from './time-rewind'
 import animateSpaceWarp from './space-warp'
-import animateMatrixHack from './matrix-hack'
 import animateQuantumShift from './quantum-shift'
 // 新增特效动画
 import animateParticleExplosion from './particle-explosion'
 import animateGlitchEffect from './glitch-effect'
-import animateFireStorm from './fire-storm'
-import animateTunnelEffect from './tunnel-effect'
 import animateCrystalShards from './crystal-shards'
 import animateLightningChain from './lightning-chain'
 import animateNebulaVortex from './nebula-vortex'
 import animateQuantumRainbowTunnel from './quantum-rainbow-tunnel'
 import animateEnergyPulseRing from './energy-pulse-ring'
 import animateLightWings from './light-wings'
+// 新增炸裂特效动画
+import animateCosmicSupernova from './cosmic-supernova'
+import animateQuantumDimensionBreak from './quantum-dimension-break'
+import animateHyperspaceWarpDrive from './hyperspace-warp-drive'
 
 
 import { ANIMATION_CONFIG } from './utils'
@@ -50,7 +47,6 @@ import animateAuroraFluid from '@components/animation/animations/aurora-fluid'
 export const animations = {
   [ANIMATION_CONFIG.EPIC_DIVE]: animateEpicDive,
   [ANIMATION_CONFIG.SPACE_WARP]: animateSpaceWarp,
-  [ANIMATION_CONFIG.MATRIX_HACK]: animateMatrixHack,
   [ANIMATION_CONFIG.QUANTUM_SHIFT]: animateQuantumShift,
   [ANIMATION_CONFIG.DIMENSION_FOLD]: animateDimensionFold,
   [ANIMATION_CONFIG.ENERGY_WAVE]: animateEnergyWave,
@@ -58,21 +54,15 @@ export const animations = {
   [ANIMATION_CONFIG.HYPERSPACE]: animateHyperspace,
   [ANIMATION_CONFIG.TIME_RIFT]: animateTimeRift,
   [ANIMATION_CONFIG.PLANET_EXPLOSION]: animatePlanetExplosion,
-  [ANIMATION_CONFIG.QUANTUM_ENTANGLEMENT]: animateQuantumEntanglement,
   [ANIMATION_CONFIG.VIRTUAL_REALITY]: animateVirtualReality,
   [ANIMATION_CONFIG.SCENE_ROAMING]: animateSceneRoaming,
   [ANIMATION_CONFIG.ORBITAL_ROTATION]: animateOrbitalRotation,
   [ANIMATION_CONFIG.DIMENSIONAL_PORTAL]: animateDimensionalPortal,
   [ANIMATION_CONFIG.TIME_TRAVEL]: animateTimeTravel,
-  [ANIMATION_CONFIG.BLACK_HOLE]: animateBlackHole,
-  [ANIMATION_CONFIG.COSMIC_BIG_BANG]: animateCosmicBigBang,
-  [ANIMATION_CONFIG.DIMENSION_COLLAPSE]: animateDimensionCollapse,
   [ANIMATION_CONFIG.TIME_REWIND]: animateTimeRewind,
   // 新增特效动画
   'particle-explosion': animateParticleExplosion,
   'glitch-effect': animateGlitchEffect,
-  'fire-storm': animateFireStorm,
-  'tunnel-effect': animateTunnelEffect,
   'crystal-shards': animateCrystalShards,
   'lightning-chain': animateLightningChain,
   'cherry-blossom': animateCherryBlossom,
@@ -84,7 +74,11 @@ export const animations = {
   'nebula-vortex': animateNebulaVortex,
   'quantum-rainbow-tunnel': animateQuantumRainbowTunnel,
   'energy-pulse-ring': animateEnergyPulseRing,
-  'light-wings': animateLightWings
+  'light-wings': animateLightWings,
+  // 新增炸裂特效动画
+  'cosmic-supernova': animateCosmicSupernova,
+  'quantum-dimension-break': animateQuantumDimensionBreak,
+  'hyperspace-warp-drive': animateHyperspaceWarpDrive
 }
 
 /**

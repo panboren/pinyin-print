@@ -10,12 +10,10 @@ declare module 'vue' {
     AnimationSelector: typeof import('./src/components/animation/AnimationSelector.vue')['default']
     CameraControls: typeof import('./src/components/animation/CameraControls.vue')['default']
     CinematicAnimations: typeof import('./src/components/animation/CinematicAnimations.vue')['default']
-    CinematicIntro: typeof import('./src/components/CinematicIntro.vue')['default']
     ControlsHint: typeof import('./src/components/ui/ControlsHint.vue')['default']
-    HelloWorld: typeof import('./src/components/HelloWorld.vue')['default']
     LoadingIndicator: typeof import('./src/components/ui/LoadingIndicator.vue')['default']
     RouterLink: typeof import('vue-router')['RouterLink']
     RouterView: typeof import('vue-router')['RouterView']
-    ViewControls: typeof import('./src/components/animation/ViewControls.vue')['default']
+    VanButton: typeof import('vant/es')['Button']
   }
 }

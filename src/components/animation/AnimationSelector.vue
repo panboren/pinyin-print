@@ -80,7 +80,9 @@ const animationOptions = ref([
   { value: 'nebula-vortex', label: '🌌 星云漩涡' },
   { value: 'quantum-rainbow-tunnel', label: '🌈 量子彩虹隧道' },
   { value: 'energy-pulse-ring', label: '💥 能量脉冲环' },
-  { value: 'light-wings', label: '🪽 光之羽翼' }
+  { value: 'quantum-dimension-break', label: '量子维度分裂动画' },
+  { value: 'cosmic-supernova', label: '宇宙超级新星爆炸动画' },
+  { value: 'hyperspace-warp-drive', label: '超空间曲速驱动动画' }
 ])
 
 
