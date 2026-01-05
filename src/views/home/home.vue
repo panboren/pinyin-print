@@ -61,12 +61,12 @@ import { OrbitControls } from 'three/addons/controls/OrbitControls'
 import { gsap } from 'gsap'
 
 // 导入组件
-import LoadingIndicator from '@/components/ui/LoadingIndicator.vue'
-import CinematicAnimations from '@/components/animation/CinematicAnimations.vue'
-import AnimationSelector from '@/components/animation/AnimationSelector.vue'
-import CameraControls from '@/components/animation/CameraControls.vue'
-import ControlsHint from '@/components/ui/ControlsHint.vue'
-import PanoramaSwitcher from '@components/animation/panorama-switcher.vue'
+import LoadingIndicator from './components/ui/LoadingIndicator.vue'
+import CinematicAnimations from './components/animation/CinematicAnimations.vue'
+import AnimationSelector from './components/animation/AnimationSelector.vue'
+import CameraControls from './components/animation/CameraControls.vue'
+import ControlsHint from './components/ui/ControlsHint.vue'
+import PanoramaSwitcher from './components/animation/panorama-switcher.vue'
 
 
 // 导入常量和配置
@@ -77,11 +77,11 @@ import {
   VIEW_PRESETS,
   PERFORMANCE_CONFIG,
   STYLE_CONFIG
-} from '@/config/constants'
+} from './config/constants'
 
 // 导入工具函数
-import { createLogger } from '@/utils/logger'
-import { debounce } from '@/utils/performance'
+import { createLogger } from './utils/logger'
+import { debounce } from './utils/performance'
 
 // 创建日志实例
 const logger = createLogger('HomeView')

@@ -34,19 +34,21 @@ import animateHyperspaceWarpDrive from './hyperspace-warp-drive'
 
 
 import { ANIMATION_CONFIG } from './utils'
-import animateCherryBlossom from '@components/animation/animations/cherry-blossom'
-import animateButterflySwarm from '@components/animation/animations/butterfly-swarm'
-import animateOceanAurora from '@components/animation/animations/ocean-aurora'
-import animateGalaxyVortex from '@components/animation/animations/galaxy-vortex'
-import animateAuroraFluid from '@components/animation/animations/aurora-fluid'
-import animateNebulaEnergyBurst from '@components/animation/animations/nebula-vortex-open'
-
-import animateQuantumRainbowFoam from '@components/animation/animations/quantum-rainbow-foam'
-
-import animateTimeShards from '@components/animation/animations/time-shards'
 
 
-import animateCosmicParticleSymphony from '@components/animation/animations/cosmic-particle-symphony'
+import animateCherryBlossom from './cherry-blossom'
+import animateButterflySwarm from './butterfly-swarm'
+import animateOceanAurora from './ocean-aurora'
+import animateGalaxyVortex from './galaxy-vortex'
+import animateAuroraFluid from './aurora-fluid'
+import animateNebulaEnergyBurst from './nebula-vortex-open'
+
+import animateQuantumRainbowFoam from './quantum-rainbow-foam'
+
+import animateTimeShards from './time-shards'
+
+
+import animateCosmicParticleSymphony from './cosmic-particle-symphony'
 
 
 
